@@ -1,0 +1,13 @@
+{
+  "itemGroup.noblephantasms": "Example Mod Tab",
+  "block.noblephantasms.example_block": "Example Block",
+  "item.noblephantasms.example_item": "Example Item",
+
+  "noblephantasms.configuration.title": "Noble Phantasms Configs",
+  "noblephantasms.configuration.section.noblephantasms.common.toml": "Noble Phantasms Configs",
+  "noblephantasms.configuration.section.noblephantasms.common.toml.title": "Noble Phantasms Configs",
+  "noblephantasms.configuration.items": "Item List",
+  "noblephantasms.configuration.logDirtBlock": "Log Dirt Block",
+  "noblephantasms.configuration.magicNumberIntroduction": "Magic Number Text",
+  "noblephantasms.configuration.magicNumber": "Magic Number"
+}
