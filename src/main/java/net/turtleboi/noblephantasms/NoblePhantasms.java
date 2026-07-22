@@ -1,6 +1,10 @@
 package net.turtleboi.noblephantasms;
 
 import net.turtleboi.noblephantasms.config.ModConfig;
+import net.turtleboi.noblephantasms.entity.ModEntities;
+import net.turtleboi.noblephantasms.item.ModItems;
+import net.turtleboi.noblephantasms.item.creative.ModCreativeModeTabs;
+import net.turtleboi.noblephantasms.particle.ModParticles;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -22,9 +26,14 @@ public class NoblePhantasms {
     public static final Logger LOGGER = LogUtils.getLogger();
     public NoblePhantasms(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
+
+        ModCreativeModeTabs.register(modEventBus);
+        ModParticles.register(modEventBus);
+        ModEntities.register(modEventBus);
+        ModItems.register(modEventBus);
+
         NeoForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);
-
         modContainer.registerConfig(Type.COMMON, ModConfig.SPEC);
     }
 

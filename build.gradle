@@ -13,9 +13,11 @@ version = mod_version
 group = mod_group_id
 
 sourceSets.main.resources {
-    srcDir('src/generated/resources')
+    srcDir('src/generated/client')
+    srcDir('src/generated/server')
     exclude("**/*.bbmodel")
-    exclude("src/generated/**/.cache")
+    exclude(".cache/**")
+    exclude("**/.cache/**")
 }
 
 repositories {
@@ -47,9 +49,15 @@ neoForge {
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
+        serverData {
+            serverData()
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/server/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+
         data {
             clientData()
-            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+            taskBefore(tasks.named('runServerData'))
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/client/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
         }
 
         configureEach {

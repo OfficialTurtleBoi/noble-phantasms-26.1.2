@@ -1,0 +1,9 @@
+{
+  "values": [
+    {
+      "id": "#minecraft:enchantable/trident",
+      "required": false
+    },
+    "noblephantasms:gungnir"
+  ]
+}

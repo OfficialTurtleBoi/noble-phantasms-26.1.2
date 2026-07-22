@@ -1,0 +1,38 @@
+package net.turtleboi.noblephantasms.item;
+
+import net.minecraft.world.item.Item;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredItem;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.turtleboi.noblephantasms.NoblePhantasms;
+import net.turtleboi.noblephantasms.item.custom.CarnwennanItem;
+import net.turtleboi.noblephantasms.item.custom.ExcaliburItem;
+import net.turtleboi.noblephantasms.item.custom.GungnirItem;
+import net.turtleboi.noblephantasms.item.custom.KhopeshOfRaItem;
+
+public class ModItems {
+    public static final DeferredRegister.Items ITEMS =
+            DeferredRegister.createItems(NoblePhantasms.MOD_ID);
+
+    public static final DeferredItem<Item> EYE_OF_HORUS =
+            ITEMS.registerSimpleItem("eye_of_horus");
+
+    public static final DeferredItem<Item> ANKH =
+            ITEMS.registerSimpleItem("ankh");
+
+    public static final DeferredItem<CarnwennanItem> CARNWENNAN =
+            ITEMS.registerItem("carnwennan", CarnwennanItem::new);
+
+    public static final DeferredItem<ExcaliburItem> EXCALIBUR =
+            ITEMS.registerItem("excalibur", ExcaliburItem::new);
+
+    public static final DeferredItem<GungnirItem> GUNGNIR =
+            ITEMS.registerItem("gungnir", GungnirItem::new);
+
+    public static final DeferredItem<KhopeshOfRaItem> KHOPESH_OF_RA =
+            ITEMS.registerItem("khopesh", KhopeshOfRaItem::new);
+
+    public static void register(IEventBus eventBus) {
+        ITEMS.register(eventBus);
+    }
+}

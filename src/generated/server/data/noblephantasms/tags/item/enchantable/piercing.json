@@ -1,0 +1,9 @@
+{
+  "values": [
+    {
+      "id": "#minecraft:enchantable/crossbow",
+      "required": false
+    },
+    "noblephantasms:gungnir"
+  ]
+}

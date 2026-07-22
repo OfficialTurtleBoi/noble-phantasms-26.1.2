@@ -1,0 +1,13 @@
+{
+  "entries": [
+    {
+      "enum": "net/minecraft/world/item/Rarity",
+      "name": "NOBLEPHANTASMS_LEGENDARY",
+      "constructor": "(ILjava/lang/String;Ljava/util/function/UnaryOperator;)V",
+      "parameters": {
+        "class": "net/turtleboi/noblephantasms/item/ModRarities",
+        "field": "LEGENDARY"
+      }
+    }
+  ]
+}
