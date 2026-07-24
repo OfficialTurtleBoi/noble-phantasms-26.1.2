@@ -21,6 +21,8 @@ public class ModItemTagsProvider extends IntrinsicHolderTagsProvider<Item> {
 
     @Override
     protected void addTags(HolderLookup.Provider registries) {
+        tag(ItemTags.AXES).add(ModItems.BERTILAK.get());
+        tag(ItemTags.SPEARS).add(ModItems.RHONGOMYNIAD.get());
         tag(ItemTags.DURABILITY_ENCHANTABLE).add(ModItems.GUNGNIR.get());
         tag(ItemTags.MELEE_WEAPON_ENCHANTABLE).add(ModItems.GUNGNIR.get());
         tag(LOYALTY_ENCHANTABLE)

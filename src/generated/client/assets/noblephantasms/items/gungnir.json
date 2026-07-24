@@ -4,12 +4,28 @@
     "cases": [
       {
         "model": {
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "noblephantasms:item/gungnir_weapon"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "noblephantasms:item/gungnir_weapon_throwing"
+          },
+          "property": "minecraft:using_item"
+        },
+        "when": [
+          "thirdperson_righthand",
+          "thirdperson_lefthand"
+        ]
+      },
+      {
+        "model": {
           "type": "minecraft:model",
           "model": "noblephantasms:item/gungnir_weapon"
         },
         "when": [
-          "thirdperson_righthand",
-          "thirdperson_lefthand",
           "firstperson_righthand",
           "firstperson_lefthand",
           "fixed"

@@ -1,0 +1,14 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "noblephantasms:item/gjallarhorn"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "noblephantasms:item/gjallarhorn_tooting"
+    },
+    "property": "minecraft:using_item"
+  }
+}

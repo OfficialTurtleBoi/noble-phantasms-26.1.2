@@ -2,9 +2,15 @@
   "required": true,
   "package": "net.turtleboi.noblephantasms.mixin",
   "compatibilityLevel": "JAVA_25",
-  "mixins": [],
+  "mixins": [
+    "LivingEntityMixin"
+  ],
   "client": [
-    "client.ItemInHandRendererMixin"
+    "client.HumanoidMobRendererMixin",
+    "client.ItemInHandRendererMixin",
+    "client.ItemInHandLayerMixin",
+    "client.ItemTransformMixin",
+    "client.SpearAnimationsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

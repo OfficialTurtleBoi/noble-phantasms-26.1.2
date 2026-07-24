@@ -11,9 +11,16 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.turtleboi.noblephantasms.particle.ModParticles;
 
 public class GungnirRuneParticle extends SingleQuadParticle {
     private static final float FADE_START = 0.6F;
+
+    public static void registerProvider(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(ModParticles.GUNGNIR_RUNE.get(), Provider::new);
+    }
+
     private GungnirRuneParticle(ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed,
                                 TextureAtlasSprite sprite, RandomSource random) {
         super(level, x, y, z, xSpeed, ySpeed, zSpeed, sprite);

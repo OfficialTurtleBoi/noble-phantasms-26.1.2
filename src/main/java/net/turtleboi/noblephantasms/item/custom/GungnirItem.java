@@ -57,11 +57,8 @@ public class GungnirItem extends TridentItem {
                 .component(DataComponents.TOOL, TridentItem.createToolProperties())
                 .component(DataComponents.WEAPON, new Weapon(1))
                 .component(DataComponents.ATTACK_RANGE, new AttackRange(2.0F, 5.0F, 2.0F, 7.0F, 0.125F, 0.5F))
-                .component(DataComponents.PIERCING_WEAPON, new PiercingWeapon(
-                        true,
-                        false,
-                        Optional.of(SoundEvents.SPEAR_ATTACK),
-                        Optional.of(SoundEvents.SPEAR_HIT)))
+                .component(DataComponents.PIERCING_WEAPON, new PiercingWeapon(true, false,
+                        Optional.of(SoundEvents.SPEAR_ATTACK), Optional.of(SoundEvents.SPEAR_HIT)))
                 .component(DataComponents.MINIMUM_ATTACK_CHARGE, 1.0F)
                 .component(DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, 23))
                 .attributes(createGungnirAttributes())
@@ -84,21 +81,14 @@ public class GungnirItem extends TridentItem {
             return false;
         }
 
-        Holder<SoundEvent> sound = EnchantmentHelper.pickHighestLevel(
-                itemStack,
+        Holder<SoundEvent> sound = EnchantmentHelper.pickHighestLevel(itemStack,
                 EnchantmentEffectComponents.TRIDENT_SOUND).orElse(SoundEvents.TRIDENT_THROW);
         player.awardStat(Stats.ITEM_USED.get(this));
         if (level instanceof ServerLevel serverLevel) {
             itemStack.hurtWithoutBreaking(1, player);
             ItemStack thrownItemStack = itemStack.consumeAndReturn(1, player);
-            GungnirProjectile projectile = Projectile.spawnProjectileFromRotation(
-                    GungnirProjectile::new,
-                    serverLevel,
-                    thrownItemStack,
-                    player,
-                    0.0F,
-                    PROJECTILE_SHOOT_POWER,
-                    1.0F);
+            GungnirProjectile projectile = Projectile.spawnProjectileFromRotation(GungnirProjectile::new,
+                    serverLevel, thrownItemStack, player, 0.0F, PROJECTILE_SHOOT_POWER, 1.0F);
             if (player.hasInfiniteMaterials()) {
                 projectile.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
             }
@@ -119,11 +109,7 @@ public class GungnirItem extends TridentItem {
     @Override
     public Projectile asProjectile(Level level, Position position, ItemStack itemStack, Direction direction) {
         GungnirProjectile projectile = new GungnirProjectile(
-                level,
-                position.x(),
-                position.y(),
-                position.z(),
-                itemStack.copyWithCount(1));
+                level, position.x(), position.y(), position.z(), itemStack.copyWithCount(1));
         projectile.pickup = AbstractArrow.Pickup.ALLOWED;
         return projectile;
     }
@@ -190,24 +176,15 @@ public class GungnirItem extends TridentItem {
         Vec3 viewVector = player.getViewVector(1.0F).scale(HOMING_RANGE);
         Vec3 endPosition = eyePosition.add(viewVector);
         HitResult blockHitResult = player.level().clipIncludingBorder(new ClipContext(
-                eyePosition,
-                endPosition,
-                ClipContext.Block.COLLIDER,
-                ClipContext.Fluid.NONE,
-                player));
+                eyePosition, endPosition, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
         if (blockHitResult.getType() != HitResult.Type.MISS) {
             endPosition = blockHitResult.getLocation();
         }
 
         AABB searchArea = player.getBoundingBox().expandTowards(viewVector).inflate(1.0);
-        EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(
-                player.level(),
-                player,
-                eyePosition,
-                endPosition,
-                searchArea,
-                entity -> entity instanceof LivingEntity livingTarget && isValidTarget(player, livingTarget),
-                0.0F);
+        EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(player.level(), player, eyePosition,
+                endPosition, searchArea,
+                entity -> entity instanceof LivingEntity livingTarget && isValidTarget(player, livingTarget), 0.0F);
         return entityHitResult != null ? (LivingEntity) entityHitResult.getEntity() : null;
     }
 
@@ -226,16 +203,10 @@ public class GungnirItem extends TridentItem {
     private static ItemAttributeModifiers createGungnirAttributes() {
         return ItemAttributeModifiers.builder()
                 .add(Attributes.ATTACK_DAMAGE,
-                        new AttributeModifier(
-                                BASE_ATTACK_DAMAGE_ID,
-                                8.0,
-                                AttributeModifier.Operation.ADD_VALUE),
+                        new AttributeModifier(BASE_ATTACK_DAMAGE_ID, 8.0, AttributeModifier.Operation.ADD_VALUE),
                         EquipmentSlotGroup.MAINHAND)
-                .add(
-                        Attributes.ATTACK_SPEED,
-                        new AttributeModifier(
-                                BASE_ATTACK_SPEED_ID,
-                                1.0F / 1.15F - 4.0F,
+                .add(Attributes.ATTACK_SPEED,
+                        new AttributeModifier(BASE_ATTACK_SPEED_ID, 1.0F / 1.15F - 4.0F,
                                 AttributeModifier.Operation.ADD_VALUE),
                         EquipmentSlotGroup.MAINHAND)
                 .build();

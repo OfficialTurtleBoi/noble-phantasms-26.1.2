@@ -142,12 +142,7 @@ public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
             double y = Mth.lerp(random.nextDouble(), hitBox.minY, hitBox.maxY);
             double z = Mth.lerp(random.nextDouble(), hitBox.minZ, hitBox.maxZ);
             level().addParticle(ModParticles.GUNGNIR_RUNE.get(),
-                    x,
-                    y,
-                    z,
-                    0.0,
-                    0.005 + random.nextDouble() * 0.005,
-                    0.0);
+                    x, y, z, 0.0, 0.005 + random.nextDouble() * 0.005, 0.0);
         }
     }
 
@@ -263,11 +258,7 @@ public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
 
             if (level() instanceof ServerLevel serverLevel) {
                 EnchantmentHelper.doPostAttackEffectsWithItemSourceOnBreak(
-                        serverLevel,
-                        target,
-                        damageSource,
-                        getWeaponItem(),
-                        weapon -> kill(serverLevel));
+                        serverLevel, target, damageSource, getWeaponItem(), weapon -> kill(serverLevel));
             }
 
             if (target instanceof LivingEntity livingTarget) {
@@ -294,10 +285,8 @@ public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
         }
 
         armor.removeModifier(ARMOR_BYPASS_ID);
-        armor.addTransientModifier(new AttributeModifier(
-                ARMOR_BYPASS_ID,
-                -armor.getValue() * ARMOR_BYPASS_FRACTION,
-                AttributeModifier.Operation.ADD_VALUE));
+        armor.addTransientModifier(new AttributeModifier(ARMOR_BYPASS_ID,
+                -armor.getValue() * ARMOR_BYPASS_FRACTION, AttributeModifier.Operation.ADD_VALUE));
         try {
             return target.hurtOrSimulate(damageSource, damage);
         } finally {
@@ -335,15 +324,9 @@ public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
     @Override
     protected void hitBlockEnchantmentEffects(ServerLevel level, BlockHitResult hitResult, ItemStack weapon) {
         Vec3 hitPosition = hitResult.getBlockPos().clampLocationWithin(hitResult.getLocation());
-        EnchantmentHelper.onHitBlock(
-                level,
-                weapon,
-                getOwner() instanceof LivingEntity livingOwner ? livingOwner : null,
-                this,
-                null,
-                hitPosition,
-                level.getBlockState(hitResult.getBlockPos()),
-                item -> kill(level));
+        EnchantmentHelper.onHitBlock(level, weapon,
+                getOwner() instanceof LivingEntity livingOwner ? livingOwner : null, this, null, hitPosition,
+                level.getBlockState(hitResult.getBlockPos()), item -> kill(level));
     }
 
     @Override
@@ -395,9 +378,10 @@ public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
     }
 
     private byte getLoyaltyFromItem(ItemStack gungnirItem) {
-        return level() instanceof ServerLevel serverLevel ? (byte) Mth.clamp(
-                EnchantmentHelper.getTridentReturnToOwnerAcceleration(serverLevel, gungnirItem, this),
-                0, 127) : 0;
+        return level() instanceof ServerLevel serverLevel
+                ? (byte) Mth.clamp(EnchantmentHelper.getTridentReturnToOwnerAcceleration(
+                        serverLevel, gungnirItem, this), 0, 127)
+                : 0;
     }
 
     @Override

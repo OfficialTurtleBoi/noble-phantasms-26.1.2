@@ -30,10 +30,8 @@ public class ModEnchantmentProvider implements DataProvider {
     public CompletableFuture<?> run(CachedOutput output) {
         try {
             return CompletableFuture.allOf(
-                    generate(output, Enchantments.LOYALTY,
-                            "#" + NoblePhantasms.MOD_ID + ":enchantable/loyalty"),
-                    generate(output, Enchantments.PIERCING,
-                            "#" + NoblePhantasms.MOD_ID + ":enchantable/piercing"));
+                    generate(output, Enchantments.LOYALTY, "#" + NoblePhantasms.MOD_ID + ":enchantable/loyalty"),
+                    generate(output, Enchantments.PIERCING, "#" + NoblePhantasms.MOD_ID + ":enchantable/piercing"));
         } catch (IOException exception) {
             return CompletableFuture.failedFuture(exception);
         }
@@ -44,8 +42,8 @@ public class ModEnchantmentProvider implements DataProvider {
         Identifier enchantmentId = enchantment.identifier();
         Identifier sourceId = Identifier.fromNamespaceAndPath(enchantmentId.getNamespace(),
                 "enchantment/" + enchantmentId.getPath() + ".json");
-        Resource source = resourceManager.getResource(sourceId).orElseThrow(
-                () -> new IOException("Missing vanilla enchantment resource " + sourceId));
+        Resource source = resourceManager.getResource(sourceId)
+                .orElseThrow(() -> new IOException("Missing vanilla enchantment resource " + sourceId));
         JsonObject json;
         try (var reader = source.openAsReader()) {
             json = GsonHelper.parse(reader);

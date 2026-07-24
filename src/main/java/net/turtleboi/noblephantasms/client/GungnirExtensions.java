@@ -7,7 +7,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.turtleboi.noblephantasms.item.ModItems;
 import net.turtleboi.noblephantasms.item.custom.GungnirItem;
 
 public class GungnirExtensions implements IClientItemExtensions {
@@ -19,6 +21,10 @@ public class GungnirExtensions implements IClientItemExtensions {
     private static final float THROW_ROTATION_Z = 5.0F;
     private static final float CHARGE_ROTATION_Y = 30.0F;
     private static final float CHARGE_FORWARD_EXTENSION = 0.15F;
+
+    public static void register(RegisterClientExtensionsEvent event) {
+        event.registerItem(new GungnirExtensions(), ModItems.GUNGNIR.get());
+    }
 
     @Override
     public boolean applyForgeHandTransform(PoseStack poseStack, LocalPlayer player, HumanoidArm arm, ItemStack itemInHand,

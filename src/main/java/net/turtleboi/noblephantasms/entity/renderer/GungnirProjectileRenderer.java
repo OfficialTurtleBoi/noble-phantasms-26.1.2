@@ -9,6 +9,8 @@ import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.turtleboi.noblephantasms.entity.ModEntities;
 import net.turtleboi.noblephantasms.entity.custom.GungnirProjectile;
 import net.turtleboi.noblephantasms.entity.renderer.states.GungnirProjectileRenderState;
 
@@ -21,6 +23,10 @@ public class GungnirProjectileRenderer extends EntityRenderer<GungnirProjectile,
         itemModelResolver = context.getItemModelResolver();
     }
 
+    public static void register(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(ModEntities.GUNGNIR.get(), GungnirProjectileRenderer::new);
+    }
+
     @Override
     public void submit(GungnirProjectileRenderState renderState, PoseStack poseStack,
                        SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
@@ -28,12 +34,8 @@ public class GungnirProjectileRenderer extends EntityRenderer<GungnirProjectile,
         poseStack.mulPose(Axis.YP.rotationDegrees(renderState.yRotation - 90.0F));
         poseStack.mulPose(Axis.ZP.rotationDegrees(renderState.xRotation + 90.0F));
         poseStack.translate(0.0F, MODEL_CHOKE_OFFSET, 0.0F);
-        renderState.item.submit(
-                poseStack,
-                submitNodeCollector,
-                renderState.lightCoords,
-                OverlayTexture.NO_OVERLAY,
-                renderState.outlineColor);
+        renderState.item.submit(poseStack, submitNodeCollector, renderState.lightCoords,
+                OverlayTexture.NO_OVERLAY, renderState.outlineColor);
         poseStack.popPose();
         super.submit(renderState, poseStack, submitNodeCollector, camera);
     }
@@ -48,10 +50,6 @@ public class GungnirProjectileRenderer extends EntityRenderer<GungnirProjectile,
         super.extractRenderState(entity, renderState, partialTick);
         renderState.xRotation = entity.getXRot(partialTick);
         renderState.yRotation = entity.getYRot(partialTick);
-        itemModelResolver.updateForNonLiving(
-                renderState.item,
-                entity.getItem(),
-                ItemDisplayContext.FIXED,
-                entity);
+        itemModelResolver.updateForNonLiving(renderState.item, entity.getItem(), ItemDisplayContext.FIXED, entity);
     }
 }

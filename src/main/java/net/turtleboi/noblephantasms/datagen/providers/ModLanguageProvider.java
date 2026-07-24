@@ -18,13 +18,27 @@ public class ModLanguageProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
         addSimpleItem(ModItems.ANKH);
+        addSimpleItem(ModItems.BERTILAK);
+        addSimpleItem(ModItems.TROPHY_HEAD, "Trophy Head");
         addSimpleItem(ModItems.CARNWENNAN);
         addSimpleItem(ModItems.EXCALIBUR);
+        addSimpleItem(ModItems.GJALLARHORN);
+        addSimpleItem(ModItems.HULIOSHJALMR, "Huliðshjálmr");
         addSimpleItem(ModItems.EYE_OF_HORUS, "Eye of Horus");
         addSimpleItem(ModItems.GUNGNIR);
         addSimpleItem(ModItems.KHOPESH_OF_RA, "Khopesh of Ra");
+        addSimpleItem(ModItems.KUSANAGI_NO_TSURUGI, "Kusanagi-no-Tsurugi");
+        addSimpleItem(ModItems.RHONGOMYNIAD);
 
         add("creativetab.noblephantasms.title", "Noble Phantasms");
+        add("item.noblephantasms.trophy_head.named", "%s Head");
+        add("message.noblephantasms.bertilak.already_bound", "The Covenant is already bound");
+        add("message.noblephantasms.bertilak.bound", "Covenant bound to %s");
+        add("message.noblephantasms.bertilak.broken", "The Covenant has been broken");
+        add("message.noblephantasms.bertilak.cooldown", "The Covenant can be bound again in %s seconds");
+        add("message.noblephantasms.bertilak.fulfilled", "Covenant fulfilled: %s");
+        add("message.noblephantasms.bertilak.target_bound", "That target is already bound by a Covenant");
+        add("effect.noblephantasms.covenant", "Covenant");
         add("noblephantasms.configuration.title", "Noble Phantasms Configs");
         add("noblephantasms.configuration.section.noblephantasms.common.toml", "Noble Phantasms Configs");
         add("noblephantasms.configuration.section.noblephantasms.common.toml.title", "Noble Phantasms Configs");

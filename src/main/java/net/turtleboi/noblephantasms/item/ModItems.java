@@ -5,10 +5,16 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
+import net.turtleboi.noblephantasms.item.custom.BertilakItem;
 import net.turtleboi.noblephantasms.item.custom.CarnwennanItem;
 import net.turtleboi.noblephantasms.item.custom.ExcaliburItem;
+import net.turtleboi.noblephantasms.item.custom.GjallarhornItem;
 import net.turtleboi.noblephantasms.item.custom.GungnirItem;
+import net.turtleboi.noblephantasms.item.custom.HulioshjalmrItem;
 import net.turtleboi.noblephantasms.item.custom.KhopeshOfRaItem;
+import net.turtleboi.noblephantasms.item.custom.KusanagiNoTsurugiItem;
+import net.turtleboi.noblephantasms.item.custom.RhongomyniadItem;
+import net.turtleboi.noblephantasms.item.custom.TrophyHeadItem;
 
 public class ModItems {
     public static final DeferredRegister.Items ITEMS =
@@ -23,14 +29,32 @@ public class ModItems {
     public static final DeferredItem<CarnwennanItem> CARNWENNAN =
             ITEMS.registerItem("carnwennan", CarnwennanItem::new);
 
+    public static final DeferredItem<BertilakItem> BERTILAK =
+            ITEMS.registerItem("bertilak", BertilakItem::new);
+
+    public static final DeferredItem<TrophyHeadItem> TROPHY_HEAD =
+            ITEMS.registerItem("trophy_head", TrophyHeadItem::new);
+
     public static final DeferredItem<ExcaliburItem> EXCALIBUR =
             ITEMS.registerItem("excalibur", ExcaliburItem::new);
 
     public static final DeferredItem<GungnirItem> GUNGNIR =
             ITEMS.registerItem("gungnir", GungnirItem::new);
 
+    public static final DeferredItem<GjallarhornItem> GJALLARHORN =
+            ITEMS.registerItem("gjallarhorn", GjallarhornItem::new);
+
     public static final DeferredItem<KhopeshOfRaItem> KHOPESH_OF_RA =
             ITEMS.registerItem("khopesh", KhopeshOfRaItem::new);
+
+    public static final DeferredItem<KusanagiNoTsurugiItem> KUSANAGI_NO_TSURUGI =
+            ITEMS.registerItem("kusanagi_no_tsurugi", KusanagiNoTsurugiItem::new);
+
+    public static final DeferredItem<RhongomyniadItem> RHONGOMYNIAD =
+            ITEMS.registerItem("rhongomyniad", RhongomyniadItem::new);
+
+    public static final DeferredItem<HulioshjalmrItem> HULIOSHJALMR =
+            ITEMS.registerItem("hulioshjalmr", HulioshjalmrItem::new);
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

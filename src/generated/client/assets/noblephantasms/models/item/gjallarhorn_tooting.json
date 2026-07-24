@@ -1,0 +1,76 @@
+{
+  "parent": "minecraft:item/generated",
+  "display": {
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        115,
+        5
+      ],
+      "scale": [
+        1.5,
+        1.5,
+        1.5
+      ],
+      "translation": [
+        0,
+        -2.5,
+        -7.5
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -55,
+        -5
+      ],
+      "scale": [
+        1.5,
+        1.5,
+        1.5
+      ],
+      "translation": [
+        -1,
+        -2.5,
+        -7.5
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        55,
+        0
+      ],
+      "scale": [
+        0.75,
+        0.75,
+        0.75
+      ],
+      "translation": [
+        -1,
+        2,
+        2
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        -125,
+        0
+      ],
+      "scale": [
+        0.75,
+        0.75,
+        0.75
+      ],
+      "translation": [
+        -1,
+        2,
+        2
+      ]
+    }
+  },
+  "textures": {
+    "layer0": "noblephantasms:item/gjallarhorn"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "parent": "minecraft:item/handheld",
+  "display": {
+    "firstperson_lefthand": {
+      "rotation": [
+        -50,
+        90,
+        15
+      ],
+      "scale": [
+        1.36,
+        1.36,
+        0.68
+      ],
+      "translation": [
+        1.5,
+        3.5,
+        -0.75
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        -20,
+        -90,
+        15
+      ],
+      "scale": [
+        1.36,
+        1.36,
+        0.68
+      ],
+      "translation": [
+        1.5,
+        3.5,
+        -0.75
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        -105,
+        90,
+        45
+      ],
+      "scale": [
+        1.7,
+        1.7,
+        0.85
+      ],
+      "translation": [
+        0,
+        -4.5,
+        0
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        -15,
+        -90,
+        45
+      ],
+      "scale": [
+        1.7,
+        1.7,
+        0.85
+      ],
+      "translation": [
+        0,
+        -4.5,
+        0
+      ]
+    }
+  },
+  "textures": {
+    "layer0": "noblephantasms:item/bertilak_weapon"
+  }
+}

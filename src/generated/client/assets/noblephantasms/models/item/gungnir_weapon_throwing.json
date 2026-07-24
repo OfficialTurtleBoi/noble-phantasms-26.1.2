@@ -1,0 +1,42 @@
+{
+  "parent": "minecraft:item/handheld",
+  "display": {
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        -90,
+        135
+      ],
+      "scale": [
+        2.55,
+        2.55,
+        0.85
+      ],
+      "translation": [
+        0,
+        1.25,
+        1.5
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        -90,
+        -135
+      ],
+      "scale": [
+        2.55,
+        2.55,
+        0.85
+      ],
+      "translation": [
+        0,
+        1.25,
+        1.5
+      ]
+    }
+  },
+  "textures": {
+    "layer0": "noblephantasms:item/gungnir_weapon"
+  }
+}

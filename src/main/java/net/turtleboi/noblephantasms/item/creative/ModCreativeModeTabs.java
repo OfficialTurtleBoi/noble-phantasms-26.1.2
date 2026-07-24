@@ -22,10 +22,15 @@ public class ModCreativeModeTabs {
                             .displayItems((itemDisplayParameters, output) -> {
                                 output.accept(ModItems.EYE_OF_HORUS);
                                 output.accept(ModItems.ANKH);
+                                output.accept(ModItems.BERTILAK);
                                 output.accept(ModItems.CARNWENNAN);
                                 output.accept(ModItems.EXCALIBUR);
+                                output.accept(ModItems.GJALLARHORN);
                                 output.accept(ModItems.GUNGNIR);
                                 output.accept(ModItems.KHOPESH_OF_RA);
+                                output.accept(ModItems.KUSANAGI_NO_TSURUGI);
+                                output.accept(ModItems.RHONGOMYNIAD);
+                                output.accept(ModItems.HULIOSHJALMR);
                             })
                             .build());
 
