@@ -5,16 +5,24 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
+import net.turtleboi.noblephantasms.item.custom.AndvaranautItem;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
+import net.turtleboi.noblephantasms.item.custom.BookOfThothItem;
 import net.turtleboi.noblephantasms.item.custom.CarnwennanItem;
+import net.turtleboi.noblephantasms.item.custom.DraupnirItem;
 import net.turtleboi.noblephantasms.item.custom.ExcaliburItem;
 import net.turtleboi.noblephantasms.item.custom.GjallarhornItem;
 import net.turtleboi.noblephantasms.item.custom.GungnirItem;
+import net.turtleboi.noblephantasms.item.custom.HekaItem;
 import net.turtleboi.noblephantasms.item.custom.HulioshjalmrItem;
 import net.turtleboi.noblephantasms.item.custom.KhopeshOfRaItem;
 import net.turtleboi.noblephantasms.item.custom.KusanagiNoTsurugiItem;
+import net.turtleboi.noblephantasms.item.custom.MegingjordItem;
+import net.turtleboi.noblephantasms.item.custom.NekhakhaItem;
 import net.turtleboi.noblephantasms.item.custom.RhongomyniadItem;
 import net.turtleboi.noblephantasms.item.custom.TrophyHeadItem;
+import net.turtleboi.noblephantasms.item.custom.UchideNoKozuchiItem;
+import net.turtleboi.noblephantasms.item.custom.YamawariItem;
 
 public class ModItems {
     public static final DeferredRegister.Items ITEMS =
@@ -55,6 +63,30 @@ public class ModItems {
 
     public static final DeferredItem<HulioshjalmrItem> HULIOSHJALMR =
             ITEMS.registerItem("hulioshjalmr", HulioshjalmrItem::new);
+
+    public static final DeferredItem<UchideNoKozuchiItem> UCHIDE_NO_KOZUCHI =
+            ITEMS.registerItem("uchide_no_kozuchi", UchideNoKozuchiItem::new);
+
+    public static final DeferredItem<YamawariItem> YAMAWARI =
+            ITEMS.registerItem("yamawari", YamawariItem::new);
+
+    public static final DeferredItem<AndvaranautItem> ANDVARANAUT =
+            ITEMS.registerItem("andvaranaut", AndvaranautItem::new);
+
+    public static final DeferredItem<DraupnirItem> DRAUPNIR =
+            ITEMS.registerItem("draupnir", DraupnirItem::new);
+
+    public static final DeferredItem<MegingjordItem> MEGINGJORD =
+            ITEMS.registerItem("megingjord", MegingjordItem::new);
+
+    public static final DeferredItem<HekaItem> HEKA =
+            ITEMS.registerItem("heka", HekaItem::new);
+
+    public static final DeferredItem<NekhakhaItem> NEKHAKHA =
+            ITEMS.registerItem("nekhakha", NekhakhaItem::new);
+
+    public static final DeferredItem<BookOfThothItem> BOOK_OF_THOTH =
+            ITEMS.registerItem("book_of_thoth", BookOfThothItem::new);
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

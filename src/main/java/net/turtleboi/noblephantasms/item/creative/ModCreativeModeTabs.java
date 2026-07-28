@@ -31,6 +31,14 @@ public class ModCreativeModeTabs {
                                 output.accept(ModItems.KUSANAGI_NO_TSURUGI);
                                 output.accept(ModItems.RHONGOMYNIAD);
                                 output.accept(ModItems.HULIOSHJALMR);
+                                output.accept(ModItems.UCHIDE_NO_KOZUCHI);
+                                output.accept(ModItems.YAMAWARI);
+                                output.accept(ModItems.ANDVARANAUT);
+                                output.accept(ModItems.DRAUPNIR);
+                                output.accept(ModItems.MEGINGJORD);
+                                output.accept(ModItems.HEKA);
+                                output.accept(ModItems.NEKHAKHA);
+                                output.accept(ModItems.BOOK_OF_THOTH);
                             })
                             .build());
 

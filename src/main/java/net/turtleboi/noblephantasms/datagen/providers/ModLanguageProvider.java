@@ -29,6 +29,16 @@ public class ModLanguageProvider extends LanguageProvider {
         addSimpleItem(ModItems.KHOPESH_OF_RA, "Khopesh of Ra");
         addSimpleItem(ModItems.KUSANAGI_NO_TSURUGI, "Kusanagi-no-Tsurugi");
         addSimpleItem(ModItems.RHONGOMYNIAD);
+        addSimpleItem(ModItems.UCHIDE_NO_KOZUCHI, "Uchide no Kozuchi");
+        addSimpleItem(ModItems.YAMAWARI);
+        addSimpleItem(ModItems.ANDVARANAUT);
+        addSimpleItem(ModItems.DRAUPNIR);
+        addSimpleItem(ModItems.MEGINGJORD, "Megingjörð");
+        addSimpleItem(ModItems.HEKA);
+        addSimpleItem(ModItems.NEKHAKHA);
+        addSimpleItem(ModItems.BOOK_OF_THOTH, "Book of Thoth");
+        add("tooltip.noblephantasms.book_of_thoth.reroll", "Turn the page (1 Lapis Lazuli)");
+        add("tooltip.noblephantasms.book_of_thoth.offer", "Book of Thoth reveals:");
 
         add("creativetab.noblephantasms.title", "Noble Phantasms");
         add("item.noblephantasms.trophy_head.named", "%s Head");

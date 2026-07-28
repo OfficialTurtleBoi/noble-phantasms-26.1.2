@@ -3,14 +3,16 @@
   "package": "net.turtleboi.noblephantasms.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "EnchantmentMenuMixin"
   ],
   "client": [
     "client.HumanoidMobRendererMixin",
     "client.ItemInHandRendererMixin",
     "client.ItemInHandLayerMixin",
     "client.ItemTransformMixin",
-    "client.SpearAnimationsMixin"
+    "client.SpearAnimationsMixin",
+    "client.EnchantmentScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

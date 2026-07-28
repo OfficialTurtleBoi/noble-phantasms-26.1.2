@@ -17,7 +17,7 @@ public class ModEquipmentAssetProvider extends EquipmentAssetProvider {
 
     @Override
     protected void registerModels(BiConsumer<ResourceKey<EquipmentAsset>, EquipmentClientInfo> output) {
-        output.accept(ModArmorMaterials.NORSE_KEY, EquipmentClientInfo.builder()
+        output.accept(ModArmorMaterials.NORSE_MYTH_KEY, EquipmentClientInfo.builder()
                 .addLayers(EquipmentClientInfo.LayerType.HUMANOID,
                         new EquipmentClientInfo.Layer(
                                 Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "hulioshjalmr_helmet")))
