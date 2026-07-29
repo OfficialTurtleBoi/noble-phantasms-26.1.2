@@ -25,9 +25,6 @@ public final class ModAttachments {
                     .sync(ByteBufCodecs.BOOL)
                     .build());
 
-    private ModAttachments() {
-    }
-
     public static void register(IEventBus eventBus) {
         ATTACHMENTS.register(eventBus);
     }

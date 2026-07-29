@@ -28,6 +28,8 @@ public class ModModelProvider extends ModelProvider {
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
         itemModels.generateFlatItem(ModItems.ANKH.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.EYE_OF_HORUS.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.SCARAB_OF_KHEPRI.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.SCABBARD.get(), ModelTemplates.FLAT_ITEM);
         generateHornItem(itemModels, ModItems.GJALLARHORN.get());
         itemModels.generateFlatItem(ModItems.HULIOSHJALMR.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.CARNWENNAN.get(), ModelTemplates.FLAT_HANDHELD_ITEM);

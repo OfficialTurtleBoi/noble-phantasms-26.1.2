@@ -22,6 +22,8 @@ public class ModCreativeModeTabs {
                             .displayItems((itemDisplayParameters, output) -> {
                                 output.accept(ModItems.EYE_OF_HORUS);
                                 output.accept(ModItems.ANKH);
+                                output.accept(ModItems.SCARAB_OF_KHEPRI);
+                                output.accept(ModItems.SCABBARD);
                                 output.accept(ModItems.BERTILAK);
                                 output.accept(ModItems.CARNWENNAN);
                                 output.accept(ModItems.EXCALIBUR);

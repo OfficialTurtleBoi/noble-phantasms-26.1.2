@@ -18,6 +18,8 @@ public class ModLanguageProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
         addSimpleItem(ModItems.ANKH);
+        addSimpleItem(ModItems.SCARAB_OF_KHEPRI, "Scarab of Khepri");
+        addSimpleItem(ModItems.SCABBARD, "The Scabbard");
         addSimpleItem(ModItems.BERTILAK);
         addSimpleItem(ModItems.TROPHY_HEAD, "Trophy Head");
         addSimpleItem(ModItems.CARNWENNAN);
@@ -39,6 +41,31 @@ public class ModLanguageProvider extends LanguageProvider {
         addSimpleItem(ModItems.BOOK_OF_THOTH, "Book of Thoth");
         add("tooltip.noblephantasms.book_of_thoth.reroll", "Turn the page (1 Lapis Lazuli)");
         add("tooltip.noblephantasms.book_of_thoth.offer", "Book of Thoth reveals:");
+        add("jei.noblephantasms.info.ankh",
+                "Equip in a Curios charm or compatible totem slot. Fatal damage restores full health, "
+                        + "releases a damaging and blinding radiant burst, and grants 15 seconds of invulnerability. "
+                        + "Reborn prevents another activation for 2 minutes.");
+        add("jei.noblephantasms.info.eye_of_horus",
+                "Equip in a Curios necklace slot. Hold your crosshair on a living target for 2 seconds to apply "
+                        + "Judgement for 15 seconds, making it glow and take 25% more damage from all sources.");
+        add("jei.noblephantasms.info.scarab_of_khepri",
+                "Equip in a Curios charm slot. Repairs each damaged item in your hands and armor slots by "
+                        + "1 durability every 2 seconds.");
+        add("jei.noblephantasms.info.andvaranaut",
+                "Equip in a Curios ring slot. Mob loot drops are doubled, but all damage you take is doubled.");
+        add("jei.noblephantasms.info.draupnir",
+                "Carry Draupnir to generate gold every 30 seconds. Equip it in a Curios ring slot to make piglins "
+                        + "treat you as though you are wearing gold armor.");
+        add("jei.noblephantasms.info.meginjord",
+                "Equip in a Curios belt slot. Grants +4 melee damage, increased knockback and upward launch, "
+                        + "50% block-breaking speed, and immunity to environmental movement penalties.");
+        add("jei.noblephantasms.info.scabbard",
+                "Equip in a Curios belt slot. Constantly regenerates health faster as your health falls and "
+                        + "prevents poison, wither, and bleed effects.");
+        add("jei.noblephantasms.info.book_of_thoth",
+                "Use the Book of Thoth on an enchanting table to install it. "
+                        + "Sneak-right-click the table with an empty hand to remove it. "
+                        + "While installed, it reveals enchantment offers and lets you reroll them for 1 Lapis Lazuli.");
 
         add("creativetab.noblephantasms.title", "Noble Phantasms");
         add("item.noblephantasms.trophy_head.named", "%s Head");
@@ -49,6 +76,8 @@ public class ModLanguageProvider extends LanguageProvider {
         add("message.noblephantasms.bertilak.fulfilled", "Covenant fulfilled: %s");
         add("message.noblephantasms.bertilak.target_bound", "That target is already bound by a Covenant");
         add("effect.noblephantasms.covenant", "Covenant");
+        add("effect.noblephantasms.judgement", "Judgement");
+        add("effect.noblephantasms.reborn", "Reborn");
         add("noblephantasms.configuration.title", "Noble Phantasms Configs");
         add("noblephantasms.configuration.section.noblephantasms.common.toml", "Noble Phantasms Configs");
         add("noblephantasms.configuration.section.noblephantasms.common.toml.title", "Noble Phantasms Configs");

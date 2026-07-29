@@ -6,11 +6,13 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.item.custom.AndvaranautItem;
+import net.turtleboi.noblephantasms.item.custom.AnkhItem;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
 import net.turtleboi.noblephantasms.item.custom.BookOfThothItem;
 import net.turtleboi.noblephantasms.item.custom.CarnwennanItem;
 import net.turtleboi.noblephantasms.item.custom.DraupnirItem;
 import net.turtleboi.noblephantasms.item.custom.ExcaliburItem;
+import net.turtleboi.noblephantasms.item.custom.EyeOfHorusItem;
 import net.turtleboi.noblephantasms.item.custom.GjallarhornItem;
 import net.turtleboi.noblephantasms.item.custom.GungnirItem;
 import net.turtleboi.noblephantasms.item.custom.HekaItem;
@@ -20,6 +22,8 @@ import net.turtleboi.noblephantasms.item.custom.KusanagiNoTsurugiItem;
 import net.turtleboi.noblephantasms.item.custom.MegingjordItem;
 import net.turtleboi.noblephantasms.item.custom.NekhakhaItem;
 import net.turtleboi.noblephantasms.item.custom.RhongomyniadItem;
+import net.turtleboi.noblephantasms.item.custom.ScabbardItem;
+import net.turtleboi.noblephantasms.item.custom.ScarabOfKhepriItem;
 import net.turtleboi.noblephantasms.item.custom.TrophyHeadItem;
 import net.turtleboi.noblephantasms.item.custom.UchideNoKozuchiItem;
 import net.turtleboi.noblephantasms.item.custom.YamawariItem;
@@ -28,11 +32,17 @@ public class ModItems {
     public static final DeferredRegister.Items ITEMS =
             DeferredRegister.createItems(NoblePhantasms.MOD_ID);
 
-    public static final DeferredItem<Item> EYE_OF_HORUS =
-            ITEMS.registerSimpleItem("eye_of_horus");
+    public static final DeferredItem<EyeOfHorusItem> EYE_OF_HORUS =
+            ITEMS.registerItem("eye_of_horus", EyeOfHorusItem::new);
 
-    public static final DeferredItem<Item> ANKH =
-            ITEMS.registerSimpleItem("ankh");
+    public static final DeferredItem<AnkhItem> ANKH =
+            ITEMS.registerItem("ankh", AnkhItem::new);
+
+    public static final DeferredItem<ScarabOfKhepriItem> SCARAB_OF_KHEPRI =
+            ITEMS.registerItem("scarab_of_khepri", ScarabOfKhepriItem::new);
+
+    public static final DeferredItem<ScabbardItem> SCABBARD =
+            ITEMS.registerItem("scabbard", ScabbardItem::new);
 
     public static final DeferredItem<CarnwennanItem> CARNWENNAN =
             ITEMS.registerItem("carnwennan", CarnwennanItem::new);

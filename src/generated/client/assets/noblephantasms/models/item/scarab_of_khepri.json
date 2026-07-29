@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "noblephantasms:item/kusanagi_no_tsurugi_item"
+    "layer0": "noblephantasms:item/scarab_of_khepri"
   }
 }

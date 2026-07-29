@@ -11,6 +11,4 @@ public final class ModRarities {
     public static final EnumProxy<Rarity> LEGENDARY = new EnumProxy<>(Rarity.class, -1, "noblephantasms:legendary",
             (UnaryOperator<Style>) style -> style.withColor(ChatFormatting.GOLD));
 
-    private ModRarities() {
-    }
 }

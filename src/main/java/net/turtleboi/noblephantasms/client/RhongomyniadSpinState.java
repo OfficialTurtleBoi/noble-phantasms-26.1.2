@@ -14,9 +14,6 @@ public final class RhongomyniadSpinState {
     private static final float SHAFT_AXIS = 0.70710677F;
     private static final ThreadLocal<Float> SPIN_DEGREES = ThreadLocal.withInitial(() -> 0.0F);
 
-    private RhongomyniadSpinState() {
-    }
-
     public static void begin(ItemStack itemStack, float timeHeld) {
         begin(itemStack, timeHeld, null);
     }

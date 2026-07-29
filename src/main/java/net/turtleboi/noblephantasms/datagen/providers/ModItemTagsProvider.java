@@ -12,6 +12,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.item.ModItems;
+import net.turtleboi.noblephantasms.tags.ModTags;
 
 public class ModItemTagsProvider extends IntrinsicHolderTagsProvider<Item> {
     public ModItemTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
@@ -31,6 +32,19 @@ public class ModItemTagsProvider extends IntrinsicHolderTagsProvider<Item> {
         tag(PIERCING_ENCHANTABLE)
                 .addOptionalTag(ItemTags.CROSSBOW_ENCHANTABLE)
                 .add(ModItems.GUNGNIR.get());
+        tag(ModTags.Items.CURIOS_RING)
+                .add(ModItems.ANDVARANAUT.get())
+                .add(ModItems.DRAUPNIR.get());
+        tag(ModTags.Items.CURIOS_NECKLACE)
+                .add(ModItems.EYE_OF_HORUS.get());
+        tag(ModTags.Items.CURIOS_BELT)
+                .add(ModItems.MEGINGJORD.get())
+                .add(ModItems.SCABBARD.get());
+        tag(ModTags.Items.CURIOS_CHARM)
+                .add(ModItems.ANKH.get())
+                .add(ModItems.SCARAB_OF_KHEPRI.get());
+        tag(ModTags.Items.CURIOS_TOTEM)
+                .add(ModItems.ANKH.get());
     }
 
     private static final TagKey<Item> LOYALTY_ENCHANTABLE = TagKey.create(Registries.ITEM,

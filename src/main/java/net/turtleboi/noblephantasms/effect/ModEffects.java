@@ -7,6 +7,8 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.effect.custom.CovenantEffect;
+import net.turtleboi.noblephantasms.effect.custom.JudgementEffect;
+import net.turtleboi.noblephantasms.effect.custom.RebornEffect;
 
 public final class ModEffects {
     public static final DeferredRegister<MobEffect> EFFECTS =
@@ -15,8 +17,11 @@ public final class ModEffects {
     public static final DeferredHolder<MobEffect, CovenantEffect> COVENANT =
             EFFECTS.register("covenant", CovenantEffect::new);
 
-    private ModEffects() {
-    }
+    public static final DeferredHolder<MobEffect, RebornEffect> REBORN =
+            EFFECTS.register("reborn", RebornEffect::new);
+
+    public static final DeferredHolder<MobEffect, JudgementEffect> JUDGEMENT =
+            EFFECTS.register("judgement", JudgementEffect::new);
 
     public static void register(IEventBus eventBus) {
         EFFECTS.register(eventBus);
