@@ -15,6 +15,7 @@ import net.turtleboi.noblephantasms.client.model.HulioshjalmrModel;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadRenderer;
 import net.turtleboi.noblephantasms.datagen.ModDatagen;
 import net.turtleboi.noblephantasms.entity.renderer.GungnirProjectileRenderer;
+import net.turtleboi.noblephantasms.entity.renderer.WindCutterRenderer;
 import net.turtleboi.noblephantasms.particle.custom.GungnirRuneParticle;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
@@ -40,6 +41,7 @@ public final class ClientModBusEvents {
     @SubscribeEvent
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         GungnirProjectileRenderer.register(event);
+        WindCutterRenderer.register(event);
     }
 
     @SubscribeEvent

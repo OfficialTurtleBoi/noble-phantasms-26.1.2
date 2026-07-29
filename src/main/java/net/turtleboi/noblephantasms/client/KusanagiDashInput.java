@@ -41,9 +41,7 @@ public final class KusanagiDashInput {
             boolean down = getKey(minecraft.options, direction).isDown();
             if (down && !state.wasDown) {
                 if (state.hasFirstTap && tick - state.lastPressTick <= DOUBLE_TAP_WINDOW_TICKS) {
-                    if (!player.getCooldowns().isOnCooldown(kusanagi)) {
-                        ClientPacketDistributor.sendToServer(new KusanagiDashPayload(direction.id));
-                    }
+                    ClientPacketDistributor.sendToServer(new KusanagiDashPayload(direction.id));
                     state.hasFirstTap = false;
                 } else {
                     state.lastPressTick = tick;
