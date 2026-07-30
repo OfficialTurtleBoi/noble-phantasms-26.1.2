@@ -1,6 +1,8 @@
 package net.turtleboi.noblephantasms;
 
 import net.turtleboi.noblephantasms.attachment.ModAttachments;
+import net.turtleboi.noblephantasms.block.ModBlocks;
+import net.turtleboi.noblephantasms.block.entity.ModBlockEntities;
 import net.turtleboi.noblephantasms.config.ModConfig;
 import net.turtleboi.noblephantasms.entity.ModEntities;
 import net.turtleboi.noblephantasms.effect.ModEffects;
@@ -22,6 +24,8 @@ public class NoblePhantasms {
     public static final String MOD_ID = "noblephantasms";
     public static final Logger LOGGER = LogUtils.getLogger();
     public NoblePhantasms(IEventBus modEventBus, ModContainer modContainer) {
+        ModBlocks.register(modEventBus);
+        ModBlockEntities.register(modEventBus);
         ModCreativeModeTabs.register(modEventBus);
         ModParticles.register(modEventBus);
         ModEntities.register(modEventBus);

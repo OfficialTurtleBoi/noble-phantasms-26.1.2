@@ -12,6 +12,7 @@
     "client.ItemInHandRendererMixin",
     "client.ItemInHandLayerMixin",
     "client.ItemTransformMixin",
+    "client.ModelPartAccessor",
     "client.SpearAnimationsMixin",
     "client.EnchantmentScreenMixin"
   ],

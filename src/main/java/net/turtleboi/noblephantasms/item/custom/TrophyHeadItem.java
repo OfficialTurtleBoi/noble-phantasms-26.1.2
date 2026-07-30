@@ -1,30 +1,77 @@
 package net.turtleboi.noblephantasms.item.custom;
 
+import com.mojang.logging.LogUtils;
+import java.util.Set;
+import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.StandingAndWallBlockItem;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.turtleboi.noblephantasms.item.ModItems;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
 
-public class TrophyHeadItem extends Item {
+public class TrophyHeadItem extends StandingAndWallBlockItem {
     public static final String ENTITY_TYPE_KEY = "EntityType";
-    public TrophyHeadItem(Properties properties) {
-        super(properties.stacksTo(1));
+    public static final String ENTITY_DATA_KEY = "EntityData";
+    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Set<String> NON_APPEARANCE_TAGS = Set.of(
+            "Pos", "Motion", "Rotation", "UUID", "Passengers", "Leash", "Brain", "Attributes",
+            "active_effects", "ArmorItems", "HandItems", "ArmorDropChances", "HandDropChances",
+            "DeathLootTable", "DeathLootTableSeed", "Health", "AbsorptionAmount", "HurtTime",
+            "DeathTime", "Fire", "Air", "FallDistance", "OnGround", "PortalCooldown", "Tags",
+            "equipment", "drop_chances");
+
+    public TrophyHeadItem(Block block, Block wallBlock, Item.Properties properties) {
+        super(block, wallBlock, Direction.DOWN, properties.stacksTo(1));
     }
 
     public static ItemStack create(LivingEntity livingEntity) {
-        ItemStack itemStack = new ItemStack(ModItems.TROPHY_HEAD.get());
         Identifier entityType = BuiltInRegistries.ENTITY_TYPE.getKey(livingEntity.getType());
+        return create(createData(entityType, saveAppearanceData(livingEntity)));
+    }
+
+    public static ItemStack create(Identifier entityType) {
+        return create(createData(entityType));
+    }
+
+    public static ItemStack create(CustomData data) {
+        ItemStack itemStack = new ItemStack(ModItems.TROPHY_HEAD.get());
+        itemStack.set(DataComponents.CUSTOM_DATA, data);
+        return itemStack;
+    }
+
+    public static CustomData createData(Identifier entityType) {
+        return createData(entityType, null);
+    }
+
+    public static CustomData createData(Identifier entityType, @Nullable CompoundTag entityData) {
         CompoundTag tag = new CompoundTag();
         tag.putString(ENTITY_TYPE_KEY, entityType.toString());
-        itemStack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-        return itemStack;
+        if (entityData != null && !entityData.isEmpty()) {
+            tag.put(ENTITY_DATA_KEY, entityData.copy());
+        }
+        return CustomData.of(tag);
+    }
+
+    private static CompoundTag saveAppearanceData(LivingEntity livingEntity) {
+        try (ProblemReporter.ScopedCollector reporter =
+                     new ProblemReporter.ScopedCollector(livingEntity.problemPath(), LOGGER)) {
+            TagValueOutput output = TagValueOutput.createWithContext(reporter, livingEntity.registryAccess());
+            livingEntity.saveWithoutId(output);
+            CompoundTag tag = output.buildResult();
+            NON_APPEARANCE_TAGS.forEach(tag::remove);
+            return tag;
+        }
     }
 
     @Override
@@ -38,11 +85,31 @@ public class TrophyHeadItem extends Item {
     }
 
     public static @Nullable Identifier getEntityType(ItemStack itemStack) {
-        CustomData data = itemStack.get(DataComponents.CUSTOM_DATA);
+        return getEntityType(itemStack.get(DataComponents.CUSTOM_DATA));
+    }
+
+    public static @Nullable Identifier getEntityType(@Nullable CustomData data) {
         if (data == null) {
             return null;
         }
         String value = data.copyTag().getStringOr(ENTITY_TYPE_KEY, "");
         return value.isEmpty() ? null : Identifier.tryParse(value);
+    }
+
+    public static @Nullable TrophyData getTrophyData(ItemStack itemStack) {
+        return getTrophyData(itemStack.get(DataComponents.CUSTOM_DATA));
+    }
+
+    public static @Nullable TrophyData getTrophyData(@Nullable CustomData data) {
+        Identifier entityTypeId = getEntityType(data);
+        return entityTypeId == null || data == null ? null : new TrophyData(entityTypeId, data);
+    }
+
+    public record TrophyData(Identifier entityTypeId, CustomData customData) {
+        public CompoundTag entityData() {
+            return customData.copyTag().getCompound(ENTITY_DATA_KEY)
+                    .map(CompoundTag::copy)
+                    .orElseGet(CompoundTag::new);
+        }
     }
 }

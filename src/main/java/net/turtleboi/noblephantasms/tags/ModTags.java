@@ -38,7 +38,6 @@ public class ModTags {
 
     public static class EntityTypes {
         public static final TagKey<EntityType<?>> BERTILAK_EXECUTION_RESISTANT = createTag("bertilak_execution_resistant");
-        public static final TagKey<EntityType<?>> BERTILAK_TROPHY_EXCLUDED = createTag("bertilak_trophy_excluded");
 
         private static TagKey<EntityType<?>> createTag(String name) {
             return TagKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, name));

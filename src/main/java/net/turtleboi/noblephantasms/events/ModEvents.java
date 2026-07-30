@@ -1,5 +1,6 @@
 package net.turtleboi.noblephantasms.events;
 
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -9,6 +10,8 @@ import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.PistonEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.turtleboi.noblephantasms.NoblePhantasms;
@@ -24,6 +27,7 @@ import net.turtleboi.noblephantasms.item.custom.NekhakhaItem;
 import net.turtleboi.noblephantasms.item.custom.ScabbardItem;
 import net.turtleboi.noblephantasms.item.custom.UchideNoKozuchiItem;
 import net.turtleboi.noblephantasms.item.custom.YamawariItem;
+import net.turtleboi.noblephantasms.world.ArtificialOreSavedData;
 import net.minecraft.world.entity.Mob;
 
 @EventBusSubscriber(modid = NoblePhantasms.MOD_ID)
@@ -96,5 +100,16 @@ public final class ModEvents {
     @SubscribeEvent
     static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         BookOfThothItem.handleTableInteraction(event);
+        UchideNoKozuchiItem.handleRightClickBlock(event);
+    }
+
+    @SubscribeEvent
+    static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
+        ArtificialOreSavedData.handleBlockPlaced(event);
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    static void onPistonMove(PistonEvent.Pre event) {
+        ArtificialOreSavedData.handlePistonMove(event);
     }
 }

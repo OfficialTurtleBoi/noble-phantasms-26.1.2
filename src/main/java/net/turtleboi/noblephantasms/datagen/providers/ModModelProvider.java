@@ -16,6 +16,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.turtleboi.noblephantasms.NoblePhantasms;
+import net.turtleboi.noblephantasms.block.ModBlocks;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadRenderer;
 import net.turtleboi.noblephantasms.item.ModItems;
 
@@ -40,8 +41,15 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ModItems.DRAUPNIR.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.MEGINGJORD.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.BOOK_OF_THOTH.get(), ModelTemplates.FLAT_ITEM);
+        var skullModel = BlockModelGenerators.plainVariant(
+                ModelLocationUtils.decorateBlockModelLocation("skull"));
+        blockModels.blockStateOutput.accept(
+                BlockModelGenerators.createSimpleBlock(ModBlocks.TROPHY_HEAD.get(), skullModel));
+        blockModels.blockStateOutput.accept(
+                BlockModelGenerators.createSimpleBlock(ModBlocks.TROPHY_WALL_HEAD.get(), skullModel));
         itemModels.itemModelOutput.accept(ModItems.TROPHY_HEAD.get(), ItemModelUtils.specialModel(
-                Identifier.withDefaultNamespace("item/template_skull"), new TrophyHeadRenderer.Unbaked()));
+                Identifier.withDefaultNamespace("item/template_skull"),
+                BlockModelGenerators.SKULL_TRANSFORM, new TrophyHeadRenderer.Unbaked()));
         generateBigItem(itemModels, ModItems.BERTILAK.get(), BigItemType.AXE);
         generateBigItem(itemModels, ModItems.EXCALIBUR.get(), BigItemType.SWORD);
         generateBigItem(itemModels, ModItems.GUNGNIR.get(), BigItemType.SPEAR);

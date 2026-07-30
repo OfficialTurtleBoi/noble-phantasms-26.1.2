@@ -9,6 +9,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.turtleboi.noblephantasms.NoblePhantasms;
+import net.turtleboi.noblephantasms.client.BertilakClientUtil;
 import net.turtleboi.noblephantasms.client.KusanagiDashInput;
 
 @Mod(value = NoblePhantasms.MOD_ID, dist = Dist.CLIENT)
@@ -21,5 +22,6 @@ public class ClientEvents {
     @SubscribeEvent
     static void onClientTick(ClientTickEvent.Post event) {
         KusanagiDashInput.tick();
+        BertilakClientUtil.tick();
     }
 }

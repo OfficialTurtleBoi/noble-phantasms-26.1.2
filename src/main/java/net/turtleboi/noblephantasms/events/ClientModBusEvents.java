@@ -13,6 +13,7 @@ import net.turtleboi.noblephantasms.client.GungnirExtensions;
 import net.turtleboi.noblephantasms.client.HulioshjalmrExtensions;
 import net.turtleboi.noblephantasms.client.model.HulioshjalmrModel;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadRenderer;
+import net.turtleboi.noblephantasms.client.renderer.TrophyHeadBlockEntityRenderer;
 import net.turtleboi.noblephantasms.datagen.ModDatagen;
 import net.turtleboi.noblephantasms.entity.renderer.GungnirProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.WindCutterRenderer;
@@ -42,6 +43,7 @@ public final class ClientModBusEvents {
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         GungnirProjectileRenderer.register(event);
         WindCutterRenderer.register(event);
+        TrophyHeadBlockEntityRenderer.register(event);
     }
 
     @SubscribeEvent

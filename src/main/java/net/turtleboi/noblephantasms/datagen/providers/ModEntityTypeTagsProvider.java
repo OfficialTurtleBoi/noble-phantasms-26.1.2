@@ -17,11 +17,5 @@ public class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
     protected void addTags(HolderLookup.Provider registries) {
         tag(ModTags.EntityTypes.BERTILAK_EXECUTION_RESISTANT)
                 .add(EntityType.ENDER_DRAGON, EntityType.WITHER, EntityType.GUARDIAN, EntityType.ELDER_GUARDIAN);
-        tag(ModTags.EntityTypes.BERTILAK_TROPHY_EXCLUDED)
-                .add(EntityType.BEE, EntityType.BLAZE, EntityType.COD, EntityType.ENDERMITE,
-                        EntityType.GHAST, EntityType.HAPPY_GHAST, EntityType.GLOW_SQUID, EntityType.MAGMA_CUBE,
-                        EntityType.PHANTOM, EntityType.PUFFERFISH, EntityType.SALMON, EntityType.SHULKER,
-                        EntityType.SILVERFISH, EntityType.SLIME, EntityType.SQUID, EntityType.STRIDER,
-                        EntityType.TADPOLE, EntityType.TROPICAL_FISH);
     }
 }

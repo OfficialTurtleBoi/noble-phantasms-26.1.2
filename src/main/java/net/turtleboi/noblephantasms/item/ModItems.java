@@ -5,6 +5,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
+import net.turtleboi.noblephantasms.block.ModBlocks;
 import net.turtleboi.noblephantasms.item.custom.AndvaranautItem;
 import net.turtleboi.noblephantasms.item.custom.AnkhItem;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
@@ -51,7 +52,8 @@ public class ModItems {
             ITEMS.registerItem("bertilak", BertilakItem::new);
 
     public static final DeferredItem<TrophyHeadItem> TROPHY_HEAD =
-            ITEMS.registerItem("trophy_head", TrophyHeadItem::new);
+            ITEMS.registerItem("trophy_head", properties -> new TrophyHeadItem(
+                    ModBlocks.TROPHY_HEAD.get(), ModBlocks.TROPHY_WALL_HEAD.get(), properties));
 
     public static final DeferredItem<ExcaliburItem> EXCALIBUR =
             ITEMS.registerItem("excalibur", ExcaliburItem::new);

@@ -8,6 +8,7 @@ import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.turtleboi.noblephantasms.NoblePhantasms;
+import net.turtleboi.noblephantasms.block.ModBlocks;
 import net.turtleboi.noblephantasms.item.ModItems;
 
 public class ModLanguageProvider extends LanguageProvider {
@@ -22,6 +23,7 @@ public class ModLanguageProvider extends LanguageProvider {
         addSimpleItem(ModItems.SCABBARD, "The Scabbard");
         addSimpleItem(ModItems.BERTILAK);
         addSimpleItem(ModItems.TROPHY_HEAD, "Trophy Head");
+        add(ModBlocks.TROPHY_HEAD.get(), "Trophy Head");
         addSimpleItem(ModItems.CARNWENNAN);
         addSimpleItem(ModItems.EXCALIBUR);
         addSimpleItem(ModItems.GJALLARHORN);
