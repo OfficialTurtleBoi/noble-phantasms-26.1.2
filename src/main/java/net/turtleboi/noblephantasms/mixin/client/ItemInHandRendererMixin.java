@@ -20,6 +20,8 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.turtleboi.noblephantasms.client.RhongomyniadSpinState;
+import net.turtleboi.noblephantasms.client.ItemPoseEditor;
+import net.turtleboi.noblephantasms.client.GungnirExtensions;
 import net.turtleboi.noblephantasms.item.custom.GungnirItem;
 import net.turtleboi.noblephantasms.item.custom.RhongomyniadItem;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,10 +33,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemInHandRenderer.class)
 public class ItemInHandRendererMixin {
-    private static final float GUNGNIR_INWARD_ROTATION = 15.0F;
-    private static final float GUNGNIR_DOWNWARD_ROTATION = -15.0F;
-    private static final float GUNGNIR_MAX_EXTENSION = 0.75F;
-    private static final float GUNGNIR_MIN_EXTENSION = -0.5F;
     private final ThrustSwingState gungnirMainHandState = new ThrustSwingState();
     private final ThrustSwingState gungnirOffHandState = new ThrustSwingState();
 
@@ -107,8 +105,8 @@ public class ItemInHandRendererMixin {
 
         ThrustSwingState swingState = hand == InteractionHand.MAIN_HAND ? gungnirMainHandState : gungnirOffHandState;
         applyThrustAdjustment(player, hand, attack, itemStack, poseStack, swingState,
-                GUNGNIR_INWARD_ROTATION, GUNGNIR_DOWNWARD_ROTATION,
-                GUNGNIR_MAX_EXTENSION, GUNGNIR_MIN_EXTENSION);
+                GungnirExtensions.STAB_ROTATION_Z, GungnirExtensions.STAB_ROTATION_X,
+                GungnirExtensions.STAB_TRANSLATION_Y, GungnirExtensions.STAB_MIN_EXTENSION);
     }
 
     @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE",
@@ -125,6 +123,25 @@ public class ItemInHandRendererMixin {
         applyThrustAdjustment(player, hand, attack, itemStack, poseStack, swingState,
                 RHONGOMYNIAD_INWARD_ROTATION, RHONGOMYNIAD_DOWNWARD_ROTATION,
                 RHONGOMYNIAD_MAX_EXTENSION, RHONGOMYNIAD_MIN_EXTENSION);
+    }
+
+    @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/model/effects/SpearAnimations;firstPersonAttack(FLcom/mojang/blaze3d/vertex/PoseStack;ILnet/minecraft/world/entity/HumanoidArm;)V",
+            shift = At.Shift.AFTER))
+    private void previewEditedStab(AbstractClientPlayer player, float frameInterp, float xRot, InteractionHand hand,
+                                   float attack, ItemStack itemStack, float inverseArmHeight, PoseStack poseStack,
+                                   SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo callbackInfo) {
+        HumanoidArm arm = hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
+        ItemPoseEditor.applyFirstPersonAttackPreview(poseStack, hand, itemStack, arm);
+    }
+
+    @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V"))
+    private void previewEditedUse(AbstractClientPlayer player, float frameInterp, float xRot, InteractionHand hand,
+                                  float attack, ItemStack itemStack, float inverseArmHeight, PoseStack poseStack,
+                                  SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo callbackInfo) {
+        HumanoidArm arm = hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
+        ItemPoseEditor.applyFirstPersonUsePreview(poseStack, hand, itemStack, arm);
     }
 
     @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE",

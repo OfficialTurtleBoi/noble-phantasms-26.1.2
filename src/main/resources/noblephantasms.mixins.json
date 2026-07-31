@@ -8,10 +8,15 @@
     "EnchantmentMenuMixin"
   ],
   "client": [
+    "client.AvatarRendererMixin",
     "client.HumanoidMobRendererMixin",
+    "client.IsUsingItemMixin",
     "client.ItemInHandRendererMixin",
     "client.ItemInHandLayerMixin",
+    "client.ItemModelResolverMixin",
+    "client.ItemStackRenderStateMixin",
     "client.ItemTransformMixin",
+    "client.LivingEntityRendererMixin",
     "client.ModelPartAccessor",
     "client.SpearAnimationsMixin",
     "client.EnchantmentScreenMixin"

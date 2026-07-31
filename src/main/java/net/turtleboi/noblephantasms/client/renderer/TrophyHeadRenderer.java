@@ -30,6 +30,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
@@ -45,6 +46,7 @@ import org.slf4j.Logger;
 
 public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData> {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final ThreadLocal<ModelCapture> MODEL_CAPTURE = new ThreadLocal<>();
     private final Map<TrophyData, Optional<HeadRenderData>> heads = new HashMap<>();
 
     public static void register(RegisterSpecialModelRendererEvent event) {
@@ -53,6 +55,15 @@ public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData
 
     public static boolean hasRenderableHead(LivingEntity entity) {
         return createHead(Minecraft.getInstance().getEntityRenderDispatcher(), entity).isPresent();
+    }
+
+    public static boolean captureSelectedModel(EntityModel<?> model) {
+        ModelCapture capture = MODEL_CAPTURE.get();
+        if (capture == null) {
+            return false;
+        }
+        capture.model = model;
+        return true;
     }
 
     @Override
@@ -116,6 +127,9 @@ public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData
         }
 
         loadAppearanceData(livingEntity, trophyData);
+        if (trophyData.hasBabyMarker() && livingEntity instanceof Mob mob) {
+            mob.setBaby(trophyData.isBaby());
+        }
         Optional<HeadRenderData> result =
                 createHead(minecraft.getEntityRenderDispatcher(), livingEntity);
         result.ifPresent(data -> TrophyHeadShapeCache.register(trophyData,
@@ -141,8 +155,8 @@ public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData
             return Optional.empty();
         }
 
-        EntityModel model = livingRenderer.getModel();
         LivingEntityRenderState state = (LivingEntityRenderState) livingRenderer.createRenderState(entity, 0.0F);
+        EntityModel model = selectModel(livingRenderer, state);
         Identifier texture = livingRenderer.getTextureLocation(state);
         List<ModelPartState> originalModelState = model.root().getAllParts().stream()
                 .map(ModelPartState::capture)
@@ -171,6 +185,20 @@ public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData
         return Optional.of(new HeadRenderData(head, model.renderType(texture),
                 bounds.width(), bounds.height(), bounds.depth(),
                 bounds.centerX(), bounds.centerY(), bounds.centerZ()));
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static EntityModel selectModel(LivingEntityRenderer renderer, LivingEntityRenderState state) {
+        ModelCapture capture = new ModelCapture();
+        MODEL_CAPTURE.set(capture);
+        try {
+            renderer.submit(state, new PoseStack(), null, null);
+        } catch (RuntimeException exception) {
+            LOGGER.debug("Could not run entity renderer model selection for a trophy head", exception);
+        } finally {
+            MODEL_CAPTURE.remove();
+        }
+        return capture.model != null ? capture.model : renderer.getModel();
     }
 
     private static ModelPart copyModelPart(ModelPart source) {
@@ -343,6 +371,10 @@ public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData
             part.visible = visible;
             part.skipDraw = skipDraw;
         }
+    }
+
+    private static final class ModelCapture {
+        private EntityModel<?> model;
     }
 
     private record Bounds(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {

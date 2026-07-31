@@ -13,17 +13,33 @@ import net.turtleboi.noblephantasms.item.ModItems;
 import net.turtleboi.noblephantasms.item.custom.GungnirItem;
 
 public class GungnirExtensions implements IClientItemExtensions {
-    private static final float THROW_TRANSLATION_X = -0.15F;
-    private static final float THROW_TRANSLATION_Y = 0.55F;
-    private static final float THROW_TRANSLATION_Z = 0.55F;
-    private static final float THROW_ROTATION_X = -110.0F;
-    private static final float THROW_ROTATION_Y = 25.0F;
-    private static final float THROW_ROTATION_Z = 5.0F;
+    public static final float STAB_TRANSLATION_Y = 0.75F;
+    public static final float STAB_ROTATION_X = -15.0F;
+    public static final float STAB_ROTATION_Z = 15.0F;
+    public static final float STAB_MIN_EXTENSION = -0.5F;
+    static final float THROW_TRANSLATION_X = -0.15F;
+    static final float THROW_TRANSLATION_Y = 0.55F;
+    static final float THROW_TRANSLATION_Z = 0.55F;
+    static final float THROW_ROTATION_X = -110.0F;
+    static final float THROW_ROTATION_Y = 25.0F;
+    static final float THROW_ROTATION_Z = 5.0F;
     private static final float CHARGE_ROTATION_Y = 30.0F;
     private static final float CHARGE_FORWARD_EXTENSION = 0.15F;
 
     public static void register(RegisterClientExtensionsEvent event) {
         event.registerItem(new GungnirExtensions(), ModItems.GUNGNIR.get());
+    }
+
+    public static void applyEditorThrowTransform(PoseStack poseStack, HumanoidArm arm,
+                                                 ItemPoseEditor.Transform transform) {
+        int direction = arm == HumanoidArm.RIGHT ? 1 : -1;
+        poseStack.translate(direction * transform.translationX, transform.translationY, transform.translationZ);
+        poseStack.mulPose(Axis.XP.rotationDegrees(transform.rotationX));
+        poseStack.mulPose(Axis.YP.rotationDegrees(direction * transform.rotationY));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(direction * transform.rotationZ));
+        poseStack.scale(transform.scaleX, transform.scaleY, transform.scaleZ);
+        poseStack.translate(0.0F, 0.0F, CHARGE_FORWARD_EXTENSION);
+        poseStack.mulPose(Axis.YN.rotationDegrees(direction * CHARGE_ROTATION_Y));
     }
 
     @Override

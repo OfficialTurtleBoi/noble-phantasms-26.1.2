@@ -12,6 +12,8 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.KineticWeapon;
 import net.turtleboi.noblephantasms.client.RhongomyniadSpinState;
+import net.turtleboi.noblephantasms.client.BertilakExtensions;
+import net.turtleboi.noblephantasms.item.custom.BertilakItem;
 import net.turtleboi.noblephantasms.item.custom.RhongomyniadItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -50,6 +52,14 @@ public class SpearAnimationsMixin {
         poseStack.mulPose(Axis.ZP.rotationDegrees(direction * RHONGOMYNIAD_JOUST_INWARD_ROTATION * joustProgress));
         poseStack.mulPose(Axis.XP.rotationDegrees(RHONGOMYNIAD_JOUST_DOWNWARD_ROTATION * joustProgress));
         poseStack.translate(0.0F, RHONGOMYNIAD_JOUST_EXTENSION * joustProgress, 0.0F);
+    }
+
+    @Inject(method = "thirdPersonUseItem", at = @At("TAIL"))
+    private static void adjustBertilakCovenant(ArmedEntityRenderState state, PoseStack poseStack, float timeHeld,
+                                               HumanoidArm arm, ItemStack itemStack, CallbackInfo callbackInfo) {
+        if (itemStack.getItem() instanceof BertilakItem) {
+            BertilakExtensions.applyThirdPersonCovenantTransform(poseStack, arm, itemStack, timeHeld);
+        }
     }
 
     @Unique

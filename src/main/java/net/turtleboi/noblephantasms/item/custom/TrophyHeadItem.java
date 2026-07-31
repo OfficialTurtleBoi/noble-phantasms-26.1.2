@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 public class TrophyHeadItem extends StandingAndWallBlockItem {
     public static final String ENTITY_TYPE_KEY = "EntityType";
     public static final String ENTITY_DATA_KEY = "EntityData";
+    public static final String BABY_KEY = "IsBaby";
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Set<String> NON_APPEARANCE_TAGS = Set.of(
             "Pos", "Motion", "Rotation", "UUID", "Passengers", "Leash", "Brain", "Attributes",
@@ -37,7 +38,7 @@ public class TrophyHeadItem extends StandingAndWallBlockItem {
 
     public static ItemStack create(LivingEntity livingEntity) {
         Identifier entityType = BuiltInRegistries.ENTITY_TYPE.getKey(livingEntity.getType());
-        return create(createData(entityType, saveAppearanceData(livingEntity)));
+        return create(createData(entityType, saveAppearanceData(livingEntity), livingEntity.isBaby()));
     }
 
     public static ItemStack create(Identifier entityType) {
@@ -55,8 +56,13 @@ public class TrophyHeadItem extends StandingAndWallBlockItem {
     }
 
     public static CustomData createData(Identifier entityType, @Nullable CompoundTag entityData) {
+        return createData(entityType, entityData, entityData != null && inferBaby(entityData));
+    }
+
+    private static CustomData createData(Identifier entityType, @Nullable CompoundTag entityData, boolean baby) {
         CompoundTag tag = new CompoundTag();
         tag.putString(ENTITY_TYPE_KEY, entityType.toString());
+        tag.putBoolean(BABY_KEY, baby);
         if (entityData != null && !entityData.isEmpty()) {
             tag.put(ENTITY_DATA_KEY, entityData.copy());
         }
@@ -76,10 +82,13 @@ public class TrophyHeadItem extends StandingAndWallBlockItem {
 
     @Override
     public Component getName(ItemStack itemStack) {
-        Identifier entityTypeId = getEntityType(itemStack);
-        if (entityTypeId != null) {
-            var entityType = BuiltInRegistries.ENTITY_TYPE.getValue(entityTypeId);
-            return Component.translatable("item.noblephantasms.trophy_head.named", entityType.getDescription());
+        TrophyData trophyData = getTrophyData(itemStack);
+        if (trophyData != null) {
+            var entityType = BuiltInRegistries.ENTITY_TYPE.getValue(trophyData.entityTypeId());
+            String nameKey = trophyData.isBaby()
+                    ? "item.noblephantasms.trophy_head.baby_named"
+                    : "item.noblephantasms.trophy_head.named";
+            return Component.translatable(nameKey, entityType.getDescription());
         }
         return super.getName(itemStack);
     }
@@ -111,5 +120,22 @@ public class TrophyHeadItem extends StandingAndWallBlockItem {
                     .map(CompoundTag::copy)
                     .orElseGet(CompoundTag::new);
         }
+
+        public boolean hasBabyMarker() {
+            return customData.copyTag().contains(BABY_KEY);
+        }
+
+        public boolean isBaby() {
+            CompoundTag tag = customData.copyTag();
+            return tag.contains(BABY_KEY)
+                    ? tag.getBooleanOr(BABY_KEY, false)
+                    : inferBaby(entityData());
+        }
+    }
+
+    private static boolean inferBaby(CompoundTag entityData) {
+        return entityData.getIntOr("Age", 0) < 0
+                || entityData.getBooleanOr("IsBaby", false)
+                || entityData.getBooleanOr("Baby", false);
     }
 }

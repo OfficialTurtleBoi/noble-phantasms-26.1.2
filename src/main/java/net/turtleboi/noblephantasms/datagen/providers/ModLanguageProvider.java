@@ -71,6 +71,7 @@ public class ModLanguageProvider extends LanguageProvider {
 
         add("creativetab.noblephantasms.title", "Noble Phantasms");
         add("item.noblephantasms.trophy_head.named", "%s Head");
+        add("item.noblephantasms.trophy_head.baby_named", "Baby %s Head");
         add("message.noblephantasms.bertilak.already_bound", "The Covenant is already bound");
         add("message.noblephantasms.bertilak.bound", "Covenant bound to %s");
         add("message.noblephantasms.bertilak.broken", "The Covenant has been broken");
