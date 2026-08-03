@@ -30,6 +30,8 @@ public class ModCreativeModeTabs {
                                 output.accept(ModItems.SCALES_OF_MAAT);
                                 output.accept(ModItems.BOOK_OF_THOTH);
 
+                                output.accept(ModItems.EAGLE_KNIGHT_TALONS);
+
                                 output.accept(ModItems.EXCALIBUR);
                                 output.accept(ModItems.SCABBARD);
                                 output.accept(ModItems.CARNWENNAN);
@@ -44,6 +46,7 @@ public class ModCreativeModeTabs {
                                 output.accept(ModItems.MEGINGJORD);
 
                                 output.accept(ModItems.KUSANAGI_NO_TSURUGI);
+                                output.accept(ModItems.KAZAGURUMA);
                                 output.accept(ModItems.UCHIDE_NO_KOZUCHI);
                                 output.accept(ModItems.YAMAWARI);
 

@@ -27,6 +27,7 @@ public class ModItemTagsProvider extends IntrinsicHolderTagsProvider<Item> {
                 .add(ModItems.EXCALIBUR.get())
                 .add(ModItems.KHOPESH_OF_RA.get())
                 .add(ModItems.KUSANAGI_NO_TSURUGI.get())
+                .add(ModItems.KAZAGURUMA.get())
                 .add(ModItems.HEKA.get())
                 .add(ModItems.NEKHAKHA.get());
         tag(ItemTags.AXES)
@@ -39,7 +40,18 @@ public class ModItemTagsProvider extends IntrinsicHolderTagsProvider<Item> {
                 .add(ModItems.TROPHY_HEAD.get());
         tag(ItemTags.NOTE_BLOCK_TOP_INSTRUMENTS)
                 .add(ModItems.TROPHY_HEAD.get());
+        tag(ItemTags.FOOT_ARMOR)
+                .add(ModItems.EAGLE_KNIGHT_TALONS.get());
+        tag(ItemTags.FOOT_ARMOR_ENCHANTABLE)
+                .add(ModItems.EAGLE_KNIGHT_TALONS.get());
+        tag(ItemTags.ARMOR_ENCHANTABLE)
+                .add(ModItems.EAGLE_KNIGHT_TALONS.get());
+        tag(ItemTags.EQUIPPABLE_ENCHANTABLE)
+                .add(ModItems.EAGLE_KNIGHT_TALONS.get());
+        tag(ItemTags.VANISHING_ENCHANTABLE)
+                .add(ModItems.EAGLE_KNIGHT_TALONS.get());
         tag(ItemTags.DURABILITY_ENCHANTABLE).add(ModItems.GUNGNIR.get());
+        tag(ItemTags.DURABILITY_ENCHANTABLE).add(ModItems.EAGLE_KNIGHT_TALONS.get());
         tag(ItemTags.MELEE_WEAPON_ENCHANTABLE).add(ModItems.GUNGNIR.get());
         tag(LOYALTY_ENCHANTABLE)
                 .addOptionalTag(ItemTags.TRIDENT_ENCHANTABLE)

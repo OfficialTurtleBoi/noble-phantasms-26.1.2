@@ -22,6 +22,11 @@ public class ModEquipmentAssetProvider extends EquipmentAssetProvider {
                         new EquipmentClientInfo.Layer(
                                 Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "hulioshjalmr_helmet")))
                 .build());
+        output.accept(ModArmorMaterials.MESOAMERICAN_MYTH_KEY, EquipmentClientInfo.builder()
+                .addLayers(EquipmentClientInfo.LayerType.HUMANOID,
+                        new EquipmentClientInfo.Layer(
+                                Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "eagle_knight_talons")))
+                .build());
     }
 
     @Override

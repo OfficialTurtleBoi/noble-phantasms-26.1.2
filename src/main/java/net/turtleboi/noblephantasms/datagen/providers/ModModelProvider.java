@@ -11,6 +11,7 @@ import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.renderer.item.properties.select.DisplayContext;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
@@ -34,6 +35,12 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ModItems.SCABBARD.get(), ModelTemplates.FLAT_ITEM);
         generateHornItem(itemModels, ModItems.GJALLARHORN.get());
         itemModels.generateFlatItem(ModItems.HULIOSHJALMR.get(), ModelTemplates.FLAT_ITEM);
+        Identifier talonsModel = ModelTemplates.FLAT_ITEM.create(
+                ModelLocationUtils.getModelLocation(ModItems.EAGLE_KNIGHT_TALONS.get()),
+                TextureMapping.layer0(new Material(Identifier.fromNamespaceAndPath(
+                        NoblePhantasms.MOD_ID, "item/eagle_knight_talons"))), itemModels.modelOutput);
+        itemModels.itemModelOutput.accept(ModItems.EAGLE_KNIGHT_TALONS.get(),
+                ItemModelUtils.plainModel(talonsModel));
         itemModels.generateFlatItem(ModItems.CARNWENNAN.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(ModItems.UCHIDE_NO_KOZUCHI.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(ModItems.HEKA.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
@@ -42,6 +49,7 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ModItems.DRAUPNIR.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.MEGINGJORD.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.BOOK_OF_THOTH.get(), ModelTemplates.FLAT_ITEM);
+        generateKazagurumaItem(itemModels, ModItems.KAZAGURUMA.get());
         var skullModel = BlockModelGenerators.plainVariant(
                 ModelLocationUtils.decorateBlockModelLocation("skull"));
         blockModels.blockStateOutput.accept(
@@ -68,6 +76,17 @@ public class ModModelProvider extends ModelProvider {
         itemModels.itemModelOutput.accept(item, ItemModelUtils.conditional(
                 ItemModelUtils.isUsingItem(), ItemModelUtils.plainModel(tootingModel),
                 ItemModelUtils.plainModel(standardModel)));
+    }
+
+    private static void generateKazagurumaItem(ItemModelGenerators itemModels, Item item) {
+        Identifier standardModel = itemModels.createFlatItemModel(item, ModelTemplates.FLAT_ITEM);
+        Identifier heldModel = itemModels.createFlatItemModel(item, "_held", ModelTemplates.FLAT_HANDHELD_ITEM);
+        var standardItemModel = ItemModelUtils.plainModel(standardModel);
+        var heldItemModel = ItemModelUtils.plainModel(heldModel);
+        itemModels.itemModelOutput.accept(item, ItemModelUtils.select(new DisplayContext(), standardItemModel,
+                ItemModelUtils.when(List.of(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
+                        ItemDisplayContext.THIRD_PERSON_LEFT_HAND, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
+                        ItemDisplayContext.FIRST_PERSON_LEFT_HAND, ItemDisplayContext.FIXED), heldItemModel)));
     }
 
     public enum BigItemType {

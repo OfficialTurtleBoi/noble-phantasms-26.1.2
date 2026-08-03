@@ -33,11 +33,13 @@ public class ModLanguageProvider extends LanguageProvider {
         addSimpleItem(ModItems.GUNGNIR);
         addSimpleItem(ModItems.KHOPESH_OF_RA, "Khopesh of Ra");
         addSimpleItem(ModItems.KUSANAGI_NO_TSURUGI, "Kusanagi-no-Tsurugi");
+        addSimpleItem(ModItems.KAZAGURUMA);
         addSimpleItem(ModItems.RHONGOMYNIAD);
         addSimpleItem(ModItems.UCHIDE_NO_KOZUCHI, "Uchide no Kozuchi");
         addSimpleItem(ModItems.YAMAWARI);
         addSimpleItem(ModItems.ANDVARANAUT);
         addSimpleItem(ModItems.DRAUPNIR);
+        addSimpleItem(ModItems.EAGLE_KNIGHT_TALONS, "Eagle Knight Talons");
         addSimpleItem(ModItems.MEGINGJORD, "Megingjörð");
         addSimpleItem(ModItems.HEKA);
         addSimpleItem(ModItems.NEKHAKHA);
@@ -72,6 +74,13 @@ public class ModLanguageProvider extends LanguageProvider {
                 "Use the Book of Thoth on an enchanting table to install it. "
                         + "Sneak-right-click the table with an empty hand to remove it. "
                         + "While installed, it reveals enchantment offers and lets you reroll them for 1 Lapis Lazuli.");
+        add("jei.noblephantasms.info.eagle_knight_talons",
+                "Crouch while airborne to dive rapidly. Landing creates a 4-block shockwave that deals more damage "
+                        + "the farther you fell, while negating the slam's fall damage.");
+        add("jei.noblephantasms.info.kazaguruma",
+                "Right-click to throw the chained sickle up to 12 blocks. It damages and hooks the first living "
+                        + "target struck, then pulls the target into melee range. "
+                        + "3 second cooldown.");
 
         add("creativetab.noblephantasms.title", "Noble Phantasms");
         add("item.noblephantasms.trophy_head.named", "%s Head");

@@ -21,6 +21,7 @@ public class ModTags {
 
     public static class Items {
         public static final TagKey<Item> NORSE_REPAIRABLE = createTag("norse_repairable");
+        public static final TagKey<Item> MESOAMERICAN_REPAIRABLE = createTag("mesoamerican_repairable");
         public static final TagKey<Item> CURIOS_BELT = createCuriosTag("belt");
         public static final TagKey<Item> CURIOS_CHARM = createCuriosTag("charm");
         public static final TagKey<Item> CURIOS_NECKLACE = createCuriosTag("necklace");

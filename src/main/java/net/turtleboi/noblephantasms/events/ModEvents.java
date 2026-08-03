@@ -7,6 +7,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
@@ -21,6 +22,7 @@ import net.turtleboi.noblephantasms.item.custom.AndvaranautItem;
 import net.turtleboi.noblephantasms.item.custom.AnkhItem;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
 import net.turtleboi.noblephantasms.item.custom.BookOfThothItem;
+import net.turtleboi.noblephantasms.item.custom.EagleKnightTalonsItem;
 import net.turtleboi.noblephantasms.item.custom.HekaItem;
 import net.turtleboi.noblephantasms.item.custom.MegingjordItem;
 import net.turtleboi.noblephantasms.item.custom.NekhakhaItem;
@@ -63,6 +65,11 @@ public final class ModEvents {
     }
 
     @SubscribeEvent
+    static void onLivingFall(LivingFallEvent event) {
+        EagleKnightTalonsItem.handleFall(event);
+    }
+
+    @SubscribeEvent
     static void onMobEffectRemoved(MobEffectEvent.Remove event) {
         CovenantEffect.handleRemoval(event);
     }
@@ -79,6 +86,7 @@ public final class ModEvents {
 
     @SubscribeEvent
     static void onPlayerTick(PlayerTickEvent.Post event) {
+        EagleKnightTalonsItem.handlePlayerTick(event.getEntity());
         HekaItem.handlePlayerTick(event.getEntity());
         NekhakhaItem.handlePlayerTick(event.getEntity());
     }

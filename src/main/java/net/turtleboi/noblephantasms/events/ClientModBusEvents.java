@@ -9,13 +9,16 @@ import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.client.BertilakExtensions;
+import net.turtleboi.noblephantasms.client.EagleKnightTalonsExtensions;
 import net.turtleboi.noblephantasms.client.GungnirExtensions;
 import net.turtleboi.noblephantasms.client.HulioshjalmrExtensions;
 import net.turtleboi.noblephantasms.client.model.HulioshjalmrModel;
+import net.turtleboi.noblephantasms.client.model.EagleKnightTalonsModel;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadBlockEntityRenderer;
 import net.turtleboi.noblephantasms.datagen.ModDatagen;
 import net.turtleboi.noblephantasms.entity.renderer.GungnirProjectileRenderer;
+import net.turtleboi.noblephantasms.entity.renderer.KazagurumaProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.WindCutterRenderer;
 import net.turtleboi.noblephantasms.particle.custom.GungnirRuneParticle;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -30,6 +33,7 @@ public final class ClientModBusEvents {
     @SubscribeEvent
     static void registerClientExtensions(RegisterClientExtensionsEvent event) {
         BertilakExtensions.register(event);
+        EagleKnightTalonsExtensions.register(event);
         GungnirExtensions.register(event);
         HulioshjalmrExtensions.register(event);
     }
@@ -37,11 +41,13 @@ public final class ClientModBusEvents {
     @SubscribeEvent
     static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
         HulioshjalmrModel.registerLayerDefinition(event);
+        EagleKnightTalonsModel.registerLayerDefinition(event);
     }
 
     @SubscribeEvent
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         GungnirProjectileRenderer.register(event);
+        KazagurumaProjectileRenderer.register(event);
         WindCutterRenderer.register(event);
         TrophyHeadBlockEntityRenderer.register(event);
     }

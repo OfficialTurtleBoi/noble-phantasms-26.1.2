@@ -12,6 +12,7 @@ import net.turtleboi.noblephantasms.item.custom.BertilakItem;
 import net.turtleboi.noblephantasms.item.custom.BookOfThothItem;
 import net.turtleboi.noblephantasms.item.custom.CarnwennanItem;
 import net.turtleboi.noblephantasms.item.custom.DraupnirItem;
+import net.turtleboi.noblephantasms.item.custom.EagleKnightTalonsItem;
 import net.turtleboi.noblephantasms.item.custom.ExcaliburItem;
 import net.turtleboi.noblephantasms.item.custom.EyeOfHorusItem;
 import net.turtleboi.noblephantasms.item.custom.GjallarhornItem;
@@ -19,6 +20,7 @@ import net.turtleboi.noblephantasms.item.custom.GungnirItem;
 import net.turtleboi.noblephantasms.item.custom.HekaItem;
 import net.turtleboi.noblephantasms.item.custom.HulioshjalmrItem;
 import net.turtleboi.noblephantasms.item.custom.KhopeshOfRaItem;
+import net.turtleboi.noblephantasms.item.custom.KazagurumaItem;
 import net.turtleboi.noblephantasms.item.custom.KusanagiNoTsurugiItem;
 import net.turtleboi.noblephantasms.item.custom.MegingjordItem;
 import net.turtleboi.noblephantasms.item.custom.NekhakhaItem;
@@ -74,6 +76,9 @@ public class ModItems {
     public static final DeferredItem<KusanagiNoTsurugiItem> KUSANAGI_NO_TSURUGI =
             ITEMS.registerItem("kusanagi_no_tsurugi", KusanagiNoTsurugiItem::new);
 
+    public static final DeferredItem<KazagurumaItem> KAZAGURUMA =
+            ITEMS.registerItem("kazaguruma", KazagurumaItem::new);
+
     public static final DeferredItem<RhongomyniadItem> RHONGOMYNIAD =
             ITEMS.registerItem("rhongomyniad", RhongomyniadItem::new);
 
@@ -91,6 +96,9 @@ public class ModItems {
 
     public static final DeferredItem<DraupnirItem> DRAUPNIR =
             ITEMS.registerItem("draupnir", DraupnirItem::new);
+
+    public static final DeferredItem<EagleKnightTalonsItem> EAGLE_KNIGHT_TALONS =
+            ITEMS.registerItem("eagle_knight_talons", EagleKnightTalonsItem::new);
 
     public static final DeferredItem<MegingjordItem> MEGINGJORD =
             ITEMS.registerItem("megingjord", MegingjordItem::new);

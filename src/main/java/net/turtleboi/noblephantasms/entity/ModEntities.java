@@ -7,6 +7,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.entity.custom.GungnirProjectile;
+import net.turtleboi.noblephantasms.entity.custom.KazagurumaProjectile;
 import net.turtleboi.noblephantasms.entity.custom.WindCutterProjectile;
 
 public class ModEntities {
@@ -21,6 +22,11 @@ public class ModEntities {
     public static final DeferredHolder<EntityType<?>, EntityType<WindCutterProjectile>> WIND_CUTTER =
             ENTITY_TYPES.registerEntityType("wind_cutter", WindCutterProjectile::new, MobCategory.MISC,
                     builder -> builder.noLootTable().sized(0.625F, 2.0F)
+                            .clientTrackingRange(8).updateInterval(1));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<KazagurumaProjectile>> KAZAGURUMA =
+            ENTITY_TYPES.registerEntityType("kazaguruma", KazagurumaProjectile::new, MobCategory.MISC,
+                    builder -> builder.noLootTable().sized(0.5F, 0.5F)
                             .clientTrackingRange(8).updateInterval(1));
 
     public static void register(IEventBus eventBus) {
