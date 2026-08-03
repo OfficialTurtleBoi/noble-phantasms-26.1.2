@@ -24,8 +24,10 @@ public final class NoblePhantasmsJeiPlugin implements IModPlugin {
                 Component.translatable("jei.noblephantasms.info.ankh"));
         registration.addIngredientInfo(ModItems.EYE_OF_HORUS.get(),
                 Component.translatable("jei.noblephantasms.info.eye_of_horus"));
-        registration.addIngredientInfo(ModItems.SCARAB_OF_KHEPRI.get(),
-                Component.translatable("jei.noblephantasms.info.scarab_of_khepri"));
+        registration.addIngredientInfo(ModItems.KHEPER_SCARAB.get(),
+                Component.translatable("jei.noblephantasms.info.kheper_scarab"));
+        registration.addIngredientInfo(ModItems.SCALES_OF_MAAT.get(),
+                Component.translatable("jei.noblephantasms.info.scales_of_maat"));
         registration.addIngredientInfo(ModItems.ANDVARANAUT.get(),
                 Component.translatable("jei.noblephantasms.info.andvaranaut"));
         registration.addIngredientInfo(ModItems.DRAUPNIR.get(),

@@ -7,10 +7,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import top.theillusivec4.curios.api.SlotContext;
 
-public final class ScarabOfKhepriItem extends CurioRelicItem {
+public final class KheperScarabItem extends CurioRelicItem {
     private static final int REPAIR_INTERVAL = 40;
 
-    public ScarabOfKhepriItem(Properties properties) {
+    public KheperScarabItem(Properties properties) {
         super(properties.rarity(Rarity.RARE));
     }
 

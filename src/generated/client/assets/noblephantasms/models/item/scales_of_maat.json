@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "noblephantasms:item/scarab_of_khepri"
+    "layer0": "noblephantasms:item/scales_of_maat"
   }
 }

@@ -22,8 +22,23 @@ public class ModItemTagsProvider extends IntrinsicHolderTagsProvider<Item> {
 
     @Override
     protected void addTags(HolderLookup.Provider registries) {
-        tag(ItemTags.AXES).add(ModItems.BERTILAK.get());
-        tag(ItemTags.SPEARS).add(ModItems.RHONGOMYNIAD.get());
+        tag(ItemTags.SWORDS)
+                .add(ModItems.CARNWENNAN.get())
+                .add(ModItems.EXCALIBUR.get())
+                .add(ModItems.KHOPESH_OF_RA.get())
+                .add(ModItems.KUSANAGI_NO_TSURUGI.get())
+                .add(ModItems.HEKA.get())
+                .add(ModItems.NEKHAKHA.get());
+        tag(ItemTags.AXES)
+                .add(ModItems.BERTILAK.get())
+                .add(ModItems.UCHIDE_NO_KOZUCHI.get())
+                .add(ModItems.YAMAWARI.get());
+        tag(ItemTags.SPEARS)
+                .add(ModItems.RHONGOMYNIAD.get());
+        tag(ItemTags.SKULLS)
+                .add(ModItems.TROPHY_HEAD.get());
+        tag(ItemTags.NOTE_BLOCK_TOP_INSTRUMENTS)
+                .add(ModItems.TROPHY_HEAD.get());
         tag(ItemTags.DURABILITY_ENCHANTABLE).add(ModItems.GUNGNIR.get());
         tag(ItemTags.MELEE_WEAPON_ENCHANTABLE).add(ModItems.GUNGNIR.get());
         tag(LOYALTY_ENCHANTABLE)
@@ -42,7 +57,7 @@ public class ModItemTagsProvider extends IntrinsicHolderTagsProvider<Item> {
                 .add(ModItems.SCABBARD.get());
         tag(ModTags.Items.CURIOS_CHARM)
                 .add(ModItems.ANKH.get())
-                .add(ModItems.SCARAB_OF_KHEPRI.get());
+                .add(ModItems.KHEPER_SCARAB.get());
         tag(ModTags.Items.CURIOS_TOTEM)
                 .add(ModItems.ANKH.get());
     }

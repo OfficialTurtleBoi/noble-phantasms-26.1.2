@@ -8,6 +8,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.item.ModItems;
+import net.turtleboi.noblephantasms.item.custom.TrophyHeadItem;
 
 import java.util.function.Supplier;
 
@@ -20,27 +21,33 @@ public class ModCreativeModeTabs {
                     () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModItems.EYE_OF_HORUS.get()))
                             .title(Component.translatable("creativetab.noblephantasms.title"))
                             .displayItems((itemDisplayParameters, output) -> {
+                                output.accept(ModItems.KHOPESH_OF_RA);
+                                output.accept(ModItems.HEKA);
+                                output.accept(ModItems.NEKHAKHA);
                                 output.accept(ModItems.EYE_OF_HORUS);
                                 output.accept(ModItems.ANKH);
-                                output.accept(ModItems.SCARAB_OF_KHEPRI);
-                                output.accept(ModItems.SCABBARD);
-                                output.accept(ModItems.BERTILAK);
-                                output.accept(ModItems.CARNWENNAN);
+                                output.accept(ModItems.KHEPER_SCARAB);
+                                output.accept(ModItems.SCALES_OF_MAAT);
+                                output.accept(ModItems.BOOK_OF_THOTH);
+
                                 output.accept(ModItems.EXCALIBUR);
-                                output.accept(ModItems.GJALLARHORN);
-                                output.accept(ModItems.GUNGNIR);
-                                output.accept(ModItems.KHOPESH_OF_RA);
-                                output.accept(ModItems.KUSANAGI_NO_TSURUGI);
+                                output.accept(ModItems.SCABBARD);
+                                output.accept(ModItems.CARNWENNAN);
                                 output.accept(ModItems.RHONGOMYNIAD);
+                                output.accept(ModItems.BERTILAK);
+
+                                output.accept(ModItems.GUNGNIR);
+                                output.accept(ModItems.GJALLARHORN);
                                 output.accept(ModItems.HULIOSHJALMR);
-                                output.accept(ModItems.UCHIDE_NO_KOZUCHI);
-                                output.accept(ModItems.YAMAWARI);
                                 output.accept(ModItems.ANDVARANAUT);
                                 output.accept(ModItems.DRAUPNIR);
                                 output.accept(ModItems.MEGINGJORD);
-                                output.accept(ModItems.HEKA);
-                                output.accept(ModItems.NEKHAKHA);
-                                output.accept(ModItems.BOOK_OF_THOTH);
+
+                                output.accept(ModItems.KUSANAGI_NO_TSURUGI);
+                                output.accept(ModItems.UCHIDE_NO_KOZUCHI);
+                                output.accept(ModItems.YAMAWARI);
+
+                                output.accept(TrophyHeadItem.createRandom());
                             })
                             .build());
 

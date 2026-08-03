@@ -4,13 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.EnchantmentScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Inventory;
@@ -89,11 +92,36 @@ public abstract class EnchantmentScreenMixin extends AbstractContainerScreen<Enc
             List<Component> tooltip = new ArrayList<>();
             tooltip.add(Component.translatable("tooltip.noblephantasms.book_of_thoth.offer")
                     .withStyle(ChatFormatting.GOLD));
-            for (EnchantmentInstance enchantment : getOffer(target, slot, this.menu.costs[slot])) {
+            List<EnchantmentInstance> offer = getOffer(target, slot, this.menu.costs[slot]);
+            for (EnchantmentInstance enchantment : offer) {
                 tooltip.add(Enchantment.getFullname(enchantment.enchantment(), enchantment.level())
                         .copy().withStyle(ChatFormatting.WHITE));
             }
-            graphics.setComponentTooltipForNextFrame(this.font, tooltip, mouseX, mouseY);
+            if (offer.isEmpty()) {
+                tooltip.add(CommonComponents.EMPTY);
+                tooltip.add(Component.translatable("neoforge.container.enchant.limitedEnchantability")
+                        .withStyle(ChatFormatting.RED));
+            } else if (!this.minecraft.player.hasInfiniteMaterials()) {
+                tooltip.add(CommonComponents.EMPTY);
+                int lapisCost = slot + 1;
+                if (this.minecraft.player.experienceLevel < this.menu.costs[slot]) {
+                    tooltip.add(Component.translatable("container.enchant.level.requirement", this.menu.costs[slot])
+                            .withStyle(ChatFormatting.RED));
+                } else {
+                    MutableComponent lapisLine = lapisCost == 1
+                            ? Component.translatable("container.enchant.lapis.one")
+                            : Component.translatable("container.enchant.lapis.many", lapisCost);
+                    tooltip.add(lapisLine.withStyle(this.menu.getGoldCount() >= lapisCost
+                            ? ChatFormatting.GRAY : ChatFormatting.RED));
+                    MutableComponent levelLine = lapisCost == 1
+                            ? Component.translatable("container.enchant.level.one")
+                            : Component.translatable("container.enchant.level.many", lapisCost);
+                    tooltip.add(levelLine.withStyle(ChatFormatting.GRAY));
+                }
+            }
+            graphics.setTooltipForNextFrame(this.font,
+                    tooltip.stream().map(Component::getVisualOrderText).toList(),
+                    DefaultTooltipPositioner.INSTANCE, mouseX, mouseY, true);
             return;
         }
     }

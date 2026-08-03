@@ -2,6 +2,7 @@ package net.turtleboi.noblephantasms.block;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -16,6 +17,7 @@ public final class ModBlocks {
 
     public static final DeferredBlock<TrophyHeadBlock> TROPHY_HEAD =
             BLOCKS.registerBlock("trophy_head", TrophyHeadBlock::new, properties -> properties
+                    .instrument(NoteBlockInstrument.CUSTOM_HEAD)
                     .strength(1.0F)
                     .pushReaction(PushReaction.DESTROY)
                     .noOcclusion()

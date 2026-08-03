@@ -24,7 +24,8 @@ import net.turtleboi.noblephantasms.item.custom.MegingjordItem;
 import net.turtleboi.noblephantasms.item.custom.NekhakhaItem;
 import net.turtleboi.noblephantasms.item.custom.RhongomyniadItem;
 import net.turtleboi.noblephantasms.item.custom.ScabbardItem;
-import net.turtleboi.noblephantasms.item.custom.ScarabOfKhepriItem;
+import net.turtleboi.noblephantasms.item.custom.KheperScarabItem;
+import net.turtleboi.noblephantasms.item.custom.ScalesOfMaatItem;
 import net.turtleboi.noblephantasms.item.custom.TrophyHeadItem;
 import net.turtleboi.noblephantasms.item.custom.UchideNoKozuchiItem;
 import net.turtleboi.noblephantasms.item.custom.YamawariItem;
@@ -39,8 +40,11 @@ public class ModItems {
     public static final DeferredItem<AnkhItem> ANKH =
             ITEMS.registerItem("ankh", AnkhItem::new);
 
-    public static final DeferredItem<ScarabOfKhepriItem> SCARAB_OF_KHEPRI =
-            ITEMS.registerItem("scarab_of_khepri", ScarabOfKhepriItem::new);
+    public static final DeferredItem<KheperScarabItem> KHEPER_SCARAB =
+            ITEMS.registerItem("kheper_scarab", KheperScarabItem::new);
+
+    public static final DeferredItem<ScalesOfMaatItem> SCALES_OF_MAAT =
+            ITEMS.registerItem("scales_of_maat", ScalesOfMaatItem::new);
 
     public static final DeferredItem<ScabbardItem> SCABBARD =
             ITEMS.registerItem("scabbard", ScabbardItem::new);

@@ -19,7 +19,8 @@ public class ModLanguageProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
         addSimpleItem(ModItems.ANKH);
-        addSimpleItem(ModItems.SCARAB_OF_KHEPRI, "Scarab of Khepri");
+        addSimpleItem(ModItems.KHEPER_SCARAB, "Kheper Scarab");
+        addSimpleItem(ModItems.SCALES_OF_MAAT, "Scales of Ma'at");
         addSimpleItem(ModItems.SCABBARD, "The Scabbard");
         addSimpleItem(ModItems.BERTILAK);
         addSimpleItem(ModItems.TROPHY_HEAD, "Trophy Head");
@@ -50,9 +51,12 @@ public class ModLanguageProvider extends LanguageProvider {
         add("jei.noblephantasms.info.eye_of_horus",
                 "Equip in a Curios necklace slot. Hold your crosshair on a living target for 2 seconds to apply "
                         + "Judgement for 15 seconds, making it glow and take 25% more damage from all sources.");
-        add("jei.noblephantasms.info.scarab_of_khepri",
+        add("jei.noblephantasms.info.kheper_scarab",
                 "Equip in a Curios charm slot. Repairs each damaged item in your hands and armor slots by "
                         + "1 durability every 2 seconds.");
+        add("jei.noblephantasms.info.scales_of_maat",
+                "Right-click a living target to set your health percentage and theirs to their average. "
+                        + "Bosses can lose at most 10% of their maximum health per use. 30 second cooldown.");
         add("jei.noblephantasms.info.andvaranaut",
                 "Equip in a Curios ring slot. Mob loot drops are doubled, but all damage you take is doubled.");
         add("jei.noblephantasms.info.draupnir",
