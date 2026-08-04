@@ -8,6 +8,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
+import net.neoforged.neoforge.event.entity.living.EffectParticleModificationEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
@@ -18,6 +19,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.effect.custom.CovenantEffect;
 import net.turtleboi.noblephantasms.effect.custom.JudgementEffect;
+import net.turtleboi.noblephantasms.effect.custom.LuminousEffect;
 import net.turtleboi.noblephantasms.item.custom.AndvaranautItem;
 import net.turtleboi.noblephantasms.item.custom.AnkhItem;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
@@ -72,11 +74,15 @@ public final class ModEvents {
     @SubscribeEvent
     static void onMobEffectRemoved(MobEffectEvent.Remove event) {
         CovenantEffect.handleRemoval(event);
+        JudgementEffect.handleRemoval(event);
+        LuminousEffect.handleRemoval(event);
     }
 
     @SubscribeEvent
     static void onMobEffectExpired(MobEffectEvent.Expired event) {
         CovenantEffect.handleExpiration(event);
+        JudgementEffect.handleExpiration(event);
+        LuminousEffect.handleExpiration(event);
     }
 
     @SubscribeEvent
@@ -85,8 +91,14 @@ public final class ModEvents {
     }
 
     @SubscribeEvent
+    static void onEffectParticleModification(EffectParticleModificationEvent event) {
+        CovenantEffect.handleParticleModification(event);
+    }
+
+    @SubscribeEvent
     static void onPlayerTick(PlayerTickEvent.Post event) {
         EagleKnightTalonsItem.handlePlayerTick(event.getEntity());
+        BertilakItem.handlePlayerTick(event.getEntity());
         HekaItem.handlePlayerTick(event.getEntity());
         NekhakhaItem.handlePlayerTick(event.getEntity());
     }

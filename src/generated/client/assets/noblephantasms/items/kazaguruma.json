@@ -4,16 +4,31 @@
     "cases": [
       {
         "model": {
-          "type": "minecraft:model",
-          "model": "noblephantasms:item/kazaguruma_held"
+          "type": "minecraft:condition",
+          "component": "noblephantasms:kazaguruma_deployment",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "noblephantasms:item/kazaguruma_held"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "noblephantasms:item/kazaguruma_thrown"
+          },
+          "property": "minecraft:has_component"
         },
         "when": [
           "thirdperson_righthand",
           "thirdperson_lefthand",
           "firstperson_righthand",
-          "firstperson_lefthand",
-          "fixed"
+          "firstperson_lefthand"
         ]
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "noblephantasms:item/kazaguruma_held"
+        },
+        "when": "fixed"
       }
     ],
     "fallback": {

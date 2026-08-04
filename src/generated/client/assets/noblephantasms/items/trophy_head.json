@@ -1,33 +1,73 @@
 {
   "model": {
-    "type": "minecraft:special",
-    "base": "minecraft:item/template_skull",
-    "model": {
-      "type": "noblephantasms:trophy_head"
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:special",
+          "base": "minecraft:item/template_skull",
+          "model": {
+            "type": "noblephantasms:trophy_head"
+          },
+          "transformation": {
+            "left_rotation": [
+              0.0,
+              0.0,
+              1.0,
+              -4.371139E-8
+            ],
+            "right_rotation": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "scale": [
+              1.9,
+              1.9,
+              1.9
+            ],
+            "translation": [
+              0.5,
+              -0.225,
+              0.5
+            ]
+          }
+        },
+        "when": "head"
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:special",
+      "base": "minecraft:item/template_skull",
+      "model": {
+        "type": "noblephantasms:trophy_head"
+      },
+      "transformation": {
+        "left_rotation": [
+          1.0,
+          0.0,
+          0.0,
+          -0.0
+        ],
+        "right_rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translation": [
+          0.5,
+          0.0,
+          0.5
+        ]
+      }
     },
-    "transformation": {
-      "left_rotation": [
-        1.0,
-        0.0,
-        0.0,
-        -0.0
-      ],
-      "right_rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "translation": [
-        0.5,
-        0.0,
-        0.5
-      ]
-    }
+    "property": "minecraft:display_context"
   }
 }

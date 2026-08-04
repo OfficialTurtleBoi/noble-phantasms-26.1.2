@@ -14,7 +14,7 @@ import net.turtleboi.noblephantasms.item.ModItems;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
 
 public class BertilakExtensions implements IClientItemExtensions {
-    private static final float TARGETING_TRANSITION_TICKS = 6.0F;
+    private static final float TARGETING_TRANSITION_TICKS = 12.0F;
     private static final float RECOVERY_TRANSITION_TICKS = 8.0F;
     static final float TARGETING_TRANSLATION_X = -0.08206835F;
     static final float TARGETING_TRANSLATION_Y = 0.15765251F;
@@ -96,7 +96,8 @@ public class BertilakExtensions implements IClientItemExtensions {
 
         int direction = arm == HumanoidArm.RIGHT ? 1 : -1;
         float progress = Ease.inOutSine(poseWeight);
-        poseStack.translate(direction * 0.56F, -0.52F + equipProgress * -0.6F, -0.72F);
+        float visibleEquipProgress = targeting ? 0.0F : equipProgress;
+        poseStack.translate(direction * 0.56F, -0.52F + visibleEquipProgress * -0.6F, -0.72F);
         poseStack.translate(direction * TARGETING_TRANSLATION_X * progress, TARGETING_TRANSLATION_Y * progress,
                 TARGETING_TRANSLATION_Z * progress);
         poseStack.mulPose(Axis.XP.rotationDegrees(TARGETING_ROTATION_X * progress));

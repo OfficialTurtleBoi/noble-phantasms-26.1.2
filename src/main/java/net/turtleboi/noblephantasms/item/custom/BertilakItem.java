@@ -1,9 +1,12 @@
 package net.turtleboi.noblephantasms.item.custom;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -11,6 +14,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -46,12 +50,15 @@ public class BertilakItem extends AxeItem {
     private static final double COVENANT_RANGE = 16.0;
     private static final long COVENANT_DURATION = 20L * 60L * 5L;
     private static final long BIND_COOLDOWN = 20L * 60L;
-    private static final int COVENANT_CHARGE_TICKS = 40;
+    public static final int COVENANT_CHARGE_TICKS = 20 * 3;
+    public static final float COVENANT_PROGRESS_PER_TICK = 1.0F / COVENANT_CHARGE_TICKS;
+    public static final float COVENANT_PROGRESS_DECAY_PER_TICK = 4.0F / COVENANT_CHARGE_TICKS;
     private static final float DAMAGE_MULTIPLIER = 1.5F;
     private static final float EXECUTION_THRESHOLD = 0.2F;
     private static final float RESISTANT_EXECUTION_THRESHOLD = 0.05F;
     private static final Map<UUID, UUID> PENDING_EXECUTIONS = new HashMap<>();
     private static final Map<UUID, TrophySupport> TROPHY_SUPPORT = new HashMap<>();
+    private static final Map<Player, Map<Mob, Float>> COVENANT_CHARGE_STATES = new WeakHashMap<>();
 
     public BertilakItem(Properties properties) {
         super(ToolMaterial.NETHERITE, 7.0F, -2.8F,
@@ -76,35 +83,73 @@ public class BertilakItem extends AxeItem {
         if (!(entity instanceof ServerPlayer player)) {
             return false;
         }
-        int chargeTicks = getUseDuration(itemStack, entity) - remainingTime;
-        if (chargeTicks < COVENANT_CHARGE_TICKS) {
-            return false;
-        }
 
         Mob target = findLookTarget(player);
-        if (target == null || !bindCovenant(player, target)) {
+        if (target == null || getCovenantProgress(player, target) < 1.0F
+                || !formCovenant(player, target)) {
             return false;
         }
 
-        player.awardStat(Stats.ITEM_USED.get(this));
         return true;
     }
 
-    @Override
-    public void onUseTick(Level level, LivingEntity entity, ItemStack itemStack, int ticksRemaining) {
-        if (!(entity instanceof ServerPlayer player)) {
-            return;
-        }
-        int chargeTicks = getUseDuration(itemStack, entity) - ticksRemaining;
-        if (chargeTicks != COVENANT_CHARGE_TICKS) {
+    public static void handlePlayerTick(Player player) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
             return;
         }
 
-        Mob target = findLookTarget(player);
-        if (target != null && canBindCovenant(player, target)) {
-            level.playSound(null, player.blockPosition(), SoundEvents.BEACON_POWER_SELECT,
-                    SoundSource.PLAYERS, 1.0F, 0.8F);
+        Mob target = null;
+        if (player.isUsingItem() && player.getUseItem().is(ModItems.BERTILAK)) {
+            target = findLookTarget(player);
+            if (target != null && !canBindCovenant(serverPlayer, target)) {
+                target = null;
+            }
         }
+
+        Map<Mob, Float> chargeStates = COVENANT_CHARGE_STATES.get(player);
+        if (target != null) {
+            if (chargeStates == null) {
+                chargeStates = new HashMap<>();
+                COVENANT_CHARGE_STATES.put(player, chargeStates);
+            }
+            chargeStates.putIfAbsent(target, 0.0F);
+        }
+        if (chargeStates == null) {
+            return;
+        }
+
+        Set<Mob> changedTargets = new HashSet<>();
+        var iterator = chargeStates.entrySet().iterator();
+        while (iterator.hasNext()) {
+            var entry = iterator.next();
+            Mob focusedEntity = entry.getKey();
+            changedTargets.add(focusedEntity);
+            if (!isValidTarget(player, focusedEntity)) {
+                iterator.remove();
+                continue;
+            }
+
+            float previousProgress = entry.getValue();
+            float progressChange = focusedEntity == target
+                    ? COVENANT_PROGRESS_PER_TICK
+                    : -COVENANT_PROGRESS_DECAY_PER_TICK;
+            float progress = Mth.clamp(previousProgress + progressChange, 0.0F, 1.0F);
+            if (progress == 0.0F) {
+                iterator.remove();
+            } else {
+                entry.setValue(progress);
+            }
+            if (previousProgress < 1.0F && progress == 1.0F
+                    && formCovenant(serverPlayer, focusedEntity)) {
+                serverPlayer.stopUsingItem();
+                return;
+            }
+        }
+
+        if (chargeStates.isEmpty()) {
+            COVENANT_CHARGE_STATES.remove(player);
+        }
+        syncCovenantGlowProgress(changedTargets);
     }
 
     @Override
@@ -140,8 +185,19 @@ public class BertilakItem extends AxeItem {
                 new BertilakCovenantState(Optional.of(target.getUUID()), gameTime + BIND_COOLDOWN));
         player.addEffect(new MobEffectInstance(ModEffects.COVENANT, (int) COVENANT_DURATION, 0, false, true, true));
         target.addEffect(new MobEffectInstance(ModEffects.COVENANT, (int) COVENANT_DURATION, 0, false, true, false));
-        player.sendOverlayMessage(Component.translatable(
-                "message.noblephantasms.bertilak.bound", target.getDisplayName()));
+        target.setData(ModAttachments.BERTILAK_COVENANT_GLOW, true);
+        return true;
+    }
+
+    private static boolean formCovenant(ServerPlayer player, Mob target) {
+        if (!bindCovenant(player, target)) {
+            return false;
+        }
+
+        player.level().playSound(null, target.blockPosition(), SoundEvents.BEACON_POWER_SELECT,
+                SoundSource.PLAYERS, 1.0F, 0.8F);
+        clearCovenantCharge(player);
+        player.awardStat(Stats.ITEM_USED.get(ModItems.BERTILAK.get()));
         return true;
     }
 
@@ -199,6 +255,7 @@ public class BertilakItem extends AxeItem {
         if (entity.level().isClientSide()) {
             return;
         }
+        entity.removeData(ModAttachments.BERTILAK_COVENANT_GLOW);
 
         if (entity instanceof ServerPlayer player) {
             BertilakCovenantState covenant = player.getData(ModAttachments.BERTILAK_COVENANT);
@@ -209,6 +266,7 @@ public class BertilakItem extends AxeItem {
             player.setData(ModAttachments.BERTILAK_COVENANT, covenant.clearTarget());
             LivingEntity target = findBoundTarget(player, covenant);
             if (target != null) {
+                target.removeData(ModAttachments.BERTILAK_COVENANT_GLOW);
                 target.removeEffect(ModEffects.COVENANT);
             }
             return;
@@ -296,11 +354,12 @@ public class BertilakItem extends AxeItem {
     }
 
     private static void clearCovenant(ServerPlayer player, BertilakCovenantState covenant, boolean removeTargetEffect) {
+        LivingEntity target = findBoundTarget(player, covenant);
         player.setData(ModAttachments.BERTILAK_COVENANT, covenant.clearTarget());
         TROPHY_SUPPORT.remove(player.getUUID());
-        if (removeTargetEffect) {
-            LivingEntity target = findBoundTarget(player, covenant);
-            if (target != null) {
+        if (target != null) {
+            target.removeData(ModAttachments.BERTILAK_COVENANT_GLOW);
+            if (removeTargetEffect) {
                 target.removeEffect(ModEffects.COVENANT);
             }
         }
@@ -423,6 +482,35 @@ public class BertilakItem extends AxeItem {
                 && !target.isSpectator()
                 && target.isAttackable()
                 && !player.isAlliedTo(target);
+    }
+
+    private static float getCovenantProgress(Player player, Mob target) {
+        Map<Mob, Float> chargeStates = COVENANT_CHARGE_STATES.get(player);
+        return chargeStates == null ? 0.0F : chargeStates.getOrDefault(target, 0.0F);
+    }
+
+    private static void clearCovenantCharge(Player player) {
+        Map<Mob, Float> removedStates = COVENANT_CHARGE_STATES.remove(player);
+        if (removedStates != null) {
+            syncCovenantGlowProgress(new HashSet<>(removedStates.keySet()));
+        }
+    }
+
+    private static void syncCovenantGlowProgress(Set<Mob> targets) {
+        for (Mob target : targets) {
+            float progress = COVENANT_CHARGE_STATES.values().stream()
+                    .map(states -> states.getOrDefault(target, 0.0F))
+                    .max(Float::compareTo)
+                    .orElse(0.0F);
+            Float syncedProgress = target.getExistingDataOrNull(ModAttachments.BERTILAK_GLOW_PROGRESS);
+            if (progress <= 0.0F) {
+                if (syncedProgress != null) {
+                    target.removeData(ModAttachments.BERTILAK_GLOW_PROGRESS);
+                }
+            } else if (syncedProgress == null || Float.compare(syncedProgress, progress) != 0) {
+                target.setData(ModAttachments.BERTILAK_GLOW_PROGRESS, progress);
+            }
+        }
     }
 
     private record TrophySupport(UUID targetId, boolean supported) {

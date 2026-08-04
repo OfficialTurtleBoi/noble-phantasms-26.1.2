@@ -1,5 +1,6 @@
 package net.turtleboi.noblephantasms.entity.custom;
 
+import java.util.UUID;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -9,6 +10,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
@@ -20,6 +22,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.turtleboi.noblephantasms.entity.ModEntities;
 import net.turtleboi.noblephantasms.item.ModItems;
+import net.turtleboi.noblephantasms.component.ModDataComponents;
 
 public class KazagurumaProjectile extends AbstractArrow {
     private static final EntityDataAccessor<Integer> PHASE =
@@ -38,8 +41,10 @@ public class KazagurumaProjectile extends AbstractArrow {
     private static final double MELEE_RANGE = 2.75;
     private static final double RETURN_SPEED = 1.8;
     private static final double PULL_SPEED = 1.25;
+    private static final double MIN_OUTBOUND_SPEED_SQUARED = 0.01;
     private static final int MAX_LIFETIME = 100;
     private float hookDamage;
+    private ItemStack deploymentStack = ItemStack.EMPTY;
 
     public KazagurumaProjectile(EntityType<? extends KazagurumaProjectile> entityType, Level level) {
         super(entityType, level);
@@ -50,6 +55,7 @@ public class KazagurumaProjectile extends AbstractArrow {
         super(ModEntities.KAZAGURUMA.get(), owner, level, stack.copyWithCount(1), stack);
         setNoGravity(true);
         pickup = Pickup.DISALLOWED;
+        deploymentStack = stack;
         entityData.set(OFFHAND, hand == InteractionHand.OFF_HAND);
     }
 
@@ -74,7 +80,9 @@ public class KazagurumaProjectile extends AbstractArrow {
         int phase = entityData.get(PHASE);
         if (phase == OUTBOUND) {
             super.tick();
-            if (isAlive() && position().distanceTo(owner.getRopeHoldPosition(1.0F)) >= MAX_RANGE) {
+            if (isAlive() && entityData.get(PHASE) == OUTBOUND
+                    && (position().distanceTo(owner.getRopeHoldPosition(1.0F)) >= MAX_RANGE
+                    || getDeltaMovement().lengthSqr() <= MIN_OUTBOUND_SPEED_SQUARED)) {
                 beginRetracting();
             }
             return;
@@ -117,11 +125,12 @@ public class KazagurumaProjectile extends AbstractArrow {
         setNoPhysics(true);
         Vec3 destination = owner.getRopeHoldPosition(1.0F);
         Vec3 returnVector = destination.subtract(position());
-        if (returnVector.length() <= 0.75) {
+        double returnDistance = returnVector.length();
+        if (returnDistance <= 0.75) {
             discard();
             return;
         }
-        setDeltaMovement(returnVector.normalize().scale(RETURN_SPEED));
+        setDeltaMovement(returnVector.scale(Math.min(RETURN_SPEED, returnDistance) / returnDistance));
         super.tick();
     }
 
@@ -183,6 +192,37 @@ public class KazagurumaProjectile extends AbstractArrow {
 
     public boolean wasThrownFromOffhand() {
         return entityData.get(OFFHAND);
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        if (!level().isClientSide()) {
+            clearDeploymentState();
+        }
+        super.remove(reason);
+    }
+
+    private void clearDeploymentState() {
+        boolean changed = clearDeploymentState(deploymentStack);
+        if (getOwner() instanceof Player player) {
+            Inventory inventory = player.getInventory();
+            for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+                changed |= clearDeploymentState(inventory.getItem(slot));
+            }
+            if (changed) {
+                inventory.setChanged();
+            }
+        }
+        deploymentStack = ItemStack.EMPTY;
+    }
+
+    private boolean clearDeploymentState(ItemStack stack) {
+        UUID deploymentId = stack.get(ModDataComponents.KAZAGURUMA_DEPLOYMENT.get());
+        if (!getUUID().equals(deploymentId)) {
+            return false;
+        }
+        stack.remove(ModDataComponents.KAZAGURUMA_DEPLOYMENT.get());
+        return true;
     }
 
     @Override

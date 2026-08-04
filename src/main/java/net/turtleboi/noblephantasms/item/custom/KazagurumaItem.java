@@ -15,6 +15,7 @@ import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.turtleboi.noblephantasms.entity.custom.KazagurumaProjectile;
+import net.turtleboi.noblephantasms.component.ModDataComponents;
 
 public class KazagurumaItem extends Item {
     private static final ToolMaterial KAZAGURUMA_MATERIAL = new ToolMaterial(
@@ -26,6 +27,7 @@ public class KazagurumaItem extends Item {
             ToolMaterial.IRON.repairItems());
     private static final int COOLDOWN_TICKS = 60;
     private static final float THROW_SPEED = 1.5F;
+    private static final float PROJECTILE_DAMAGE_MULTIPLIER = 0.5F;
 
     public KazagurumaItem(Properties properties) {
         super(properties
@@ -51,8 +53,10 @@ public class KazagurumaItem extends Item {
                 player.getZ() + look.z * 0.75);
         projectile.shoot(look.x, look.y, look.z, THROW_SPEED, 0.0F);
         projectile.lockLaunchRotation();
-        projectile.setHookDamage((float) player.getAttributeValue(Attributes.ATTACK_DAMAGE));
+        projectile.setHookDamage(
+                (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE) * PROJECTILE_DAMAGE_MULTIPLIER);
         serverLevel.addFreshEntity(projectile);
+        stack.set(ModDataComponents.KAZAGURUMA_DEPLOYMENT.get(), projectile.getUUID());
         player.getCooldowns().addCooldown(stack, COOLDOWN_TICKS);
         player.awardStat(Stats.ITEM_USED.get(this));
         player.swing(hand, true);

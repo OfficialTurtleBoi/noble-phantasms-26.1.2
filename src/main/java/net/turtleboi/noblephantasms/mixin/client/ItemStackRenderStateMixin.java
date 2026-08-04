@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.turtleboi.noblephantasms.client.ItemPoseEditor;
+import net.turtleboi.noblephantasms.client.RhongomyniadSpinState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,6 +23,7 @@ public class ItemStackRenderStateMixin {
                                                          int lightCoords, int overlayCoords, int outlineColor,
                                                          CallbackInfo callbackInfo) {
         ItemPoseEditor.beginModelTransform((ItemStackRenderState) (Object) this, displayContext);
+        RhongomyniadSpinState.beginModelTransform(displayContext);
     }
 
     @Inject(method = "submit", at = @At("RETURN"))
@@ -30,5 +32,6 @@ public class ItemStackRenderStateMixin {
                                                        int lightCoords, int overlayCoords, int outlineColor,
                                                        CallbackInfo callbackInfo) {
         ItemPoseEditor.endModelTransform();
+        RhongomyniadSpinState.endModelTransform();
     }
 }

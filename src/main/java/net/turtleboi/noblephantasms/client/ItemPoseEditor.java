@@ -30,8 +30,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Ease;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Entity;
@@ -241,21 +239,22 @@ public final class ItemPoseEditor {
 
         int direction = arm == HumanoidArm.RIGHT ? 1 : -1;
         SpearAnimations.firstPersonAttack(0.2F, poseStack, direction, arm);
-        if (stack.getItem() instanceof GungnirItem) {
-            Transform transform = target.currentTransform();
-            poseStack.mulPose(Axis.ZP.rotationDegrees(direction * transform.rotationZ));
-            poseStack.mulPose(Axis.XP.rotationDegrees(transform.rotationX));
-            poseStack.mulPose(Axis.YP.rotationDegrees(direction * transform.rotationY));
-            poseStack.translate(direction * transform.translationX, transform.translationY, transform.translationZ);
-            poseStack.scale(transform.scaleX, transform.scaleY, transform.scaleZ);
-            return;
-        } else if (stack.getItem() instanceof RhongomyniadItem) {
+        if (stack.getItem() instanceof RhongomyniadItem) {
             poseStack.mulPose(Axis.ZP.rotationDegrees(direction * 15.0F));
             poseStack.mulPose(Axis.XP.rotationDegrees(-15.0F));
             poseStack.translate(0.0F, 0.15F, 0.0F);
-        } else {
             return;
         }
+        if (!(stack.getItem() instanceof GungnirItem)) {
+            return;
+        }
+
+        Transform transform = target.currentTransform();
+        poseStack.mulPose(Axis.ZP.rotationDegrees(direction * transform.rotationZ));
+        poseStack.mulPose(Axis.XP.rotationDegrees(transform.rotationX));
+        poseStack.mulPose(Axis.YP.rotationDegrees(direction * transform.rotationY));
+        poseStack.translate(direction * transform.translationX, transform.translationY, transform.translationZ);
+        poseStack.scale(transform.scaleX, transform.scaleY, transform.scaleZ);
     }
 
     public static void applyFirstPersonUsePreview(PoseStack poseStack, InteractionHand hand,
@@ -279,7 +278,6 @@ public final class ItemPoseEditor {
             SpearAnimations.firstPersonUse(0.0F, poseStack, timeHeld, arm, stack);
             if (stack.getItem() instanceof RhongomyniadItem) {
                 RhongomyniadSpinState.begin(stack, timeHeld);
-                applyRhongomyniadJoustPreview(poseStack, stack, arm, timeHeld);
             }
         } else if (stack.getUseAnimation() == ItemUseAnimation.TRIDENT) {
             int direction = arm == HumanoidArm.RIGHT ? 1 : -1;
@@ -291,27 +289,6 @@ public final class ItemPoseEditor {
             poseStack.scale(1.0F, 1.0F, 1.2F);
             poseStack.mulPose(Axis.YN.rotationDegrees(direction * 45.0F));
         }
-    }
-
-    private static void applyRhongomyniadJoustPreview(PoseStack poseStack, ItemStack stack,
-                                                      HumanoidArm arm, float timeHeld) {
-        int direction = arm == HumanoidArm.RIGHT ? 1 : -1;
-        float lowerProgress = RhongomyniadSpinState.getLowerProgressCorrection(stack, timeHeld);
-        float joustProgress = calculateJoustProgress(stack, timeHeld)
-                * RhongomyniadSpinState.getPoseWeight(stack, timeHeld);
-        poseStack.mulPose(Axis.XP.rotationDegrees(35.0F * lowerProgress));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(direction * 15.0F * joustProgress));
-        poseStack.mulPose(Axis.XP.rotationDegrees(-15.0F * joustProgress));
-        poseStack.translate(0.0F, 0.15F * joustProgress, 0.0F);
-    }
-
-    private static float calculateJoustProgress(ItemStack stack, float timeHeld) {
-        KineticWeapon kineticWeapon = stack.get(DataComponents.KINETIC_WEAPON);
-        if (kineticWeapon == null) {
-            return 0.0F;
-        }
-        float raiseProgress = Mth.clamp(timeHeld / Math.max(kineticWeapon.delayTicks(), 1), 0.0F, 1.0F);
-        return Ease.inOutSine(raiseProgress);
     }
 
     public static void applyThirdPersonPreview(Avatar entity, AvatarRenderState state) {

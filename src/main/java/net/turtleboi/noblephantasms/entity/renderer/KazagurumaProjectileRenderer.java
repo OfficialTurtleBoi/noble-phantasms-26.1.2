@@ -3,6 +3,7 @@ package net.turtleboi.noblephantasms.entity.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import java.util.UUID;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -14,11 +15,13 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.turtleboi.noblephantasms.entity.ModEntities;
+import net.turtleboi.noblephantasms.component.ModDataComponents;
 import net.turtleboi.noblephantasms.entity.custom.KazagurumaProjectile;
 import net.turtleboi.noblephantasms.entity.renderer.states.KazagurumaProjectileRenderState;
 import net.turtleboi.noblephantasms.item.ModItems;
@@ -149,12 +152,26 @@ public class KazagurumaProjectileRenderer
         }
 
         Vec3 holdPosition = owner.getRopeHoldPosition(partialTick);
-        if (!projectile.wasThrownFromOffhand()) {
+        if (!isHeldInOffhand(projectile, owner)) {
             return holdPosition;
         }
 
         Vec3 ownerPosition = owner.getPosition(partialTick);
         return new Vec3(ownerPosition.x * 2.0 - holdPosition.x, holdPosition.y,
                 ownerPosition.z * 2.0 - holdPosition.z);
+    }
+
+    private static boolean isHeldInOffhand(KazagurumaProjectile projectile, Entity owner) {
+        if (owner instanceof LivingEntity livingEntity) {
+            UUID offhandDeployment = livingEntity.getOffhandItem().get(ModDataComponents.KAZAGURUMA_DEPLOYMENT.get());
+            if (projectile.getUUID().equals(offhandDeployment)) {
+                return true;
+            }
+            UUID mainhandDeployment = livingEntity.getMainHandItem().get(ModDataComponents.KAZAGURUMA_DEPLOYMENT.get());
+            if (projectile.getUUID().equals(mainhandDeployment)) {
+                return false;
+            }
+        }
+        return projectile.wasThrownFromOffhand();
     }
 }

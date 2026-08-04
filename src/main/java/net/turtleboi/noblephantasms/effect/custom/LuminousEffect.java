@@ -1,32 +1,33 @@
 package net.turtleboi.noblephantasms.effect.custom;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.turtleboi.noblephantasms.attachment.ModAttachments;
 import net.turtleboi.noblephantasms.effect.ModEffects;
 
-public final class JudgementEffect extends MobEffect {
-    private static final float DAMAGE_MULTIPLIER = 1.25F;
+public class LuminousEffect extends MobEffect {
+    private static final float COLOR_SATURATION = 0.8F;
+    private static final float COLOR_VALUE = 1.0F;
 
-    public JudgementEffect() {
-        super(MobEffectCategory.HARMFUL, 0xE6B84A);
+    public LuminousEffect() {
+        super(MobEffectCategory.BENEFICIAL, 0xFFFFFF);
     }
 
     @Override
     public void onEffectStarted(LivingEntity entity, int amplifier) {
         if (!entity.level().isClientSide()) {
-            entity.setData(ModAttachments.EYE_OF_HORUS_JUDGEMENT_GLOW, true);
+            entity.setData(ModAttachments.LUMINOUS_COLOR, randomVividColor(entity));
         }
     }
 
     @Override
     public boolean applyEffectTick(ServerLevel level, LivingEntity entity, int amplifier) {
-        if (!entity.getData(ModAttachments.EYE_OF_HORUS_JUDGEMENT_GLOW)) {
-            entity.setData(ModAttachments.EYE_OF_HORUS_JUDGEMENT_GLOW, true);
+        if (entity.getExistingDataOrNull(ModAttachments.LUMINOUS_COLOR) == null) {
+            entity.setData(ModAttachments.LUMINOUS_COLOR, randomVividColor(entity));
         }
         return true;
     }
@@ -36,28 +37,26 @@ public final class JudgementEffect extends MobEffect {
         return true;
     }
 
-    public static void handleDamage(LivingDamageEvent.Pre event) {
-        if (event.getEntity().hasEffect(ModEffects.JUDGEMENT)) {
-            event.setNewDamage(event.getNewDamage() * DAMAGE_MULTIPLIER);
-        }
-    }
-
     public static void handleRemoval(MobEffectEvent.Remove event) {
-        if (event.getEffect().is(ModEffects.JUDGEMENT.getKey())) {
-            clearGlow(event.getEntity());
+        if (event.getEffect().is(ModEffects.LUMINOUS.getKey())) {
+            clearColor(event.getEntity());
         }
     }
 
     public static void handleExpiration(MobEffectEvent.Expired event) {
         if (event.getEffectInstance() != null
-                && event.getEffectInstance().getEffect().is(ModEffects.JUDGEMENT.getKey())) {
-            clearGlow(event.getEntity());
+                && event.getEffectInstance().getEffect().is(ModEffects.LUMINOUS.getKey())) {
+            clearColor(event.getEntity());
         }
     }
 
-    private static void clearGlow(LivingEntity entity) {
+    private static void clearColor(LivingEntity entity) {
         if (!entity.level().isClientSide()) {
-            entity.removeData(ModAttachments.EYE_OF_HORUS_JUDGEMENT_GLOW);
+            entity.removeData(ModAttachments.LUMINOUS_COLOR);
         }
+    }
+
+    private static int randomVividColor(LivingEntity entity) {
+        return Mth.hsvToRgb(entity.getRandom().nextFloat(), COLOR_SATURATION, COLOR_VALUE) & 0xFFFFFF;
     }
 }

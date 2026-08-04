@@ -52,7 +52,8 @@ public class ModLanguageProvider extends LanguageProvider {
                         + "Reborn prevents another activation for 2 minutes.");
         add("jei.noblephantasms.info.eye_of_horus",
                 "Equip in a Curios necklace slot. Hold your crosshair on a living target for 2 seconds to apply "
-                        + "Judgement for 15 seconds, making it glow and take 25% more damage from all sources.");
+                        + "Judgement for 15 seconds, marking it with a golden glow and making it take 25% more "
+                        + "damage from all sources.");
         add("jei.noblephantasms.info.kheper_scarab",
                 "Equip in a Curios charm slot. Repairs each damaged item in your hands and armor slots by "
                         + "1 durability every 2 seconds.");
@@ -83,16 +84,19 @@ public class ModLanguageProvider extends LanguageProvider {
                         + "3 second cooldown.");
 
         add("creativetab.noblephantasms.title", "Noble Phantasms");
+        add("creativetab.noblephantasms.trophy_heads", "Trophy Heads");
         add("item.noblephantasms.trophy_head.named", "%s Head");
         add("item.noblephantasms.trophy_head.baby_named", "Baby %s Head");
+        add("item.noblephantasms.trophy_head.variant_named", "%2$s %1$s Head");
+        add("item.noblephantasms.trophy_head.baby_variant_named", "Baby %2$s %1$s Head");
         add("message.noblephantasms.bertilak.already_bound", "The Covenant is already bound");
-        add("message.noblephantasms.bertilak.bound", "Covenant bound to %s");
         add("message.noblephantasms.bertilak.broken", "The Covenant has been broken");
         add("message.noblephantasms.bertilak.cooldown", "The Covenant can be bound again in %s seconds");
         add("message.noblephantasms.bertilak.fulfilled", "Covenant fulfilled: %s");
         add("message.noblephantasms.bertilak.target_bound", "That target is already bound by a Covenant");
         add("effect.noblephantasms.covenant", "Covenant");
         add("effect.noblephantasms.judgement", "Judgement");
+        add("effect.noblephantasms.luminous", "Luminous");
         add("effect.noblephantasms.reborn", "Reborn");
         add("noblephantasms.configuration.title", "Noble Phantasms Configs");
         add("noblephantasms.configuration.section.noblephantasms.common.toml", "Noble Phantasms Configs");

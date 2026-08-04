@@ -1,7 +1,10 @@
 package net.turtleboi.noblephantasms.item.creative;
 
+import java.util.function.Supplier;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
@@ -9,8 +12,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.item.ModItems;
 import net.turtleboi.noblephantasms.item.custom.TrophyHeadItem;
-
-import java.util.function.Supplier;
 
 public class ModCreativeModeTabs {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
@@ -49,12 +50,20 @@ public class ModCreativeModeTabs {
                                 output.accept(ModItems.KAZAGURUMA);
                                 output.accept(ModItems.UCHIDE_NO_KOZUCHI);
                                 output.accept(ModItems.YAMAWARI);
-
-                                output.accept(TrophyHeadItem.createRandom());
                             })
                             .build());
 
-    public static void register (IEventBus eventBus) {
+    public static final Supplier<CreativeModeTab> TROPHY_HEADS_TAB =
+            CREATIVE_MODE_TABS.register("trophy_heads_tab",
+                    () -> CreativeModeTab.builder()
+                            .icon(() -> TrophyHeadItem.create(
+                                    BuiltInRegistries.ENTITY_TYPE.getKey(EntityType.COW)))
+                            .title(Component.translatable("creativetab.noblephantasms.trophy_heads"))
+                            .displayItems((itemDisplayParameters, output) ->
+                                    TrophyHeadItem.createCreativeTabHeads().forEach(output::accept))
+                            .build());
+
+    public static void register(IEventBus eventBus) {
         CREATIVE_MODE_TABS.register(eventBus);
     }
 }

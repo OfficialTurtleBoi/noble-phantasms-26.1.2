@@ -13,7 +13,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ItemTransformMixin {
     @Inject(method = "apply", at = @At("HEAD"), cancellable = true)
     private void applyEditedItemPose(boolean applyLeftHandFix, PoseStack.Pose pose, CallbackInfo callbackInfo) {
-        if (ItemPoseEditor.applyModelTransform((ItemTransform) (Object) this, applyLeftHandFix, pose)) {
+        ItemTransform transform = (ItemTransform) (Object) this;
+        if (ItemPoseEditor.applyModelTransform(transform, applyLeftHandFix, pose)
+                || RhongomyniadSpinState.applyModelTransform(transform, applyLeftHandFix, pose)) {
             callbackInfo.cancel();
         }
     }

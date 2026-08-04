@@ -4,6 +4,7 @@ import net.turtleboi.noblephantasms.attachment.ModAttachments;
 import net.turtleboi.noblephantasms.block.ModBlocks;
 import net.turtleboi.noblephantasms.block.entity.ModBlockEntities;
 import net.turtleboi.noblephantasms.config.ModConfig;
+import net.turtleboi.noblephantasms.component.ModDataComponents;
 import net.turtleboi.noblephantasms.entity.ModEntities;
 import net.turtleboi.noblephantasms.effect.ModEffects;
 import net.turtleboi.noblephantasms.item.ModItems;
@@ -31,6 +32,7 @@ public class NoblePhantasms {
         ModEntities.register(modEventBus);
         ModEffects.register(modEventBus);
         ModAttachments.register(modEventBus);
+        ModDataComponents.register(modEventBus);
         ModItems.register(modEventBus);
 
         modContainer.registerConfig(Type.COMMON, ModConfig.SPEC);

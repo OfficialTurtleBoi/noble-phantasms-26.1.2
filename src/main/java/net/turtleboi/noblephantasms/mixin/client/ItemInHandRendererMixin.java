@@ -5,7 +5,6 @@ import com.mojang.math.Axis;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Ease;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -13,7 +12,6 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.AttackRange;
-import net.minecraft.world.item.component.KineticWeapon;
 import net.minecraft.world.item.component.PiercingWeapon;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.EntityHitResult;
@@ -35,16 +33,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ItemInHandRendererMixin {
     private final ThrustSwingState gungnirMainHandState = new ThrustSwingState();
     private final ThrustSwingState gungnirOffHandState = new ThrustSwingState();
-
     private static final float RHONGOMYNIAD_INWARD_ROTATION = 15.0F;
     private static final float RHONGOMYNIAD_DOWNWARD_ROTATION = -15.0F;
     private static final float RHONGOMYNIAD_MAX_EXTENSION = 0.15F;
     private static final float RHONGOMYNIAD_MIN_EXTENSION = -0.75F;
-    private static final float RHONGOMYNIAD_JOUST_INWARD_ROTATION = 15.0F;
-    private static final float RHONGOMYNIAD_JOUST_DOWNWARD_ROTATION = -15.0F;
-    private static final float RHONGOMYNIAD_JOUST_EXTENSION = 0.15F;
     private final ThrustSwingState rhongomyniadMainHandState = new ThrustSwingState();
     private final ThrustSwingState rhongomyniadOffHandState = new ThrustSwingState();
+
     @Unique
     private AbstractClientPlayer rhongomyniadRenderPlayer;
     @Unique
@@ -64,7 +59,7 @@ public class ItemInHandRendererMixin {
         rhongomyniadRenderPlayer = player;
         rhongomyniadRenderStack = itemStack;
         rhongomyniadFrameInterp = frameInterp;
-        RhongomyniadSpinState.begin(itemStack, timeHeld, player);
+        RhongomyniadSpinState.begin(itemStack, timeHeld, player, frameInterp);
     }
 
     @Inject(method = "renderArmWithItem", at = @At("RETURN"))
@@ -112,14 +107,17 @@ public class ItemInHandRendererMixin {
     @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/model/effects/SpearAnimations;firstPersonAttack(FLcom/mojang/blaze3d/vertex/PoseStack;ILnet/minecraft/world/entity/HumanoidArm;)V",
             shift = At.Shift.AFTER))
-    private void adjustRhongomyniadStab(AbstractClientPlayer player, float frameInterp, float xRot, InteractionHand hand,
-                                        float attack, ItemStack itemStack, float inverseArmHeight, PoseStack poseStack,
-                                        SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo callbackInfo) {
+    private void adjustRhongomyniadStab(AbstractClientPlayer player, float frameInterp, float xRot,
+                                        InteractionHand hand, float attack, ItemStack itemStack,
+                                        float inverseArmHeight, PoseStack poseStack,
+                                        SubmitNodeCollector submitNodeCollector, int lightCoords,
+                                        CallbackInfo callbackInfo) {
         if (!(itemStack.getItem() instanceof RhongomyniadItem)) {
             return;
         }
 
-        ThrustSwingState swingState = hand == InteractionHand.MAIN_HAND ? rhongomyniadMainHandState : rhongomyniadOffHandState;
+        ThrustSwingState swingState = hand == InteractionHand.MAIN_HAND
+                ? rhongomyniadMainHandState : rhongomyniadOffHandState;
         applyThrustAdjustment(player, hand, attack, itemStack, poseStack, swingState,
                 RHONGOMYNIAD_INWARD_ROTATION, RHONGOMYNIAD_DOWNWARD_ROTATION,
                 RHONGOMYNIAD_MAX_EXTENSION, RHONGOMYNIAD_MIN_EXTENSION);
@@ -142,30 +140,6 @@ public class ItemInHandRendererMixin {
                                   SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo callbackInfo) {
         HumanoidArm arm = hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
         ItemPoseEditor.applyFirstPersonUsePreview(poseStack, hand, itemStack, arm);
-    }
-
-    @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/model/effects/SpearAnimations;firstPersonUse(FLcom/mojang/blaze3d/vertex/PoseStack;FLnet/minecraft/world/entity/HumanoidArm;Lnet/minecraft/world/item/ItemStack;)V",
-            shift = At.Shift.AFTER))
-    private void adjustRhongomyniadJoust(AbstractClientPlayer player, float frameInterp, float xRot, InteractionHand hand,
-                                         float attack, ItemStack itemStack, float inverseArmHeight, PoseStack poseStack,
-                                         SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo callbackInfo) {
-        if (!(itemStack.getItem() instanceof RhongomyniadItem)) {
-            return;
-        }
-
-        float timeHeld = itemStack.getUseDuration(player) - (player.getUseItemRemainingTicks() - frameInterp + 1.0F);
-        float visualUseTime = RhongomyniadSpinState.getVisualUseTime(itemStack, player, timeHeld, frameInterp);
-        float joustProgress = calculateJoustProgress(itemStack, visualUseTime)
-                * RhongomyniadSpinState.getPoseWeight(itemStack, visualUseTime);
-        float lowerProgressCorrection =
-                RhongomyniadSpinState.getLowerProgressCorrection(itemStack, visualUseTime);
-        poseStack.mulPose(Axis.XP.rotationDegrees(35.0F * lowerProgressCorrection));
-        HumanoidArm arm = hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
-        int direction = arm == HumanoidArm.RIGHT ? 1 : -1;
-        poseStack.mulPose(Axis.ZP.rotationDegrees(direction * RHONGOMYNIAD_JOUST_INWARD_ROTATION * joustProgress));
-        poseStack.mulPose(Axis.XP.rotationDegrees(RHONGOMYNIAD_JOUST_DOWNWARD_ROTATION * joustProgress));
-        poseStack.translate(0.0F, RHONGOMYNIAD_JOUST_EXTENSION * joustProgress, 0.0F);
     }
 
     @Unique
@@ -223,17 +197,6 @@ public class ItemInHandRendererMixin {
         float distanceProgress = Mth.clamp(
                 Mth.inverseLerp(targetDistance, minimumReach, maximumReach), 0.0F, 1.0F);
         return Mth.lerp(distanceProgress, minExtension, 1.0F);
-    }
-
-    @Unique
-    private static float calculateJoustProgress(ItemStack itemStack, float timeHeld) {
-        KineticWeapon kineticWeapon = itemStack.get(DataComponents.KINETIC_WEAPON);
-        if (kineticWeapon == null) {
-            return 0.0F;
-        }
-
-        float raiseProgress = Mth.clamp(timeHeld / Math.max(kineticWeapon.delayTicks(), 1), 0.0F, 1.0F);
-        return Ease.inOutSine(raiseProgress);
     }
 
     @Unique
