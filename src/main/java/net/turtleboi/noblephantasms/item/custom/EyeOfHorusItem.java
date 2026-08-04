@@ -6,11 +6,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
@@ -20,15 +26,29 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.turtleboi.noblephantasms.attachment.ModAttachments;
+import net.turtleboi.noblephantasms.config.ModConfig;
 import net.turtleboi.noblephantasms.effect.ModEffects;
+import net.turtleboi.noblephantasms.entity.custom.EyeShardEntity;
+import net.turtleboi.noblephantasms.item.ModItems;
+import net.turtleboi.noblephantasms.NoblePhantasms;
+import net.turtleboi.noblephantasms.relic.RelicFragmentData;
+import net.turtleboi.noblephantasms.relic.RelicFragmenter;
+import net.minecraft.resources.Identifier;
 import top.theillusivec4.curios.api.SlotContext;
 
 public final class EyeOfHorusItem extends CurioRelicItem {
-    public static final int FOCUS_DURATION = 20 * 2;
+    public static final int BASE_FOCUS_DURATION = 20 * 2;
     public static final int FOCUS_DECAY_PER_TICK = 4;
+    private static final Identifier EYE_ID = Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "eye_of_horus");
+    private static final int FOCUS_REDUCTION_PER_PIECE = 5;
     private static final int JUDGEMENT_DURATION = 20 * 15;
     private static final double JUDGEMENT_RANGE = 64.0;
+    private static final double OPEN_EYE_RADIUS = 12.0;
+    private static final float DAMAGE_BONUS_PER_PIECE = 0.05F;
     private static final Map<Player, Map<LivingEntity, Integer>> GAZE_STATES = new WeakHashMap<>();
 
     public EyeOfHorusItem(Properties properties) {
@@ -41,6 +61,8 @@ public final class EyeOfHorusItem extends CurioRelicItem {
                 || !(player.level() instanceof ServerLevel level)) {
             return;
         }
+
+        clearExpiredPieces(player);
 
         LivingEntity target = getLookTarget(player);
         if (target != null && target.hasEffect(ModEffects.JUDGEMENT)) {
@@ -72,8 +94,8 @@ public final class EyeOfHorusItem extends CurioRelicItem {
 
             int focusTicks = entry.getValue()
                     + (focusedEntity == target ? 1 : -FOCUS_DECAY_PER_TICK);
-            if (focusTicks >= FOCUS_DURATION) {
-                applyJudgement(level, player, focusedEntity);
+            if (focusTicks >= getFocusDuration(player)) {
+                completeJudgement(level, player, focusedEntity);
                 iterator.remove();
             } else if (focusTicks <= 0) {
                 iterator.remove();
@@ -124,10 +146,175 @@ public final class EyeOfHorusItem extends CurioRelicItem {
         return entity instanceof LivingEntity living && living.isAlive() && !living.isSpectator();
     }
 
-    private static void applyJudgement(ServerLevel level, Player player, LivingEntity target) {
+    public static int getFocusDuration(Player player) {
+        return Math.max(10, BASE_FOCUS_DURATION
+                - getActivePieces(player) * FOCUS_REDUCTION_PER_PIECE);
+    }
+
+    public static boolean collectShard(ServerPlayer player, RelicFragmentData fragment) {
+        clearExpiredPieces(player);
+        if (!fragment.relicId().equals(EYE_ID)) {
+            return false;
+        }
+        int mask = player.getData(ModAttachments.EYE_OF_HORUS_PIECE_MASK);
+        long seed = player.getData(ModAttachments.EYE_OF_HORUS_FRAGMENT_SEED);
+        int pieceCount = getPieceCount(fragment.seed());
+        if (fragment.pieceCount() != pieceCount || fragment.pieceIndex() < 0
+                || fragment.pieceIndex() >= pieceCount || (mask & 1 << fragment.pieceIndex()) != 0) {
+            return false;
+        }
+        if (mask == 0) {
+            player.setData(ModAttachments.EYE_OF_HORUS_FRAGMENT_SEED, fragment.seed());
+            long lifetime = ModConfig.EYE_PIECE_LIFETIME_SECONDS.getAsInt() * 20L;
+            player.setData(ModAttachments.EYE_OF_HORUS_PIECES_EXPIRE_AT,
+                    player.level().getGameTime() + lifetime);
+        } else if (seed != fragment.seed()) {
+            return false;
+        }
+        int newMask = mask | 1 << fragment.pieceIndex();
+        int newPieces = Integer.bitCount(newMask);
+        player.setData(ModAttachments.EYE_OF_HORUS_PIECE_MASK, newMask);
+        player.sendOverlayMessage(Component.translatable(
+                "message.noblephantasms.eye_of_horus.pieces", newPieces, pieceCount));
+        return true;
+    }
+
+    public static void handleLivingDeath(LivingDeathEvent event) {
+        if (!(event.getEntity().level() instanceof ServerLevel level)
+                || !event.getEntity().hasEffect(ModEffects.JUDGEMENT)
+                || !(event.getSource().getEntity() instanceof ServerPlayer player)
+                || !isEquipped(player, ModItems.EYE_OF_HORUS.get())
+                || hasCompleteEye(player)
+                || player.getRandom().nextDouble() >= ModConfig.EYE_SHARD_DROP_CHANCE.getAsDouble()) {
+            return;
+        }
+
+        long seed = getOrCreateFragmentSeed(player);
+        int pieceCount = getPieceCount(seed);
+        int mask = player.getData(ModAttachments.EYE_OF_HORUS_PIECE_MASK);
+        int missingMask = (1 << pieceCount) - 1 & ~mask;
+        for (EyeShardEntity pending : level.getEntitiesOfClass(
+                EyeShardEntity.class, player.getBoundingBox().inflate(128.0))) {
+            RelicFragmentData pendingFragment = pending.getFragment();
+            if (player.getUUID().equals(pending.getTarget()) && pendingFragment != null
+                    && pendingFragment.seed() == seed && pendingFragment.pieceIndex() >= 0) {
+                missingMask &= ~(1 << pendingFragment.pieceIndex());
+            }
+        }
+        if (missingMask == 0) {
+            return;
+        }
+        int selected = player.getRandom().nextInt(Integer.bitCount(missingMask));
+        int pieceIndex = -1;
+        for (int index = 0; index < pieceCount; index++) {
+            if ((missingMask & 1 << index) != 0 && selected-- == 0) {
+                pieceIndex = index;
+                break;
+            }
+        }
+        RelicFragmentData fragment = new RelicFragmentData(EYE_ID, seed, pieceIndex, pieceCount);
+
+        EyeShardEntity shard = new EyeShardEntity(level, event.getEntity().getX(),
+                event.getEntity().getY() + event.getEntity().getBbHeight() * 0.5,
+                event.getEntity().getZ(), player.getUUID(), fragment);
+        level.addFreshEntity(shard);
+    }
+
+    public static void handleDamage(LivingDamageEvent.Pre event) {
+        if (!(event.getSource().getEntity() instanceof Player player)
+                || !isEquipped(player, ModItems.EYE_OF_HORUS.get())) {
+            return;
+        }
+
+        int pieces = getActivePieces(player);
+        if (pieces > 0) {
+            event.setNewDamage(event.getNewDamage() * (1.0F + pieces * DAMAGE_BONUS_PER_PIECE));
+        }
+    }
+
+    private static void completeJudgement(ServerLevel level, Player player, LivingEntity target) {
+        if (!hasCompleteEye(player)) {
+            applyJudgement(level, player, target, true);
+            return;
+        }
+
+        applyJudgement(level, player, target, false);
+        AABB area = target.getBoundingBox().inflate(OPEN_EYE_RADIUS);
+        for (LivingEntity enemy : level.getEntitiesOfClass(
+                LivingEntity.class, area, candidate -> isEnemy(player, candidate))) {
+            if (enemy != target) {
+                applyJudgement(level, player, enemy, false);
+            }
+        }
+
+        level.sendParticles(ParticleTypes.END_ROD, target.getX(), target.getY() + target.getBbHeight() * 0.5,
+                target.getZ(), 180, 5.0, 3.0, 5.0, 0.25);
+        level.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH, 0xFFFFD75A),
+                target.getX(), target.getY() + target.getBbHeight() * 0.5,
+                target.getZ(), 1, 0.0, 0.0, 0.0, 0.0);
+        level.playSound(null, target.blockPosition(), SoundEvents.BEACON_ACTIVATE,
+                SoundSource.PLAYERS, 1.5F, 1.35F);
+        player.setData(ModAttachments.EYE_OF_HORUS_PIECE_MASK, 0);
+        player.setData(ModAttachments.EYE_OF_HORUS_FRAGMENT_SEED, 0L);
+        player.setData(ModAttachments.EYE_OF_HORUS_PIECES_EXPIRE_AT, 0L);
+        player.sendOverlayMessage(Component.translatable("message.noblephantasms.eye_of_horus.opened"));
+    }
+
+    private static void applyJudgement(ServerLevel level, Player player, LivingEntity target, boolean playSound) {
         target.addEffect(new MobEffectInstance(ModEffects.JUDGEMENT, JUDGEMENT_DURATION, 0, false, true, true), player);
-        level.playSound(null, target.blockPosition(), SoundEvents.BEACON_POWER_SELECT,
-                SoundSource.PLAYERS, 0.8F, 1.4F);
+        if (playSound) {
+            level.playSound(null, target.blockPosition(), SoundEvents.BEACON_POWER_SELECT,
+                    SoundSource.PLAYERS, 0.8F, 1.4F);
+        }
+    }
+
+    private static int getActivePieces(Player player) {
+        clearExpiredPieces(player);
+        return Integer.bitCount(player.getData(ModAttachments.EYE_OF_HORUS_PIECE_MASK));
+    }
+
+    private static void clearExpiredPieces(Player player) {
+        if (player.level().isClientSide()) {
+            return;
+        }
+        int pieces = Integer.bitCount(player.getData(ModAttachments.EYE_OF_HORUS_PIECE_MASK));
+        long expireAt = player.getData(ModAttachments.EYE_OF_HORUS_PIECES_EXPIRE_AT);
+        if (pieces > 0 && expireAt > 0L && player.level().getGameTime() >= expireAt) {
+            player.setData(ModAttachments.EYE_OF_HORUS_PIECE_MASK, 0);
+            player.setData(ModAttachments.EYE_OF_HORUS_FRAGMENT_SEED, 0L);
+            player.setData(ModAttachments.EYE_OF_HORUS_PIECES_EXPIRE_AT, 0L);
+            if (player instanceof ServerPlayer serverPlayer) {
+                serverPlayer.sendOverlayMessage(Component.translatable(
+                        "message.noblephantasms.eye_of_horus.scattered"));
+            }
+        }
+    }
+
+    private static long getOrCreateFragmentSeed(ServerPlayer player) {
+        long seed = player.getData(ModAttachments.EYE_OF_HORUS_FRAGMENT_SEED);
+        if (seed == 0L) {
+            do {
+                seed = player.getRandom().nextLong();
+            } while (seed == 0L);
+            player.setData(ModAttachments.EYE_OF_HORUS_FRAGMENT_SEED, seed);
+        }
+        return seed;
+    }
+
+    private static int getPieceCount(long seed) {
+        return RelicFragmenter.create(EYE_ID, seed).pieceCount();
+    }
+
+    private static boolean hasCompleteEye(Player player) {
+        int mask = player.getData(ModAttachments.EYE_OF_HORUS_PIECE_MASK);
+        long seed = player.getData(ModAttachments.EYE_OF_HORUS_FRAGMENT_SEED);
+        return seed != 0L && Integer.bitCount(mask) >= getPieceCount(seed);
+    }
+
+    private static boolean isEnemy(Player player, LivingEntity target) {
+        return target != player
+                && target.isAlive()
+                && (target instanceof Enemy || target instanceof Mob mob && mob.getTarget() == player);
     }
 
     private static void syncGlowProgress(Set<LivingEntity> targets) {

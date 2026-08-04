@@ -8,6 +8,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.turtleboi.noblephantasms.NoblePhantasms;
@@ -24,6 +25,9 @@ import net.turtleboi.noblephantasms.datagen.ModDatagen;
 import net.turtleboi.noblephantasms.entity.renderer.GungnirProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.KazagurumaProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.WindCutterRenderer;
+import net.turtleboi.noblephantasms.entity.renderer.EyeShardRenderer;
+import net.turtleboi.noblephantasms.screens.RelicForgeScreen;
+import net.turtleboi.noblephantasms.screens.menus.ModMenus;
 import net.turtleboi.noblephantasms.particle.custom.GungnirRuneParticle;
 import net.turtleboi.noblephantasms.particle.custom.CovenantLeafParticle;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -70,7 +74,13 @@ public final class ClientModBusEvents {
         GungnirProjectileRenderer.register(event);
         KazagurumaProjectileRenderer.register(event);
         WindCutterRenderer.register(event);
+        EyeShardRenderer.register(event);
         TrophyHeadBlockEntityRenderer.register(event);
+    }
+
+    @SubscribeEvent
+    static void registerMenuScreens(RegisterMenuScreensEvent event) {
+        event.register(ModMenus.RELIC_FORGE.get(), RelicForgeScreen::new);
     }
 
     @SubscribeEvent

@@ -48,11 +48,14 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ModItems.UCHIDE_NO_KOZUCHI.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(ModItems.HEKA.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(ModItems.NEKHAKHA.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
-        itemModels.generateFlatItem(ModItems.MACUAHUITL.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(ModItems.ANDVARANAUT.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.DRAUPNIR.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.MEGINGJORD.get(), ModelTemplates.FLAT_ITEM);
-        itemModels.generateFlatItem(ModItems.BOOK_OF_THOTH.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.MEDJU_NETJER.get(), ModelTemplates.FLAT_ITEM);
+        generateMappedFlatItem(itemModels, ModItems.RELIC_FRAGMENT.get(),
+                Identifier.withDefaultNamespace("item/gold_nugget"));
+        itemModels.generateFlatItem(ModItems.HOLY_GRAIL.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.SMOKING_MIRROR.get(), ModelTemplates.FLAT_ITEM);
         generateKazagurumaItem(itemModels, ModItems.KAZAGURUMA.get());
         var skullModel = BlockModelGenerators.plainVariant(
                 ModelLocationUtils.decorateBlockModelLocation("skull"));
@@ -60,14 +63,21 @@ public class ModModelProvider extends ModelProvider {
                 BlockModelGenerators.createSimpleBlock(ModBlocks.TROPHY_HEAD.get(), skullModel));
         blockModels.blockStateOutput.accept(
                 BlockModelGenerators.createSimpleBlock(ModBlocks.TROPHY_WALL_HEAD.get(), skullModel));
+        Identifier relicForgeModel = Identifier.fromNamespaceAndPath(
+                NoblePhantasms.MOD_ID, "block/relic_forge");
+        blockModels.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(
+                ModBlocks.RELIC_FORGE.get(), BlockModelGenerators.plainVariant(relicForgeModel)));
+        blockModels.registerSimpleItemModel(ModBlocks.RELIC_FORGE.get(), relicForgeModel);
         generateTrophyHeadItem(itemModels);
         generateBigItem(itemModels, ModItems.BERTILAK.get(), BigItemType.AXE);
         generateBigItem(itemModels, ModItems.EXCALIBUR.get(), BigItemType.SWORD);
         generateBigItem(itemModels, ModItems.GUNGNIR.get(), BigItemType.SPEAR);
-        generateBigItem(itemModels, ModItems.KHOPESH_OF_RA.get(), BigItemType.SWORD);
+        generateBigItem(itemModels, ModItems.WEBEN.get(), BigItemType.SWORD);
         generateBigItem(itemModels, ModItems.KUSANAGI_NO_TSURUGI.get(), BigItemType.SWORD);
         generateBigItem(itemModels, ModItems.RHONGOMYNIAD.get(), BigItemType.LANCE);
         generateBigItem(itemModels, ModItems.YAMAWARI.get(), BigItemType.AXE);
+        generateBigItem(itemModels, ModItems.MACUAHUITL.get(), BigItemType.SWORD,
+                "macuahuitl", "macuahuitl");
     }
 
     private static void generateHornItem(ItemModelGenerators itemModels, Item item) {
@@ -78,6 +88,14 @@ public class ModModelProvider extends ModelProvider {
         itemModels.itemModelOutput.accept(item, ItemModelUtils.conditional(
                 ItemModelUtils.isUsingItem(), ItemModelUtils.plainModel(tootingModel),
                 ItemModelUtils.plainModel(standardModel)));
+    }
+
+    private static void generateMappedFlatItem(
+            ItemModelGenerators itemModels, Item item, Identifier texture) {
+        Identifier model = ModelTemplates.FLAT_ITEM.create(
+                ModelLocationUtils.getModelLocation(item),
+                TextureMapping.layer0(new Material(texture)), itemModels.modelOutput);
+        itemModels.itemModelOutput.accept(item, ItemModelUtils.plainModel(model));
     }
 
     private static void generateKazagurumaItem(ItemModelGenerators itemModels, Item item) {
@@ -115,6 +133,16 @@ public class ModModelProvider extends ModelProvider {
     }
 
     public static void generateBigItem(ItemModelGenerators itemModels, Item item, BigItemType type) {
+        generateBigItem(itemModels, item, type, ModelLocationUtils.getModelLocation(item).getPath().substring(5));
+    }
+
+    public static void generateBigItem(
+            ItemModelGenerators itemModels, Item item, BigItemType type, String textureBase) {
+        generateBigItem(itemModels, item, type, textureBase + "_item", textureBase + "_weapon");
+    }
+
+    public static void generateBigItem(ItemModelGenerators itemModels, Item item, BigItemType type,
+                                       String standardTexture, String heldTexture) {
         ModelTemplate template = switch (type) {
             case AXE -> BIG_HANDHELD_AXE;
             case SWORD -> BIG_HANDHELD_SWORD;
@@ -122,15 +150,22 @@ public class ModModelProvider extends ModelProvider {
             case LANCE -> BIG_HANDHELD_LANCE;
         };
 
-        Identifier standardModel = itemModels.createFlatItemModel(item, "_item", ModelTemplates.FLAT_ITEM);
-        Identifier heldModel = itemModels.createFlatItemModel(item, "_weapon", template);
+        Identifier standardModel = ModelTemplates.FLAT_ITEM.create(
+                ModelLocationUtils.getModelLocation(item, "_item"),
+                TextureMapping.layer0(new Material(Identifier.fromNamespaceAndPath(
+                        NoblePhantasms.MOD_ID, "item/" + standardTexture))), itemModels.modelOutput);
+        Identifier heldModel = template.create(
+                ModelLocationUtils.getModelLocation(item, "_weapon"),
+                TextureMapping.layer0(new Material(Identifier.fromNamespaceAndPath(
+                        NoblePhantasms.MOD_ID, "item/" + heldTexture))), itemModels.modelOutput);
         var standardItemModel = ItemModelUtils.plainModel(standardModel);
         var heldItemModel = ItemModelUtils.plainModel(heldModel);
 
         if (type == BigItemType.SPEAR) {
             Identifier throwingModel = BIG_HANDHELD_SPEAR_THROWING.create(
                     ModelLocationUtils.getModelLocation(item, "_weapon_throwing"),
-                    TextureMapping.layer0(TextureMapping.getItemTexture(item, "_weapon")), itemModels.modelOutput);
+                    TextureMapping.layer0(new Material(Identifier.fromNamespaceAndPath(
+                            NoblePhantasms.MOD_ID, "item/" + heldTexture))), itemModels.modelOutput);
             var thirdPersonModel = ItemModelUtils.conditional(
                     ItemModelUtils.isUsingItem(), ItemModelUtils.plainModel(throwingModel), heldItemModel);
 

@@ -18,12 +18,12 @@ import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.turtleboi.noblephantasms.attachment.ModAttachments;
 import net.turtleboi.noblephantasms.item.ModItems;
 
-public class BookOfThothItem extends Item {
+public class MedjuNetjerItem extends Item {
     public interface MenuAccess {
-        boolean noblePhantasms$hasBookOfThoth();
+        boolean noblePhantasms$hasMedjuNetjer();
     }
 
-    public BookOfThothItem(Properties properties) {
+    public MedjuNetjerItem(Properties properties) {
         super(properties.stacksTo(1).rarity(Rarity.EPIC).fireResistant());
     }
 
@@ -40,8 +40,8 @@ public class BookOfThothItem extends Item {
 
         Player player = event.getEntity();
         ItemStack heldItem = event.getItemStack();
-        boolean installed = table.getData(ModAttachments.BOOK_OF_THOTH_INSTALLED.get());
-        if (heldItem.is(ModItems.BOOK_OF_THOTH) && !installed) {
+        boolean installed = table.getData(ModAttachments.MEDJU_NETJER_INSTALLED.get());
+        if (heldItem.is(ModItems.MEDJU_NETJER) && !installed) {
             event.setCanceled(true);
             event.setCancellationResult(InteractionResult.SUCCESS);
             if (!event.getLevel().isClientSide()) {
@@ -51,9 +51,9 @@ public class BookOfThothItem extends Item {
             event.setCanceled(true);
             event.setCancellationResult(InteractionResult.SUCCESS);
             if (!event.getLevel().isClientSide()) {
-                table.setData(ModAttachments.BOOK_OF_THOTH_INSTALLED.get(), false);
-                table.syncData(ModAttachments.BOOK_OF_THOTH_INSTALLED.get());
-                ItemStack book = new ItemStack(ModItems.BOOK_OF_THOTH.get());
+                table.setData(ModAttachments.MEDJU_NETJER_INSTALLED.get(), false);
+                table.syncData(ModAttachments.MEDJU_NETJER_INSTALLED.get());
+                ItemStack book = new ItemStack(ModItems.MEDJU_NETJER.get());
                 if (!player.getInventory().add(book)) {
                     player.drop(book, false);
                 }
@@ -70,9 +70,9 @@ public class BookOfThothItem extends Item {
         }
 
         BlockEntity table = level.getBlockEntity(event.getPos());
-        if (table != null && table.getData(ModAttachments.BOOK_OF_THOTH_INSTALLED.get())) {
-            table.setData(ModAttachments.BOOK_OF_THOTH_INSTALLED.get(), false);
-            Block.popResource(level, event.getPos(), new ItemStack(ModItems.BOOK_OF_THOTH.get()));
+        if (table != null && table.getData(ModAttachments.MEDJU_NETJER_INSTALLED.get())) {
+            table.setData(ModAttachments.MEDJU_NETJER_INSTALLED.get(), false);
+            Block.popResource(level, event.getPos(), new ItemStack(ModItems.MEDJU_NETJER.get()));
         }
     }
 
@@ -83,7 +83,7 @@ public class BookOfThothItem extends Item {
         }
 
         BlockEntity table = context.getLevel().getBlockEntity(context.getClickedPos());
-        if (table == null || table.getData(ModAttachments.BOOK_OF_THOTH_INSTALLED.get())) {
+        if (table == null || table.getData(ModAttachments.MEDJU_NETJER_INSTALLED.get())) {
             return InteractionResult.PASS;
         }
         if (context.getLevel().isClientSide()) {
@@ -95,8 +95,8 @@ public class BookOfThothItem extends Item {
     }
 
     private static void installBook(BlockEntity table, Player player, ItemStack heldItem) {
-        table.setData(ModAttachments.BOOK_OF_THOTH_INSTALLED.get(), true);
-        table.syncData(ModAttachments.BOOK_OF_THOTH_INSTALLED.get());
+        table.setData(ModAttachments.MEDJU_NETJER_INSTALLED.get(), true);
+        table.syncData(ModAttachments.MEDJU_NETJER_INSTALLED.get());
         heldItem.consume(1, player);
         table.getLevel().playSound(null, table.getBlockPos(), SoundEvents.ENCHANTMENT_TABLE_USE,
                 SoundSource.BLOCKS, 1.0F, 0.75F);

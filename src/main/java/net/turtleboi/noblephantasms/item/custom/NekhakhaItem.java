@@ -31,6 +31,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.item.ModItems;
+import net.turtleboi.noblephantasms.effect.ModEffects;
 
 public class NekhakhaItem extends Item {
     private static final double FEAR_RANGE = 8.0;
@@ -117,7 +118,7 @@ public class NekhakhaItem extends Item {
         if (fear == null) {
             return;
         }
-        if (mob.level().getGameTime() >= fear.endTick()) {
+        if (mob.level().getGameTime() >= fear.endTick() || !mob.hasEffect(ModEffects.FEARED)) {
             FEARED_MOBS.remove(mob.getUUID());
             return;
         }
@@ -146,6 +147,7 @@ public class NekhakhaItem extends Item {
         for (Mob mob : level.getEntitiesOfClass(Mob.class, area, NekhakhaItem::isFearTarget)) {
             FEARED_MOBS.put(mob.getUUID(), new FearState(player.position(), endTick));
             mob.setTarget(null);
+            mob.addEffect(new MobEffectInstance(ModEffects.FEARED, FEAR_DURATION, 0, false, true, true), player);
         }
 
         player.getCooldowns().addCooldown(nekhakha, FEAR_COOLDOWN);

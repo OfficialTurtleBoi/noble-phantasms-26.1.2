@@ -36,8 +36,14 @@ public final class NoblePhantasmsJeiPlugin implements IModPlugin {
                 Component.translatable("jei.noblephantasms.info.meginjord"));
         registration.addIngredientInfo(ModItems.SCABBARD.get(),
                 Component.translatable("jei.noblephantasms.info.scabbard"));
-        registration.addIngredientInfo(ModItems.BOOK_OF_THOTH.get(),
-                Component.translatable("jei.noblephantasms.info.book_of_thoth"));
+        registration.addIngredientInfo(ModItems.MEDJU_NETJER.get(),
+                Component.translatable("jei.noblephantasms.info.medju_netjer"));
+        registration.addIngredientInfo(ModItems.HOLY_GRAIL.get(),
+                Component.translatable("jei.noblephantasms.info.holy_grail"));
+        registration.addIngredientInfo(ModItems.SMOKING_MIRROR.get(),
+                Component.translatable("jei.noblephantasms.info.smoking_mirror"));
+        registration.addIngredientInfo(ModItems.WEBEN.get(),
+                Component.translatable("jei.noblephantasms.info.weben"));
         registration.addIngredientInfo(ModItems.EAGLE_KNIGHT_TALONS.get(),
                 Component.translatable("jei.noblephantasms.info.eagle_knight_talons"));
         registration.addIngredientInfo(ModItems.KAZAGURUMA.get(),

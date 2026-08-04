@@ -25,6 +25,12 @@ public class ModConfig {
             .comment("A list of items to log on common setup.")
             .defineListAllowEmpty("items", List.of("minecraft:iron_ingot"), () -> "", ModConfig::validateItemName);
 
+    public static final ModConfigSpec.DoubleValue EYE_SHARD_DROP_CHANCE = BUILDER
+            .defineInRange("eyeOfHorus.shardDropChance", 0.25, 0.0, 1.0);
+
+    public static final ModConfigSpec.IntValue EYE_PIECE_LIFETIME_SECONDS = BUILDER
+            .defineInRange("eyeOfHorus.pieceLifetimeSeconds", 300, 1, 3600);
+
     public static final ModConfigSpec SPEC = BUILDER.build();
     private static boolean validateItemName(final Object object) {
         return object instanceof String itemName && BuiltInRegistries.ITEM.containsKey(Identifier.parse(itemName));

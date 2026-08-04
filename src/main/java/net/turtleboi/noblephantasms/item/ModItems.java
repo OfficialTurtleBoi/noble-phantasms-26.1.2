@@ -1,6 +1,7 @@
 package net.turtleboi.noblephantasms.item;
 
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.BlockItem;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -9,7 +10,7 @@ import net.turtleboi.noblephantasms.block.ModBlocks;
 import net.turtleboi.noblephantasms.item.custom.AndvaranautItem;
 import net.turtleboi.noblephantasms.item.custom.AnkhItem;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
-import net.turtleboi.noblephantasms.item.custom.BookOfThothItem;
+import net.turtleboi.noblephantasms.item.custom.MedjuNetjerItem;
 import net.turtleboi.noblephantasms.item.custom.CarnwennanItem;
 import net.turtleboi.noblephantasms.item.custom.DraupnirItem;
 import net.turtleboi.noblephantasms.item.custom.EagleKnightTalonsItem;
@@ -19,7 +20,7 @@ import net.turtleboi.noblephantasms.item.custom.GjallarhornItem;
 import net.turtleboi.noblephantasms.item.custom.GungnirItem;
 import net.turtleboi.noblephantasms.item.custom.HekaItem;
 import net.turtleboi.noblephantasms.item.custom.HulioshjalmrItem;
-import net.turtleboi.noblephantasms.item.custom.KhopeshOfRaItem;
+import net.turtleboi.noblephantasms.item.custom.WebenItem;
 import net.turtleboi.noblephantasms.item.custom.KazagurumaItem;
 import net.turtleboi.noblephantasms.item.custom.KusanagiNoTsurugiItem;
 import net.turtleboi.noblephantasms.item.custom.MacuahuitlItem;
@@ -32,6 +33,9 @@ import net.turtleboi.noblephantasms.item.custom.ScalesOfMaatItem;
 import net.turtleboi.noblephantasms.item.custom.TrophyHeadItem;
 import net.turtleboi.noblephantasms.item.custom.UchideNoKozuchiItem;
 import net.turtleboi.noblephantasms.item.custom.YamawariItem;
+import net.turtleboi.noblephantasms.item.custom.HolyGrailItem;
+import net.turtleboi.noblephantasms.item.custom.SmokingMirrorItem;
+import net.turtleboi.noblephantasms.item.custom.RelicFragmentItem;
 
 public class ModItems {
     public static final DeferredRegister.Items ITEMS =
@@ -71,8 +75,8 @@ public class ModItems {
     public static final DeferredItem<GjallarhornItem> GJALLARHORN =
             ITEMS.registerItem("gjallarhorn", GjallarhornItem::new);
 
-    public static final DeferredItem<KhopeshOfRaItem> KHOPESH_OF_RA =
-            ITEMS.registerItem("khopesh", KhopeshOfRaItem::new);
+    public static final DeferredItem<WebenItem> WEBEN =
+            ITEMS.registerItem("weben", WebenItem::new);
 
     public static final DeferredItem<KusanagiNoTsurugiItem> KUSANAGI_NO_TSURUGI =
             ITEMS.registerItem("kusanagi_no_tsurugi", KusanagiNoTsurugiItem::new);
@@ -113,8 +117,20 @@ public class ModItems {
     public static final DeferredItem<NekhakhaItem> NEKHAKHA =
             ITEMS.registerItem("nekhakha", NekhakhaItem::new);
 
-    public static final DeferredItem<BookOfThothItem> BOOK_OF_THOTH =
-            ITEMS.registerItem("book_of_thoth", BookOfThothItem::new);
+    public static final DeferredItem<MedjuNetjerItem> MEDJU_NETJER =
+            ITEMS.registerItem("medju_netjer", MedjuNetjerItem::new);
+
+    public static final DeferredItem<RelicFragmentItem> RELIC_FRAGMENT =
+            ITEMS.registerItem("relic_fragment", RelicFragmentItem::new);
+
+    public static final DeferredItem<BlockItem> RELIC_FORGE =
+            ITEMS.registerSimpleBlockItem(ModBlocks.RELIC_FORGE);
+
+    public static final DeferredItem<HolyGrailItem> HOLY_GRAIL =
+            ITEMS.registerItem("holy_grail", HolyGrailItem::new);
+
+    public static final DeferredItem<SmokingMirrorItem> SMOKING_MIRROR =
+            ITEMS.registerItem("smoking_mirror", SmokingMirrorItem::new);
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

@@ -21,10 +21,11 @@ import net.turtleboi.noblephantasms.effect.custom.BleedEffect;
 import net.turtleboi.noblephantasms.effect.custom.CovenantEffect;
 import net.turtleboi.noblephantasms.effect.custom.JudgementEffect;
 import net.turtleboi.noblephantasms.effect.custom.LuminousEffect;
+import net.turtleboi.noblephantasms.effect.custom.UndyingEffect;
 import net.turtleboi.noblephantasms.item.custom.AndvaranautItem;
 import net.turtleboi.noblephantasms.item.custom.AnkhItem;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
-import net.turtleboi.noblephantasms.item.custom.BookOfThothItem;
+import net.turtleboi.noblephantasms.item.custom.MedjuNetjerItem;
 import net.turtleboi.noblephantasms.item.custom.EagleKnightTalonsItem;
 import net.turtleboi.noblephantasms.item.custom.HekaItem;
 import net.turtleboi.noblephantasms.item.custom.MegingjordItem;
@@ -32,6 +33,8 @@ import net.turtleboi.noblephantasms.item.custom.NekhakhaItem;
 import net.turtleboi.noblephantasms.item.custom.ScabbardItem;
 import net.turtleboi.noblephantasms.item.custom.UchideNoKozuchiItem;
 import net.turtleboi.noblephantasms.item.custom.YamawariItem;
+import net.turtleboi.noblephantasms.item.custom.EyeOfHorusItem;
+import net.turtleboi.noblephantasms.item.custom.SmokingMirrorItem;
 import net.turtleboi.noblephantasms.world.ArtificialOreSavedData;
 import net.minecraft.world.entity.Mob;
 
@@ -46,6 +49,8 @@ public final class ModEvents {
     @SubscribeEvent
     static void onDamageFinalized(LivingDamageEvent.Pre event) {
         JudgementEffect.handleDamage(event);
+        UndyingEffect.handleDamage(event);
+        EyeOfHorusItem.handleDamage(event);
         AndvaranautItem.handleDamage(event);
         BertilakItem.handleDamageFinalized(event);
         AnkhItem.handleDamageFinalized(event);
@@ -65,6 +70,7 @@ public final class ModEvents {
     @SubscribeEvent
     static void onLivingDeath(LivingDeathEvent event) {
         BertilakItem.handleLivingDeath(event);
+        EyeOfHorusItem.handleLivingDeath(event);
     }
 
     @SubscribeEvent
@@ -110,19 +116,20 @@ public final class ModEvents {
     static void onEntityTick(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof Mob mob) {
             NekhakhaItem.handleMobTick(mob);
+            SmokingMirrorItem.handleMobTick(mob);
         }
     }
 
     @SubscribeEvent
     static void onBreakBlock(BreakBlockEvent event) {
-        BookOfThothItem.handleBlockBreak(event);
+        MedjuNetjerItem.handleBlockBreak(event);
         UchideNoKozuchiItem.handleBlockBreak(event);
         YamawariItem.handleBlockBreak(event);
     }
 
     @SubscribeEvent
     static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        BookOfThothItem.handleTableInteraction(event);
+        MedjuNetjerItem.handleTableInteraction(event);
         UchideNoKozuchiItem.handleRightClickBlock(event);
     }
 

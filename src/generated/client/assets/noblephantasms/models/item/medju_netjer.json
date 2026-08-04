@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "noblephantasms:item/book_of_thoth"
+    "layer0": "noblephantasms:item/medju_netjer"
   }
 }

@@ -9,6 +9,7 @@ import net.turtleboi.noblephantasms.entity.ModEntities;
 import net.turtleboi.noblephantasms.effect.ModEffects;
 import net.turtleboi.noblephantasms.item.ModItems;
 import net.turtleboi.noblephantasms.item.creative.ModCreativeModeTabs;
+import net.turtleboi.noblephantasms.screens.menus.ModMenus;
 import net.turtleboi.noblephantasms.particle.ModParticles;
 import org.slf4j.Logger;
 
@@ -33,6 +34,7 @@ public class NoblePhantasms {
         ModEffects.register(modEventBus);
         ModAttachments.register(modEventBus);
         ModDataComponents.register(modEventBus);
+        ModMenus.register(modEventBus);
         ModItems.register(modEventBus);
 
         modContainer.registerConfig(Type.COMMON, ModConfig.SPEC);

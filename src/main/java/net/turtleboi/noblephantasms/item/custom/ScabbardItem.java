@@ -8,6 +8,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
+import net.turtleboi.noblephantasms.effect.ModEffects;
 import net.turtleboi.noblephantasms.item.ModItems;
 import net.turtleboi.noblephantasms.item.ModRarities;
 import top.theillusivec4.curios.api.SlotContext;
@@ -52,6 +53,6 @@ public final class ScabbardItem extends CurioRelicItem {
     }
 
     private static boolean isPrevented(Holder<MobEffect> effect) {
-        return effect.is(MobEffects.POISON) || effect.is(MobEffects.WITHER);
+        return effect.is(MobEffects.POISON) || effect.is(MobEffects.WITHER) || effect.is(ModEffects.BLEEDING.getKey());
     }
 }

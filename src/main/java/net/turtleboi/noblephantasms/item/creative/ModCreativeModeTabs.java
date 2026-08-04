@@ -12,6 +12,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.item.ModItems;
 import net.turtleboi.noblephantasms.item.custom.TrophyHeadItem;
+import net.turtleboi.noblephantasms.item.custom.RelicFragmentItem;
+import net.turtleboi.noblephantasms.relic.RelicFragmentData;
+import net.turtleboi.noblephantasms.relic.RelicFragmentDefinitions;
 
 public class ModCreativeModeTabs {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
@@ -22,23 +25,25 @@ public class ModCreativeModeTabs {
                     () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModItems.EYE_OF_HORUS.get()))
                             .title(Component.translatable("creativetab.noblephantasms.title"))
                             .displayItems((itemDisplayParameters, output) -> {
-                                output.accept(ModItems.KHOPESH_OF_RA);
+                                output.accept(ModItems.WEBEN);
                                 output.accept(ModItems.HEKA);
                                 output.accept(ModItems.NEKHAKHA);
                                 output.accept(ModItems.EYE_OF_HORUS);
                                 output.accept(ModItems.ANKH);
                                 output.accept(ModItems.KHEPER_SCARAB);
                                 output.accept(ModItems.SCALES_OF_MAAT);
-                                output.accept(ModItems.BOOK_OF_THOTH);
+                                output.accept(ModItems.MEDJU_NETJER);
 
                                 output.accept(ModItems.EAGLE_KNIGHT_TALONS);
                                 output.accept(ModItems.MACUAHUITL);
+                                output.accept(ModItems.SMOKING_MIRROR);
 
                                 output.accept(ModItems.EXCALIBUR);
                                 output.accept(ModItems.SCABBARD);
                                 output.accept(ModItems.CARNWENNAN);
                                 output.accept(ModItems.RHONGOMYNIAD);
                                 output.accept(ModItems.BERTILAK);
+                                output.accept(ModItems.HOLY_GRAIL);
 
                                 output.accept(ModItems.GUNGNIR);
                                 output.accept(ModItems.GJALLARHORN);
@@ -51,6 +56,11 @@ public class ModCreativeModeTabs {
                                 output.accept(ModItems.KAZAGURUMA);
                                 output.accept(ModItems.UCHIDE_NO_KOZUCHI);
                                 output.accept(ModItems.YAMAWARI);
+                                output.accept(ModItems.RELIC_FORGE);
+                                RelicFragmentDefinitions.relicIds().forEach(relicId -> output.accept(
+                                        RelicFragmentItem.create(ModItems.RELIC_FRAGMENT.get(),
+                                                RelicFragmentData.forgePiece(relicId),
+                                                1)));
                             })
                             .build());
 

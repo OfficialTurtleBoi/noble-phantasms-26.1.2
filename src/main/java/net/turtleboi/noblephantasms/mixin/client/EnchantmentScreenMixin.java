@@ -23,7 +23,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
-import net.turtleboi.noblephantasms.item.custom.BookOfThothItem;
+import net.turtleboi.noblephantasms.item.custom.MedjuNetjerItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -43,7 +43,7 @@ public abstract class EnchantmentScreenMixin extends AbstractContainerScreen<Enc
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void noblePhantasms$clickBookToReroll(MouseButtonEvent event, boolean doubleClick,
             CallbackInfoReturnable<Boolean> cir) {
-        if (!((BookOfThothItem.MenuAccess)this.menu).noblePhantasms$hasBookOfThoth()
+        if (!((MedjuNetjerItem.MenuAccess)this.menu).noblePhantasms$hasMedjuNetjer()
                 || event.button() != 0) {
             return;
         }
@@ -65,7 +65,7 @@ public abstract class EnchantmentScreenMixin extends AbstractContainerScreen<Enc
     @Inject(method = "extractRenderState", at = @At("TAIL"))
     private void noblePhantasms$showFullEnchantments(GuiGraphicsExtractor graphics, int mouseX, int mouseY,
             float partialTick, CallbackInfo ci) {
-        if (!((BookOfThothItem.MenuAccess)this.menu).noblePhantasms$hasBookOfThoth()
+        if (!((MedjuNetjerItem.MenuAccess)this.menu).noblePhantasms$hasMedjuNetjer()
                 || this.minecraft.level == null) {
             return;
         }
@@ -74,7 +74,7 @@ public abstract class EnchantmentScreenMixin extends AbstractContainerScreen<Enc
         int top = (this.height - this.imageHeight) / 2;
         if (mouseX >= left + 14 && mouseX < left + 52 && mouseY >= top + 14 && mouseY < top + 45) {
             graphics.setComponentTooltipForNextFrame(this.font,
-                    List.of(Component.translatable("tooltip.noblephantasms.book_of_thoth.reroll")
+                    List.of(Component.translatable("tooltip.noblephantasms.medju_netjer.reroll")
                             .withStyle(ChatFormatting.GOLD)), mouseX, mouseY);
             return;
         }
@@ -90,7 +90,7 @@ public abstract class EnchantmentScreenMixin extends AbstractContainerScreen<Enc
             }
 
             List<Component> tooltip = new ArrayList<>();
-            tooltip.add(Component.translatable("tooltip.noblephantasms.book_of_thoth.offer")
+            tooltip.add(Component.translatable("tooltip.noblephantasms.medju_netjer.offer")
                     .withStyle(ChatFormatting.GOLD));
             List<EnchantmentInstance> offer = getOffer(target, slot, this.menu.costs[slot]);
             for (EnchantmentInstance enchantment : offer) {

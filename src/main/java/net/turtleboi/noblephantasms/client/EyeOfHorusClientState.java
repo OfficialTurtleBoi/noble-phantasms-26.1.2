@@ -45,15 +45,16 @@ public final class EyeOfHorusClientState {
 
             state.previousFocusProgress = state.focusProgress;
             state.previousJudgementProgress = state.judgementProgress;
+            int focusDuration = EyeOfHorusItem.getFocusDuration(minecraft.player);
             float focusChange = entity == target
-                    ? 1.0F / EyeOfHorusItem.FOCUS_DURATION
-                    : -((float) EyeOfHorusItem.FOCUS_DECAY_PER_TICK / EyeOfHorusItem.FOCUS_DURATION);
+                    ? 1.0F / focusDuration
+                    : -((float) EyeOfHorusItem.FOCUS_DECAY_PER_TICK / focusDuration);
             state.focusProgress = Mth.clamp(state.focusProgress + focusChange, 0.0F, 1.0F);
             state.judgementProgress = hasJudgementGlow(entity)
                     ? 1.0F
                     : Mth.clamp(
                             state.judgementProgress
-                                    - (float) EyeOfHorusItem.FOCUS_DECAY_PER_TICK / EyeOfHorusItem.FOCUS_DURATION,
+                                    - (float) EyeOfHorusItem.FOCUS_DECAY_PER_TICK / focusDuration,
                             0.0F,
                             1.0F);
             if (state.focusProgress == 0.0F && state.previousFocusProgress == 0.0F
@@ -75,9 +76,13 @@ public final class EyeOfHorusClientState {
         }
 
         Integer syncedFocusTicks = entity.getExistingDataOrNull(ModAttachments.EYE_OF_HORUS_GLOW_PROGRESS);
+        Minecraft minecraft = Minecraft.getInstance();
+        int focusDuration = minecraft.player == null
+                ? EyeOfHorusItem.BASE_FOCUS_DURATION
+                : EyeOfHorusItem.getFocusDuration(minecraft.player);
         float syncedFocusProgress = syncedFocusTicks == null
                 ? 0.0F
-                : Mth.clamp((float) syncedFocusTicks / EyeOfHorusItem.FOCUS_DURATION, 0.0F, 1.0F);
+                : Mth.clamp((float) syncedFocusTicks / focusDuration, 0.0F, 1.0F);
         float focusProgress;
         float judgementProgress;
         if (state == null) {

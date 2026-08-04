@@ -25,13 +25,14 @@ public class ModLanguageProvider extends LanguageProvider {
         addSimpleItem(ModItems.BERTILAK);
         addSimpleItem(ModItems.TROPHY_HEAD, "Trophy Head");
         add(ModBlocks.TROPHY_HEAD.get(), "Trophy Head");
+        add(ModBlocks.RELIC_FORGE.get(), "Relic Forge");
         addSimpleItem(ModItems.CARNWENNAN);
         addSimpleItem(ModItems.EXCALIBUR);
         addSimpleItem(ModItems.GJALLARHORN);
         addSimpleItem(ModItems.HULIOSHJALMR, "Huliðshjálmr");
         addSimpleItem(ModItems.EYE_OF_HORUS, "Eye of Horus");
         addSimpleItem(ModItems.GUNGNIR);
-        addSimpleItem(ModItems.KHOPESH_OF_RA, "Khopesh of Ra");
+        addSimpleItem(ModItems.WEBEN);
         addSimpleItem(ModItems.KUSANAGI_NO_TSURUGI, "Kusanagi-no-Tsurugi");
         addSimpleItem(ModItems.KAZAGURUMA);
         addSimpleItem(ModItems.RHONGOMYNIAD);
@@ -44,9 +45,15 @@ public class ModLanguageProvider extends LanguageProvider {
         addSimpleItem(ModItems.MEGINGJORD, "Megingjörð");
         addSimpleItem(ModItems.HEKA);
         addSimpleItem(ModItems.NEKHAKHA);
-        addSimpleItem(ModItems.BOOK_OF_THOTH, "Book of Thoth");
-        add("tooltip.noblephantasms.book_of_thoth.reroll", "Turn the page (1 Lapis Lazuli)");
-        add("tooltip.noblephantasms.book_of_thoth.offer", "Book of Thoth reveals:");
+        addSimpleItem(ModItems.MEDJU_NETJER, "Medju Netjer");
+        addSimpleItem(ModItems.HOLY_GRAIL, "The Holy Grail");
+        addSimpleItem(ModItems.SMOKING_MIRROR, "The Smoking Mirror");
+        addSimpleItem(ModItems.RELIC_FRAGMENT, "Relic Fragment");
+        add("item.noblephantasms.relic_fragment.named", "%s Fragment");
+        add("menu.noblephantasms.relic_forge", "Relic Forging");
+        add("menu.noblephantasms.relic_forge.forge", "Forge");
+        add("tooltip.noblephantasms.medju_netjer.reroll", "Turn the page (1 Lapis Lazuli)");
+        add("tooltip.noblephantasms.medju_netjer.offer", "Medju Netjer reveals:");
         add("jei.noblephantasms.info.ankh",
                 "Equip in a Curios charm or compatible totem slot. Fatal damage restores full health, "
                         + "releases a damaging and blinding radiant burst, and grants 15 seconds of invulnerability. "
@@ -54,7 +61,9 @@ public class ModLanguageProvider extends LanguageProvider {
         add("jei.noblephantasms.info.eye_of_horus",
                 "Equip in a Curios necklace slot. Hold your crosshair on a living target for 2 seconds to apply "
                         + "Judgement for 15 seconds, marking it with a golden glow and making it take 25% more "
-                        + "damage from all sources.");
+                        + "damage from all sources. Judged enemies you kill have a chance to drop glowing Eye "
+                        + "Shards. Up to six pieces grant 5% damage and reduce gaze time by 0.25 seconds each. "
+                        + "At six pieces, the next fully charged Judgement marks nearby enemies in a radiant burst.");
         add("jei.noblephantasms.info.kheper_scarab",
                 "Equip in a Curios charm slot. Repairs each damaged item in your hands and armor slots by "
                         + "1 durability every 2 seconds.");
@@ -72,10 +81,18 @@ public class ModLanguageProvider extends LanguageProvider {
         add("jei.noblephantasms.info.scabbard",
                 "Equip in a Curios belt slot. Constantly regenerates health faster as your health falls and "
                         + "prevents poison, wither, and bleed effects.");
-        add("jei.noblephantasms.info.book_of_thoth",
-                "Use the Book of Thoth on an enchanting table to install it. "
+        add("jei.noblephantasms.info.medju_netjer",
+                "Use Medju Netjer on an enchanting table to install it. "
                         + "Sneak-right-click the table with an empty hand to remove it. "
                         + "While installed, it reveals enchantment offers and lets you reroll them for 1 Lapis Lazuli.");
+        add("jei.noblephantasms.info.weben",
+                "Charges for 10 seconds while carried in direct sunlight. A fully charged strike releases a fiery "
+                        + "flare for bonus damage and ignites the target.");
+        add("jei.noblephantasms.info.holy_grail",
+                "Drink to gain Undying for 5 seconds. Damage cannot reduce you below half a heart while it lasts. "
+                        + "3 minute cooldown.");
+        add("jei.noblephantasms.info.smoking_mirror",
+                "Use on a living target to make every mob within 10 blocks hunt it for 8 seconds.");
         add("jei.noblephantasms.info.eagle_knight_talons",
                 "Crouch while airborne to dive rapidly. Landing creates a 4-block shockwave that deals more damage "
                         + "the farther you fell, while negating the slam's fall damage.");
@@ -98,11 +115,16 @@ public class ModLanguageProvider extends LanguageProvider {
         add("message.noblephantasms.bertilak.cooldown", "The Covenant can be bound again in %s seconds");
         add("message.noblephantasms.bertilak.fulfilled", "Covenant fulfilled: %s");
         add("message.noblephantasms.bertilak.target_bound", "That target is already bound by a Covenant");
+        add("message.noblephantasms.eye_of_horus.pieces", "Eye pieces: %s/%s");
+        add("message.noblephantasms.eye_of_horus.opened", "The Eye opens and scatters");
+        add("message.noblephantasms.eye_of_horus.scattered", "The Eye pieces have scattered");
         add("effect.noblephantasms.covenant", "Covenant");
         add("effect.noblephantasms.judgement", "Judgement");
         add("effect.noblephantasms.luminous", "Luminous");
         add("effect.noblephantasms.reborn", "Reborn");
         add("effect.noblephantasms.bleeding", "Bleeding");
+        add("effect.noblephantasms.feared", "Feared");
+        add("effect.noblephantasms.undying", "Undying");
         add("death.attack.bleed", "%1$s bled out");
         add("death.attack.bleed.player", "%1$s bled out due to %2$s");
         add("noblephantasms.configuration.title", "Noble Phantasms Configs");

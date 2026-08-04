@@ -10,6 +10,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.block.custom.TrophyHeadBlock;
 import net.turtleboi.noblephantasms.block.custom.TrophyWallHeadBlock;
+import net.turtleboi.noblephantasms.block.custom.RelicForgeBlock;
+import net.minecraft.world.level.block.Blocks;
 
 public final class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS =
@@ -29,6 +31,10 @@ public final class ModBlocks {
                             .overrideLootTable(TROPHY_HEAD.get().getLootTable())
                             .overrideDescription(TROPHY_HEAD.get().getDescriptionId())
                             .dynamicShape());
+
+    public static final DeferredBlock<RelicForgeBlock> RELIC_FORGE =
+            BLOCKS.registerBlock("relic_forge", RelicForgeBlock::new,
+                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.SMITHING_TABLE));
 
     public static void register(IEventBus eventBus) {
         BLOCKS.register(eventBus);

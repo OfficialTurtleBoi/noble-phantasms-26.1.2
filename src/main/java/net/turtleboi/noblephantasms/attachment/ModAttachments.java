@@ -22,8 +22,8 @@ public final class ModAttachments {
                     .copyOnDeath()
                     .build());
 
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> BOOK_OF_THOTH_INSTALLED =
-            ATTACHMENTS.register("book_of_thoth_installed", () -> AttachmentType.builder(() -> false)
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> MEDJU_NETJER_INSTALLED =
+            ATTACHMENTS.register("medju_netjer_installed", () -> AttachmentType.builder(() -> false)
                     .serialize(Codec.BOOL.fieldOf("installed"), Boolean::booleanValue)
                     .sync(ByteBufCodecs.BOOL)
                     .build());
@@ -42,6 +42,24 @@ public final class ModAttachments {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> EYE_OF_HORUS_JUDGEMENT_GLOW =
             ATTACHMENTS.register("eye_of_horus_judgement_glow", () -> AttachmentType.builder(() -> false)
                     .sync(ByteBufCodecs.BOOL)
+                    .build());
+
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> EYE_OF_HORUS_PIECE_MASK =
+            ATTACHMENTS.register("eye_of_horus_piece_mask", () -> AttachmentType.builder(() -> 0)
+                    .serialize(Codec.INT.fieldOf("piece_mask"))
+                    .sync(ByteBufCodecs.VAR_INT)
+                    .build());
+
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Long>> EYE_OF_HORUS_FRAGMENT_SEED =
+            ATTACHMENTS.register("eye_of_horus_fragment_seed", () -> AttachmentType.builder(() -> 0L)
+                    .serialize(Codec.LONG.fieldOf("fragment_seed"))
+                    .sync(ByteBufCodecs.VAR_LONG)
+                    .build());
+
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Long>> EYE_OF_HORUS_PIECES_EXPIRE_AT =
+            ATTACHMENTS.register("eye_of_horus_pieces_expire_at", () -> AttachmentType.builder(() -> 0L)
+                    .serialize(Codec.LONG.fieldOf("expires_at"))
+                    .sync(ByteBufCodecs.VAR_LONG)
                     .build());
 
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Float>> BERTILAK_GLOW_PROGRESS =

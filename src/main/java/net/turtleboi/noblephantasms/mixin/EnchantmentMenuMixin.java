@@ -12,7 +12,7 @@ import net.minecraft.world.inventory.EnchantmentMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.turtleboi.noblephantasms.attachment.ModAttachments;
-import net.turtleboi.noblephantasms.item.custom.BookOfThothItem;
+import net.turtleboi.noblephantasms.item.custom.MedjuNetjerItem;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EnchantmentMenu.class)
-public abstract class EnchantmentMenuMixin extends AbstractContainerMenu implements BookOfThothItem.MenuAccess {
+public abstract class EnchantmentMenuMixin extends AbstractContainerMenu implements MedjuNetjerItem.MenuAccess {
     @Shadow
     @Final
     private Container enchantSlots;
@@ -49,7 +49,7 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
             ContainerLevelAccess access, CallbackInfo ci) {
         this.noblePhantasms$bookOfThothInstalled = access.evaluate((level, pos) -> {
             var table = level.getBlockEntity(pos);
-            return table != null && table.getData(ModAttachments.BOOK_OF_THOTH_INSTALLED.get());
+            return table != null && table.getData(ModAttachments.MEDJU_NETJER_INSTALLED.get());
         }, false);
         this.addDataSlot(new DataSlot() {
             @Override
@@ -102,7 +102,7 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
     }
 
     @Override
-    public boolean noblePhantasms$hasBookOfThoth() {
+    public boolean noblePhantasms$hasMedjuNetjer() {
         return this.noblePhantasms$bookOfThothInstalled;
     }
 }

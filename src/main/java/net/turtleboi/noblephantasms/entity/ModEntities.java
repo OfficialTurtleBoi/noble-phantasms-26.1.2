@@ -7,6 +7,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.entity.custom.GungnirProjectile;
+import net.turtleboi.noblephantasms.entity.custom.EyeShardEntity;
 import net.turtleboi.noblephantasms.entity.custom.KazagurumaProjectile;
 import net.turtleboi.noblephantasms.entity.custom.WindCutterProjectile;
 
@@ -28,6 +29,11 @@ public class ModEntities {
             ENTITY_TYPES.registerEntityType("kazaguruma", KazagurumaProjectile::new, MobCategory.MISC,
                     builder -> builder.noLootTable().sized(0.5F, 0.5F)
                             .clientTrackingRange(8).updateInterval(1));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<EyeShardEntity>> EYE_SHARD =
+            ENTITY_TYPES.registerEntityType("eye_shard", EyeShardEntity::new, MobCategory.MISC,
+                    builder -> builder.noLootTable().sized(0.25F, 0.25F)
+                            .clientTrackingRange(8).updateInterval(10));
 
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);

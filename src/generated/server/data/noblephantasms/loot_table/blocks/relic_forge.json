@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "noblephantasms:relic_forge"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "noblephantasms:blocks/relic_forge"
+}

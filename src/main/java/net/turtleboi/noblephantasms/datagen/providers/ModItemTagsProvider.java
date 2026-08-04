@@ -25,7 +25,7 @@ public class ModItemTagsProvider extends IntrinsicHolderTagsProvider<Item> {
         tag(ItemTags.SWORDS)
                 .add(ModItems.CARNWENNAN.get())
                 .add(ModItems.EXCALIBUR.get())
-                .add(ModItems.KHOPESH_OF_RA.get())
+                .add(ModItems.WEBEN.get())
                 .add(ModItems.KUSANAGI_NO_TSURUGI.get())
                 .add(ModItems.KAZAGURUMA.get())
                 .add(ModItems.HEKA.get())
