@@ -6,6 +6,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
+import net.turtleboi.noblephantasms.effect.custom.BleedEffect;
 import net.turtleboi.noblephantasms.effect.custom.CovenantEffect;
 import net.turtleboi.noblephantasms.effect.custom.JudgementEffect;
 import net.turtleboi.noblephantasms.effect.custom.LuminousEffect;
@@ -26,6 +27,9 @@ public final class ModEffects {
 
     public static final DeferredHolder<MobEffect, LuminousEffect> LUMINOUS =
             EFFECTS.register("luminous", LuminousEffect::new);
+
+    public static final DeferredHolder<MobEffect, BleedEffect> BLEEDING =
+            EFFECTS.register("bleeding", BleedEffect::new);
 
     public static void register(IEventBus eventBus) {
         EFFECTS.register(eventBus);

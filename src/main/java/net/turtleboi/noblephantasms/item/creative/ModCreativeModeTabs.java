@@ -32,6 +32,7 @@ public class ModCreativeModeTabs {
                                 output.accept(ModItems.BOOK_OF_THOTH);
 
                                 output.accept(ModItems.EAGLE_KNIGHT_TALONS);
+                                output.accept(ModItems.MACUAHUITL);
 
                                 output.accept(ModItems.EXCALIBUR);
                                 output.accept(ModItems.SCABBARD);

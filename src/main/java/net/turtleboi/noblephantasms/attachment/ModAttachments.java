@@ -1,6 +1,9 @@
 package net.turtleboi.noblephantasms.attachment;
 
 import com.mojang.serialization.Codec;
+import java.util.Optional;
+import java.util.UUID;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -49,6 +52,11 @@ public final class ModAttachments {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> BERTILAK_COVENANT_GLOW =
             ATTACHMENTS.register("bertilak_covenant_glow", () -> AttachmentType.builder(() -> false)
                     .sync(ByteBufCodecs.BOOL)
+                    .build());
+
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<UUID>>> BLEED_SOURCE =
+            ATTACHMENTS.register("bleed_source", () -> AttachmentType.builder(Optional::<UUID>empty)
+                    .serialize(UUIDUtil.CODEC.optionalFieldOf("source"))
                     .build());
 
     public static void register(IEventBus eventBus) {

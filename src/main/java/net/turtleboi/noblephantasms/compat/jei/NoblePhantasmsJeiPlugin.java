@@ -42,5 +42,7 @@ public final class NoblePhantasmsJeiPlugin implements IModPlugin {
                 Component.translatable("jei.noblephantasms.info.eagle_knight_talons"));
         registration.addIngredientInfo(ModItems.KAZAGURUMA.get(),
                 Component.translatable("jei.noblephantasms.info.kazaguruma"));
+        registration.addIngredientInfo(ModItems.MACUAHUITL.get(),
+                Component.translatable("jei.noblephantasms.info.macuahuitl"));
     }
 }

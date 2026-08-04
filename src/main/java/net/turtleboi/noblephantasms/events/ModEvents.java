@@ -17,6 +17,7 @@ import net.neoforged.neoforge.event.level.PistonEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.turtleboi.noblephantasms.NoblePhantasms;
+import net.turtleboi.noblephantasms.effect.custom.BleedEffect;
 import net.turtleboi.noblephantasms.effect.custom.CovenantEffect;
 import net.turtleboi.noblephantasms.effect.custom.JudgementEffect;
 import net.turtleboi.noblephantasms.effect.custom.LuminousEffect;
@@ -73,6 +74,7 @@ public final class ModEvents {
 
     @SubscribeEvent
     static void onMobEffectRemoved(MobEffectEvent.Remove event) {
+        BleedEffect.handleRemoval(event);
         CovenantEffect.handleRemoval(event);
         JudgementEffect.handleRemoval(event);
         LuminousEffect.handleRemoval(event);
@@ -80,6 +82,7 @@ public final class ModEvents {
 
     @SubscribeEvent
     static void onMobEffectExpired(MobEffectEvent.Expired event) {
+        BleedEffect.handleExpiration(event);
         CovenantEffect.handleExpiration(event);
         JudgementEffect.handleExpiration(event);
         LuminousEffect.handleExpiration(event);

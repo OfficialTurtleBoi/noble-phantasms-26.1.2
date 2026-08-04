@@ -40,6 +40,7 @@ public class ModLanguageProvider extends LanguageProvider {
         addSimpleItem(ModItems.ANDVARANAUT);
         addSimpleItem(ModItems.DRAUPNIR);
         addSimpleItem(ModItems.EAGLE_KNIGHT_TALONS, "Eagle Knight Talons");
+        addSimpleItem(ModItems.MACUAHUITL);
         addSimpleItem(ModItems.MEGINGJORD, "Megingjörð");
         addSimpleItem(ModItems.HEKA);
         addSimpleItem(ModItems.NEKHAKHA);
@@ -82,6 +83,9 @@ public class ModLanguageProvider extends LanguageProvider {
                 "Right-click to throw the chained sickle up to 12 blocks. It damages and hooks the first living "
                         + "target struck, then pulls the target into melee range. "
                         + "3 second cooldown.");
+        add("jei.noblephantasms.info.macuahuitl",
+                "Hits apply Bleeding for 5 seconds. Repeated hits add up to 5 stacks, with each stack dealing "
+                        + "1 armor-bypassing damage every second.");
 
         add("creativetab.noblephantasms.title", "Noble Phantasms");
         add("creativetab.noblephantasms.trophy_heads", "Trophy Heads");
@@ -98,6 +102,9 @@ public class ModLanguageProvider extends LanguageProvider {
         add("effect.noblephantasms.judgement", "Judgement");
         add("effect.noblephantasms.luminous", "Luminous");
         add("effect.noblephantasms.reborn", "Reborn");
+        add("effect.noblephantasms.bleeding", "Bleeding");
+        add("death.attack.bleed", "%1$s bled out");
+        add("death.attack.bleed.player", "%1$s bled out due to %2$s");
         add("noblephantasms.configuration.title", "Noble Phantasms Configs");
         add("noblephantasms.configuration.section.noblephantasms.common.toml", "Noble Phantasms Configs");
         add("noblephantasms.configuration.section.noblephantasms.common.toml.title", "Noble Phantasms Configs");

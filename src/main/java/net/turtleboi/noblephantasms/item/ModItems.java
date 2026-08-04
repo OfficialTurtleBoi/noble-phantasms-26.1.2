@@ -22,6 +22,7 @@ import net.turtleboi.noblephantasms.item.custom.HulioshjalmrItem;
 import net.turtleboi.noblephantasms.item.custom.KhopeshOfRaItem;
 import net.turtleboi.noblephantasms.item.custom.KazagurumaItem;
 import net.turtleboi.noblephantasms.item.custom.KusanagiNoTsurugiItem;
+import net.turtleboi.noblephantasms.item.custom.MacuahuitlItem;
 import net.turtleboi.noblephantasms.item.custom.MegingjordItem;
 import net.turtleboi.noblephantasms.item.custom.NekhakhaItem;
 import net.turtleboi.noblephantasms.item.custom.RhongomyniadItem;
@@ -99,6 +100,9 @@ public class ModItems {
 
     public static final DeferredItem<EagleKnightTalonsItem> EAGLE_KNIGHT_TALONS =
             ITEMS.registerItem("eagle_knight_talons", EagleKnightTalonsItem::new);
+
+    public static final DeferredItem<MacuahuitlItem> MACUAHUITL =
+            ITEMS.registerItem("macuahuitl", MacuahuitlItem::new);
 
     public static final DeferredItem<MegingjordItem> MEGINGJORD =
             ITEMS.registerItem("megingjord", MegingjordItem::new);

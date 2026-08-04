@@ -29,7 +29,8 @@ public class ModItemTagsProvider extends IntrinsicHolderTagsProvider<Item> {
                 .add(ModItems.KUSANAGI_NO_TSURUGI.get())
                 .add(ModItems.KAZAGURUMA.get())
                 .add(ModItems.HEKA.get())
-                .add(ModItems.NEKHAKHA.get());
+                .add(ModItems.NEKHAKHA.get())
+                .add(ModItems.MACUAHUITL.get());
         tag(ItemTags.AXES)
                 .add(ModItems.BERTILAK.get())
                 .add(ModItems.UCHIDE_NO_KOZUCHI.get())
