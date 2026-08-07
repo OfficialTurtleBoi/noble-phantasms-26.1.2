@@ -1,7 +1,5 @@
 package net.turtleboi.noblephantasms.datagen.providers;
 
-import com.mojang.math.Axis;
-import com.mojang.math.Transformation;
 import java.util.List;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -22,7 +20,6 @@ import net.turtleboi.noblephantasms.block.ModBlocks;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadRenderer;
 import net.turtleboi.noblephantasms.component.ModDataComponents;
 import net.turtleboi.noblephantasms.item.ModItems;
-import org.joml.Vector3f;
 
 public class ModModelProvider extends ModelProvider {
     public ModModelProvider(PackOutput output) {
@@ -63,11 +60,11 @@ public class ModModelProvider extends ModelProvider {
                 BlockModelGenerators.createSimpleBlock(ModBlocks.TROPHY_HEAD.get(), skullModel));
         blockModels.blockStateOutput.accept(
                 BlockModelGenerators.createSimpleBlock(ModBlocks.TROPHY_WALL_HEAD.get(), skullModel));
-        Identifier relicForgeModel = Identifier.fromNamespaceAndPath(
-                NoblePhantasms.MOD_ID, "block/relic_forge");
+        Identifier reliquaryStationModel = Identifier.fromNamespaceAndPath(
+                NoblePhantasms.MOD_ID, "block/reliquary_station");
         blockModels.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(
-                ModBlocks.RELIC_FORGE.get(), BlockModelGenerators.plainVariant(relicForgeModel)));
-        blockModels.registerSimpleItemModel(ModBlocks.RELIC_FORGE.get(), relicForgeModel);
+                ModBlocks.RELIQUARY_STATION.get(), BlockModelGenerators.plainVariant(reliquaryStationModel)));
+        blockModels.registerSimpleItemModel(ModBlocks.RELIQUARY_STATION.get(), reliquaryStationModel);
         generateTrophyHeadItem(itemModels);
         generateBigItem(itemModels, ModItems.BERTILAK.get(), BigItemType.AXE);
         generateBigItem(itemModels, ModItems.EXCALIBUR.get(), BigItemType.SWORD);
@@ -116,13 +113,8 @@ public class ModModelProvider extends ModelProvider {
 
     private static void generateTrophyHeadItem(ItemModelGenerators itemModels) {
         Identifier baseModel = Identifier.withDefaultNamespace("item/template_skull");
-        var standardModel = ItemModelUtils.specialModel(
-                baseModel, BlockModelGenerators.SKULL_TRANSFORM, new TrophyHeadRenderer.Unbaked());
-        var wornModel = ItemModelUtils.specialModel(
-                baseModel, TROPHY_HEAD_WORN_TRANSFORM, new TrophyHeadRenderer.Unbaked());
-        itemModels.itemModelOutput.accept(ModItems.TROPHY_HEAD.get(), ItemModelUtils.select(
-                new DisplayContext(), standardModel,
-                ItemModelUtils.when(ItemDisplayContext.HEAD, wornModel)));
+        itemModels.itemModelOutput.accept(ModItems.TROPHY_HEAD.get(), ItemModelUtils.specialModel(
+                baseModel, BlockModelGenerators.SKULL_TRANSFORM, new TrophyHeadRenderer.Unbaked()));
     }
 
     public enum BigItemType {
@@ -201,10 +193,6 @@ public class ModModelProvider extends ModelProvider {
                     .translation(1.13F, 3.2F, 1.13F)
                     .scale(1.02F))
             .build();
-
-    private static final Transformation TROPHY_HEAD_WORN_TRANSFORM = new Transformation(
-            new Vector3f(0.5F, -0.225F, 0.5F), Axis.ZP.rotationDegrees(180.0F),
-            new Vector3f(1.9F), null);
 
     private static final ModelTemplate HORN_TOOTING = ModelTemplates.FLAT_ITEM.extend()
             .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, transform -> transform

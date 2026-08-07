@@ -5,28 +5,42 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.turtleboi.noblephantasms.component.ModDataComponents;
 import net.turtleboi.noblephantasms.relic.RelicFragmentData;
 import net.turtleboi.noblephantasms.relic.RelicFragmenter;
 import net.turtleboi.noblephantasms.screens.menus.ModMenus;
 
-public final class RelicForgeMenu extends AbstractContainerMenu {
+public final class ReliquaryStationMenu extends AbstractContainerMenu {
+    private static final int INVENTORY_X = 27;
+    private static final int INVENTORY_Y = 125;
+    private static final int HOTBAR_Y = 183;
     private final Identifier relicId;
     private final long seed;
     private final int pieceCount;
     private boolean completed;
 
-    public RelicForgeMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf buffer) {
+    public ReliquaryStationMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf buffer) {
         this(containerId, inventory, Identifier.STREAM_CODEC.decode(buffer), buffer.readLong());
     }
 
-    public RelicForgeMenu(int containerId, Inventory inventory, Identifier relicId, long seed) {
-        super(ModMenus.RELIC_FORGE.get(), containerId);
+    public ReliquaryStationMenu(int containerId, Inventory inventory, Identifier relicId, long seed) {
+        super(ModMenus.RELIQUARY_STATION.get(), containerId);
         this.relicId = relicId;
         this.seed = seed;
         RelicFragmenter.Layout layout = RelicFragmenter.create(relicId, seed);
         this.pieceCount = layout == null ? 0 : layout.pieceCount();
+        for (int row = 0; row < 3; row++) {
+            for (int column = 0; column < 9; column++) {
+                addSlot(new Slot(inventory, column + row * 9 + 9,
+                        INVENTORY_X + column * 18, INVENTORY_Y + row * 18));
+            }
+        }
+        for (int column = 0; column < 9; column++) {
+            addSlot(new Slot(inventory, column,
+                    INVENTORY_X + column * 18, HOTBAR_Y));
+        }
     }
 
     public Identifier relicId() {

@@ -16,7 +16,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
@@ -47,7 +46,7 @@ public final class EyeOfHorusItem extends CurioRelicItem {
     private static final int FOCUS_REDUCTION_PER_PIECE = 5;
     private static final int JUDGEMENT_DURATION = 20 * 15;
     private static final double JUDGEMENT_RANGE = 64.0;
-    private static final double OPEN_EYE_RADIUS = 12.0;
+    private static final double OPEN_EYE_RADIUS = 8.0;
     private static final float DAMAGE_BONUS_PER_PIECE = 0.05F;
     private static final Map<Player, Map<LivingEntity, Integer>> GAZE_STATES = new WeakHashMap<>();
 
@@ -239,21 +238,26 @@ public final class EyeOfHorusItem extends CurioRelicItem {
         }
 
         applyJudgement(level, player, target, false);
-        AABB area = target.getBoundingBox().inflate(OPEN_EYE_RADIUS);
-        for (LivingEntity enemy : level.getEntitiesOfClass(
-                LivingEntity.class, area, candidate -> isEnemy(player, candidate))) {
-            if (enemy != target) {
-                applyJudgement(level, player, enemy, false);
-            }
+        Vec3 burstCenter = target.getBoundingBox().getCenter();
+        AABB area = new AABB(burstCenter, burstCenter).inflate(OPEN_EYE_RADIUS);
+        double radiusSquared = OPEN_EYE_RADIUS * OPEN_EYE_RADIUS;
+        for (Mob enemy : level.getEntitiesOfClass(Mob.class, area,
+                candidate -> candidate != target
+                        && candidate.isAlive()
+                        && candidate.getBoundingBox().getCenter().distanceToSqr(burstCenter) <= radiusSquared)) {
+            applyJudgement(level, player, enemy, false);
         }
 
-        level.sendParticles(ParticleTypes.END_ROD, target.getX(), target.getY() + target.getBbHeight() * 0.5,
-                target.getZ(), 180, 5.0, 3.0, 5.0, 0.25);
+        level.sendParticles(ParticleTypes.END_ROD, burstCenter.x(), burstCenter.y(),
+                burstCenter.z(), 240, 4.0, 2.5, 4.0, 0.32);
         level.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH, 0xFFFFD75A),
-                target.getX(), target.getY() + target.getBbHeight() * 0.5,
-                target.getZ(), 1, 0.0, 0.0, 0.0, 0.0);
+                burstCenter.x(), burstCenter.y(), burstCenter.z(), 1, 0.0, 0.0, 0.0, 0.0);
         level.playSound(null, target.blockPosition(), SoundEvents.BEACON_ACTIVATE,
-                SoundSource.PLAYERS, 1.5F, 1.35F);
+                SoundSource.PLAYERS, 2.5F, 0.75F);
+        level.playSound(null, target.blockPosition(), SoundEvents.TOTEM_USE,
+                SoundSource.PLAYERS, 2.0F, 0.9F);
+        level.playSound(null, target.blockPosition(), SoundEvents.END_PORTAL_SPAWN,
+                SoundSource.PLAYERS, 1.4F, 1.25F);
         player.setData(ModAttachments.EYE_OF_HORUS_PIECE_MASK, 0);
         player.setData(ModAttachments.EYE_OF_HORUS_FRAGMENT_SEED, 0L);
         player.setData(ModAttachments.EYE_OF_HORUS_PIECES_EXPIRE_AT, 0L);
@@ -262,6 +266,7 @@ public final class EyeOfHorusItem extends CurioRelicItem {
 
     private static void applyJudgement(ServerLevel level, Player player, LivingEntity target, boolean playSound) {
         target.addEffect(new MobEffectInstance(ModEffects.JUDGEMENT, JUDGEMENT_DURATION, 0, false, true, true), player);
+        target.setData(ModAttachments.EYE_OF_HORUS_JUDGEMENT_GLOW, true);
         if (playSound) {
             level.playSound(null, target.blockPosition(), SoundEvents.BEACON_POWER_SELECT,
                     SoundSource.PLAYERS, 0.8F, 1.4F);
@@ -309,12 +314,6 @@ public final class EyeOfHorusItem extends CurioRelicItem {
         int mask = player.getData(ModAttachments.EYE_OF_HORUS_PIECE_MASK);
         long seed = player.getData(ModAttachments.EYE_OF_HORUS_FRAGMENT_SEED);
         return seed != 0L && Integer.bitCount(mask) >= getPieceCount(seed);
-    }
-
-    private static boolean isEnemy(Player player, LivingEntity target) {
-        return target != player
-                && target.isAlive()
-                && (target instanceof Enemy || target instanceof Mob mob && mob.getTarget() == player);
     }
 
     private static void syncGlowProgress(Set<LivingEntity> targets) {

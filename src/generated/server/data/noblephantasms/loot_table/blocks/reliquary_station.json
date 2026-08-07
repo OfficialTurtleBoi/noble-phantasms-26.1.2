@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "noblephantasms:relic_forge"
+          "name": "noblephantasms:reliquary_station"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "noblephantasms:blocks/relic_forge"
+  "random_sequence": "noblephantasms:blocks/reliquary_station"
 }

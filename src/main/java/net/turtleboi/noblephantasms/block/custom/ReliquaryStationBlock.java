@@ -16,19 +16,19 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.turtleboi.noblephantasms.component.ModDataComponents;
-import net.turtleboi.noblephantasms.screens.menus.custom.RelicForgeMenu;
+import net.turtleboi.noblephantasms.screens.menus.custom.ReliquaryStationMenu;
 import net.turtleboi.noblephantasms.relic.RelicFragmentData;
 import net.turtleboi.noblephantasms.relic.RelicFragmentDefinitions;
 
-public final class RelicForgeBlock extends Block {
-    public static final MapCodec<RelicForgeBlock> CODEC = simpleCodec(RelicForgeBlock::new);
+public final class ReliquaryStationBlock extends Block {
+    public static final MapCodec<ReliquaryStationBlock> CODEC = simpleCodec(ReliquaryStationBlock::new);
 
-    public RelicForgeBlock(BlockBehaviour.Properties properties) {
+    public ReliquaryStationBlock(BlockBehaviour.Properties properties) {
         super(properties);
     }
 
     @Override
-    public MapCodec<RelicForgeBlock> codec() {
+    public MapCodec<ReliquaryStationBlock> codec() {
         return CODEC;
     }
 
@@ -47,8 +47,8 @@ public final class RelicForgeBlock extends Block {
         }
         long seed = serverPlayer.getRandom().nextLong();
         serverPlayer.openMenu(new SimpleMenuProvider((containerId, inventory, ignored) ->
-                new RelicForgeMenu(containerId, inventory, data.relicId(), seed),
-                Component.translatable("block.noblephantasms.relic_forge")), buffer -> {
+                new ReliquaryStationMenu(containerId, inventory, data.relicId(), seed),
+                Component.translatable("block.noblephantasms.reliquary_station")), buffer -> {
             Identifier.STREAM_CODEC.encode(buffer, data.relicId());
             buffer.writeLong(seed);
         });

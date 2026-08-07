@@ -13,6 +13,7 @@
   "client": [
     "client.AvatarRendererMixin",
     "client.BlockOutlineRendererMixin",
+    "client.CustomHeadLayerMixin",
     "client.HumanoidMobRendererMixin",
     "client.IsUsingItemMixin",
     "client.ItemInHandRendererMixin",
@@ -22,6 +23,9 @@
     "client.ItemTransformMixin",
     "client.LivingEntityRendererMixin",
     "client.ModelPartAccessor",
+    "client.PlayerModelMixin",
+    "client.SheepWoolLayerMixin",
+    "client.SheepWoolUndercoatLayerMixin",
     "client.LuminousLivingEntityRendererMixin",
     "client.LuminousModelPartCubeMixin",
     "client.SpearAnimationsMixin",

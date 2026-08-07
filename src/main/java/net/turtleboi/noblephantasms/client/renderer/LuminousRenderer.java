@@ -13,7 +13,9 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import net.minecraft.client.model.EntityModel;
@@ -67,7 +69,8 @@ public final class LuminousRenderer {
     private static final Identifier SHADER =
             Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "core/luminous");
     private static final ThreadLocal<Float> ACTIVE_OUTLINE_WIDTH = ThreadLocal.withInitial(() -> 0.0F);
-    private static final List<LivingSubmit<?>> OUTLINE_SUBMITS = new ArrayList<>();
+    private static final List<GlowSubmit> OUTLINE_SUBMITS = new ArrayList<>();
+    private static final Map<LivingEntityRenderState, LivingSubmit<?>> LIVING_SUBMITS = new IdentityHashMap<>();
     private static final StencilPerFaceTest MASK_STENCIL = new StencilPerFaceTest(
             StencilOperation.KEEP,
             StencilOperation.KEEP,
@@ -163,6 +166,7 @@ public final class LuminousRenderer {
 
     public static void beginFrame() {
         OUTLINE_SUBMITS.clear();
+        LIVING_SUBMITS.clear();
     }
 
     public static void registerPipelines(RegisterRenderPipelinesEvent event) {
@@ -192,16 +196,45 @@ public final class LuminousRenderer {
 
         PoseStack.Pose pose = poseStack.last().copy();
         float distanceSquared = pose.pose().transformPosition(new Vector3f()).lengthSquared();
-        OUTLINE_SUBMITS.add(new LivingSubmit<>(
-                model,
-                state,
-                pose,
-                texture,
+        LivingSubmit<S> submit = new LivingSubmit<>(
+                new ArrayList<>(List.of(new LivingPart<>(model, state, pose, texture))),
                 color,
                 outlineWidth,
                 secondaryColor == null ? 0 : secondaryColor,
                 secondaryOutlineWidth == null ? 0.0F : secondaryOutlineWidth,
-                distanceSquared));
+                distanceSquared);
+        OUTLINE_SUBMITS.add(submit);
+        LIVING_SUBMITS.put(state, submit);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <S extends LivingEntityRenderState> void submitOccluder(
+            S state, EntityModel<? super S> model, PoseStack poseStack, Identifier texture) {
+        LivingSubmit<?> submit = LIVING_SUBMITS.get(state);
+        if (submit != null) {
+            ((LivingSubmit<S>) submit).parts().add(
+                    new LivingPart<>(model, state, poseStack.last().copy(), texture));
+        }
+    }
+
+    public static void submitJudgementGeometry(PoseStack poseStack, Identifier texture,
+                                                float ageInTicks, float phase,
+                                                LuminousGeometry geometry) {
+        float flicker = Mth.sin(ageInTicks * 1.1F + phase) * 0.18F
+                + Mth.sin(ageInTicks * 2.9F + phase * 1.7F) * 0.08F;
+        int color = getJudgementColor(ageInTicks, phase);
+        float secondaryWidthScale = Mth.clamp(1.9F + flicker * 1.4F, 1.45F, 2.35F);
+        PoseStack.Pose pose = poseStack.last().copy();
+        float distanceSquared = pose.pose().transformPosition(new Vector3f()).lengthSquared();
+        OUTLINE_SUBMITS.add(new GeometrySubmit(
+                pose,
+                texture,
+                ARGB.opaque(color),
+                OUTLINE_WIDTH,
+                ARGB.color(0.35F, color),
+                OUTLINE_WIDTH * secondaryWidthScale,
+                distanceSquared,
+                geometry));
     }
 
     public static void renderOutlines(RenderLevelStageEvent.AfterLevel event) {
@@ -216,21 +249,21 @@ public final class LuminousRenderer {
         modelViewStack.mul(event.getModelViewMatrix());
         try {
             clearStencil();
-            OUTLINE_SUBMITS.sort(Comparator.comparingDouble((LivingSubmit<?> submit) -> submit.distanceSquared()));
+            OUTLINE_SUBMITS.sort(Comparator.comparingDouble(GlowSubmit::distanceSquared));
             for (int index = 0; index < OUTLINE_SUBMITS.size(); index++) {
-                LivingSubmit<?> submit = OUTLINE_SUBMITS.get(index);
-                renderModel(submit, VISIBLE_SELF_MASK_TYPES.apply(submit.texture()), poseStack, bufferSource, -1, 0.0F);
-                renderModel(
+                GlowSubmit submit = OUTLINE_SUBMITS.get(index);
+                renderSubmit(submit, VISIBLE_SELF_MASK_TYPES, poseStack, bufferSource, -1, 0.0F);
+                renderSubmit(
                         submit,
-                        OCCLUDED_FILL_TYPES.apply(submit.texture()),
+                        OCCLUDED_FILL_TYPES,
                         poseStack,
                         bufferSource,
                         submit.color(),
                         0.0F);
-                renderModel(submit, SELF_MASK_TYPES.apply(submit.texture()), poseStack, bufferSource, -1, 0.0F);
+                renderSubmit(submit, SELF_MASK_TYPES, poseStack, bufferSource, -1, 0.0F);
                 renderOutline(submit, poseStack, bufferSource);
                 if (index < OUTLINE_SUBMITS.size() - 1) {
-                    renderModel(submit, SELF_CLEAR_TYPES.apply(submit.texture()), poseStack, bufferSource, -1, 0.0F);
+                    renderSubmit(submit, SELF_CLEAR_TYPES, poseStack, bufferSource, -1, 0.0F);
                 }
             }
             bufferSource.endLastBatch();
@@ -238,6 +271,7 @@ public final class LuminousRenderer {
             ACTIVE_OUTLINE_WIDTH.remove();
             modelViewStack.popMatrix();
             OUTLINE_SUBMITS.clear();
+            LIVING_SUBMITS.clear();
         }
     }
 
@@ -390,49 +424,97 @@ public final class LuminousRenderer {
         }
     }
 
-    private static <S extends LivingEntityRenderState> void renderOutline(LivingSubmit<S> submit, PoseStack poseStack,
-                                                                          MultiBufferSource.BufferSource bufferSource) {
-        RenderType renderType = OUTLINE_TYPES.apply(submit.texture());
+    private static void renderOutline(GlowSubmit submit, PoseStack poseStack,
+                                      MultiBufferSource.BufferSource bufferSource) {
         if (ARGB.alpha(submit.secondaryColor()) > 0 && submit.secondaryOutlineWidth() > 0.0F) {
-            renderModel(
+            renderSubmit(
                     submit,
-                    renderType,
+                    OUTLINE_TYPES,
                     poseStack,
                     bufferSource,
                     submit.secondaryColor(),
                     submit.secondaryOutlineWidth());
         }
-        renderModel(submit, renderType, poseStack, bufferSource, submit.color(), submit.outlineWidth());
+        renderSubmit(submit, OUTLINE_TYPES, poseStack, bufferSource, submit.color(), submit.outlineWidth());
     }
 
-    private static <S extends LivingEntityRenderState> void renderModel(LivingSubmit<S> submit, RenderType renderType,
-                                                                        PoseStack poseStack,
-                                                                        MultiBufferSource.BufferSource bufferSource,
-                                                                        int color,
-                                                                        float outlineWidth) {
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
-        poseStack.pushPose();
+    private static void renderSubmit(GlowSubmit submit, Function<Identifier, RenderType> renderTypes,
+                                     PoseStack poseStack,
+                                     MultiBufferSource.BufferSource bufferSource,
+                                     int color,
+                                     float outlineWidth) {
+        ACTIVE_OUTLINE_WIDTH.set(outlineWidth);
         try {
-            poseStack.last().set(submit.pose());
-            submit.model().setupAnim(submit.state());
-            ACTIVE_OUTLINE_WIDTH.set(outlineWidth);
-            try {
-                submit.model().renderToBuffer(
-                        poseStack,
-                        vertexConsumer,
-                        LightCoordsUtil.FULL_BRIGHT,
-                        OverlayTexture.NO_OVERLAY,
-                        color);
-            } finally {
-                ACTIVE_OUTLINE_WIDTH.remove();
-            }
+            submit.draw(poseStack, bufferSource, renderTypes, color, outlineWidth);
         } finally {
-            poseStack.popPose();
+            ACTIVE_OUTLINE_WIDTH.remove();
         }
     }
 
+    @FunctionalInterface
+    public interface LuminousGeometry {
+        void draw(PoseStack.Pose pose, VertexConsumer vertexConsumer, int color, float outlineWidth);
+    }
+
+    private interface GlowSubmit {
+        int color();
+
+        float outlineWidth();
+
+        int secondaryColor();
+
+        float secondaryOutlineWidth();
+
+        float distanceSquared();
+
+        void draw(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource,
+                  Function<Identifier, RenderType> renderTypes, int color, float outlineWidth);
+    }
+
     private record LivingSubmit<S extends LivingEntityRenderState>(
-            EntityModel<? super S> model, S state, PoseStack.Pose pose, Identifier texture, int color, float outlineWidth,
-            int secondaryColor, float secondaryOutlineWidth, float distanceSquared) {
+            List<LivingPart<S>> parts, int color, float outlineWidth,
+            int secondaryColor, float secondaryOutlineWidth, float distanceSquared) implements GlowSubmit {
+        @Override
+        public void draw(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource,
+                         Function<Identifier, RenderType> renderTypes, int color, float outlineWidth) {
+            for (LivingPart<S> part : parts) {
+                VertexConsumer vertexConsumer = bufferSource.getBuffer(renderTypes.apply(part.texture()));
+                poseStack.pushPose();
+                try {
+                    poseStack.last().set(part.pose());
+                    part.model().setupAnim(part.state());
+                    part.model().renderToBuffer(
+                            poseStack,
+                            vertexConsumer,
+                            LightCoordsUtil.FULL_BRIGHT,
+                            OverlayTexture.NO_OVERLAY,
+                            color);
+                } finally {
+                    poseStack.popPose();
+                }
+            }
+        }
+    }
+
+    private record LivingPart<S extends LivingEntityRenderState>(
+            EntityModel<? super S> model, S state, PoseStack.Pose pose, Identifier texture) {
+    }
+
+    private record GeometrySubmit(
+            PoseStack.Pose pose, Identifier texture, int color, float outlineWidth,
+            int secondaryColor, float secondaryOutlineWidth, float distanceSquared,
+            LuminousGeometry geometry) implements GlowSubmit {
+        @Override
+        public void draw(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource,
+                         Function<Identifier, RenderType> renderTypes, int color, float outlineWidth) {
+            VertexConsumer vertexConsumer = bufferSource.getBuffer(renderTypes.apply(texture));
+            poseStack.pushPose();
+            try {
+                poseStack.last().set(pose);
+                geometry.draw(poseStack.last(), vertexConsumer, color, outlineWidth);
+            } finally {
+                poseStack.popPose();
+            }
+        }
     }
 }

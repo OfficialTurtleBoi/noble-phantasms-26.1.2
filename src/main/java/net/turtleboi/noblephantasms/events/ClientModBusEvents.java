@@ -26,7 +26,7 @@ import net.turtleboi.noblephantasms.entity.renderer.GungnirProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.KazagurumaProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.WindCutterRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.EyeShardRenderer;
-import net.turtleboi.noblephantasms.screens.RelicForgeScreen;
+import net.turtleboi.noblephantasms.screens.ReliquaryStationScreen;
 import net.turtleboi.noblephantasms.screens.menus.ModMenus;
 import net.turtleboi.noblephantasms.particle.custom.GungnirRuneParticle;
 import net.turtleboi.noblephantasms.particle.custom.CovenantLeafParticle;
@@ -80,7 +80,7 @@ public final class ClientModBusEvents {
 
     @SubscribeEvent
     static void registerMenuScreens(RegisterMenuScreensEvent event) {
-        event.register(ModMenus.RELIC_FORGE.get(), RelicForgeScreen::new);
+        event.register(ModMenus.RELIQUARY_STATION.get(), ReliquaryStationScreen::new);
     }
 
     @SubscribeEvent

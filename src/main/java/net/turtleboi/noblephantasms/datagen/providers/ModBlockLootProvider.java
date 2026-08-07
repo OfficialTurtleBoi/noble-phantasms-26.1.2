@@ -30,7 +30,7 @@ public class ModBlockLootProvider extends BlockLootSubProvider {
                                 .apply(CopyComponentsFunction
                                         .copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
                                         .include(DataComponents.CUSTOM_DATA))))));
-        dropSelf(ModBlocks.RELIC_FORGE.get());
+        dropSelf(ModBlocks.RELIQUARY_STATION.get());
     }
 
     @Override

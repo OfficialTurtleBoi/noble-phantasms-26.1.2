@@ -1,6 +1,6 @@
 {
   "block.noblephantasms.trophy_head": "Trophy Head",
-  "block.noblephantasms.relic_forge": "Relic Forge",
+  "block.noblephantasms.reliquary_station": "Reliquary Station",
   "creativetab.noblephantasms.title": "Noble Phantasms",
   "creativetab.noblephantasms.trophy_heads": "Trophy Heads",
   "death.attack.bleed": "%1$s bled out",
@@ -61,8 +61,8 @@
   "jei.noblephantasms.info.scales_of_maat": "Right-click a living target to set your health percentage and theirs to their average. Bosses can lose at most 10% of their maximum health per use. 30 second cooldown.",
   "jei.noblephantasms.info.smoking_mirror": "Use on a living target to make every mob within 10 blocks hunt it for 8 seconds.",
   "jei.noblephantasms.info.weben": "Charges for 10 seconds while carried in direct sunlight. A fully charged strike releases a fiery flare for bonus damage and ignites the target.",
-  "menu.noblephantasms.relic_forge": "Relic Forging",
-  "menu.noblephantasms.relic_forge.forge": "Forge",
+  "menu.noblephantasms.reliquary_station": "Reliquary Station",
+  "menu.noblephantasms.reliquary_station.forge": "Forge",
   "message.noblephantasms.bertilak.already_bound": "The Covenant is already bound",
   "message.noblephantasms.bertilak.broken": "The Covenant has been broken",
   "message.noblephantasms.bertilak.cooldown": "The Covenant can be bound again in %s seconds",

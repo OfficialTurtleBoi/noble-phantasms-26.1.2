@@ -3,20 +3,30 @@ package net.turtleboi.noblephantasms.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.MapCodec;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HeadedModel;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.model.animal.chicken.BabyChickenModel;
+import net.minecraft.client.model.animal.equine.AbstractEquineModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.monster.guardian.GuardianModel;
+import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -47,7 +57,8 @@ import org.slf4j.Logger;
 public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData> {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final ThreadLocal<ModelCapture> MODEL_CAPTURE = new ThreadLocal<>();
-    private final Map<TrophyData, Optional<HeadRenderData>> heads = new HashMap<>();
+    private static final Map<TrophyData, Optional<HeadRenderData>> HEADS = new HashMap<>();
+    private static final Map<LivingEntityRenderState, TrophyData> WORN_HEADS = new WeakHashMap<>();
 
     public static void register(RegisterSpecialModelRendererEvent event) {
         event.register(Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "trophy_head"), Unbaked.MAP_CODEC);
@@ -57,13 +68,26 @@ public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData
         return createHead(Minecraft.getInstance().getEntityRenderDispatcher(), entity).isPresent();
     }
 
-    public static boolean captureSelectedModel(EntityModel<?> model) {
+    public static boolean captureSelectedModel(EntityModel<?> model, List<?> layers) {
         ModelCapture capture = MODEL_CAPTURE.get();
         if (capture == null) {
             return false;
         }
         capture.model = model;
+        capture.layers = List.copyOf(layers);
         return true;
+    }
+
+    public static void setWornHead(LivingEntityRenderState state, @Nullable TrophyData trophyData) {
+        if (trophyData == null) {
+            WORN_HEADS.remove(state);
+        } else {
+            WORN_HEADS.put(state, trophyData);
+        }
+    }
+
+    public static @Nullable TrophyData getWornHead(LivingEntityRenderState state) {
+        return WORN_HEADS.get(state);
     }
 
     @Override
@@ -83,20 +107,50 @@ public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData
                            int lightCoords, boolean hasFoil, int outlineColor,
                            ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress, boolean groundAligned,
                            @Nullable Direction wallFacing) {
-        HeadRenderData data = heads.computeIfAbsent(trophyData, this::createHead).orElse(null);
+        HeadRenderData data = HEADS.computeIfAbsent(trophyData, TrophyHeadRenderer::createHead).orElse(null);
         if (data == null) {
             return;
         }
 
         poseStack.pushPose();
         if (wallFacing != null) {
-            poseStack.translate(0.0F, 0.0F, 0.25F - data.depth() * 0.5F);
+            poseStack.translate(0.0F, 0.0F, 0.25F - data.anchorDepth() * 0.5F);
         }
-        poseStack.translate(0.0F, groundAligned ? -data.height() * 0.5F : -0.25F, 0.0F);
+        poseStack.translate(0.0F, groundAligned ? -data.anchorHeight() * 0.5F : -0.25F, 0.0F);
         poseStack.translate(-data.centerX(), -data.centerY(), -data.centerZ());
-        submitNodeCollector.submitModelPart(data.head(), poseStack, data.renderType(), lightCoords, OverlayTexture.NO_OVERLAY,
-                null, false, hasFoil, -1, breakProgress, outlineColor);
+        submitLayers(data, poseStack, submitNodeCollector, lightCoords, hasFoil,
+                outlineColor, breakProgress);
         poseStack.popPose();
+    }
+
+    public static void submitWorn(TrophyData trophyData, PoseStack poseStack,
+                                  SubmitNodeCollector submitNodeCollector,
+                                  int lightCoords, int outlineColor) {
+        HeadRenderData data = HEADS.computeIfAbsent(trophyData, TrophyHeadRenderer::createHead).orElse(null);
+        if (data == null) {
+            return;
+        }
+
+        poseStack.pushPose();
+        poseStack.translate(-data.centerX(),
+                -(data.centerY() + data.anchorHeight() * 0.5F), -data.centerZ());
+        submitLayers(data, poseStack, submitNodeCollector, lightCoords,
+                false, outlineColor, null);
+        poseStack.popPose();
+    }
+
+    private static void submitLayers(HeadRenderData data, PoseStack poseStack,
+                                     SubmitNodeCollector submitNodeCollector,
+                                     int lightCoords, boolean hasFoil, int outlineColor,
+                                     ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
+        for (HeadLayerData layer : data.layers()) {
+            OrderedSubmitNodeCollector collector = layer.order() == 0
+                    ? submitNodeCollector
+                    : submitNodeCollector.order(layer.order());
+            collector.submitModelPart(layer.head(), poseStack, layer.renderType(), lightCoords,
+                    OverlayTexture.NO_OVERLAY, null, false, layer.base() && hasFoil,
+                    layer.color(), breakProgress, outlineColor);
+        }
     }
 
     @Override
@@ -110,7 +164,7 @@ public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData
         return TrophyHeadItem.getTrophyData(stack);
     }
 
-    private Optional<HeadRenderData> createHead(TrophyData trophyData) {
+    private static Optional<HeadRenderData> createHead(TrophyData trophyData) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) {
             return Optional.empty();
@@ -156,39 +210,34 @@ public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData
         }
 
         LivingEntityRenderState state = (LivingEntityRenderState) livingRenderer.createRenderState(entity, 0.0F);
-        EntityModel model = selectModel(livingRenderer, state);
+        ModelSelection selection = selectModel(livingRenderer, state);
+        EntityModel model = selection.model();
         Identifier texture = livingRenderer.getTextureLocation(state);
-        List<ModelPartState> originalModelState = model.root().getAllParts().stream()
-                .map(ModelPartState::capture)
-                .toList();
-        ModelPart head;
-        try {
-            model.setupAnim(state);
-            PartNode rendererHead = findHead(model);
-            if (rendererHead == null) {
-                return Optional.empty();
-            }
-            head = copySelection(model.root(), rendererHead.part());
-            if (head == null) {
-                return Optional.empty();
-            }
-        } finally {
-            originalModelState.forEach(ModelPartState::restore);
+        HeadCopy baseHead = copyAnimatedHead(model, state);
+        if (baseHead == null) {
+            return Optional.empty();
         }
+        List<HeadLayerData> layers = new ArrayList<>();
+        layers.add(new HeadLayerData(baseHead.model(), model.renderType(texture), -1, 0, true));
+        captureLayerModels(selection.layers(), state).stream()
+                .map(submission -> createHeadLayer(submission, state))
+                .filter(java.util.Objects::nonNull)
+                .forEach(layers::add);
 
-        Bounds bounds = Bounds.measure(head);
+        Bounds bounds = Bounds.measure(layers.stream().map(HeadLayerData::head).toList());
         float largestDimension = Math.max(bounds.width(), Math.max(bounds.height(), bounds.depth()));
         if (largestDimension <= 0.0F) {
             return Optional.empty();
         }
 
-        return Optional.of(new HeadRenderData(head, model.renderType(texture),
+        return Optional.of(new HeadRenderData(List.copyOf(layers),
                 bounds.width(), bounds.height(), bounds.depth(),
-                bounds.centerX(), bounds.centerY(), bounds.centerZ()));
+                baseHead.anchor().centerX(), baseHead.anchor().centerY(), baseHead.anchor().centerZ(),
+                baseHead.anchor().height(), baseHead.anchor().depth()));
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private static EntityModel selectModel(LivingEntityRenderer renderer, LivingEntityRenderState state) {
+    private static ModelSelection selectModel(LivingEntityRenderer renderer, LivingEntityRenderState state) {
         ModelCapture capture = new ModelCapture();
         MODEL_CAPTURE.set(capture);
         try {
@@ -198,16 +247,123 @@ public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData
         } finally {
             MODEL_CAPTURE.remove();
         }
-        return capture.model != null ? capture.model : renderer.getModel();
+        return new ModelSelection(capture.model != null ? capture.model : renderer.getModel(), capture.layers);
     }
 
-    private static ModelPart copyModelPart(ModelPart source) {
-        ModelPartAccessor accessor = (ModelPartAccessor) (Object) source;
-        Map<String, ModelPart> children = new HashMap<>();
-        accessor.noblePhantasms$getChildren().forEach(
-                (name, child) -> children.put(name, copyModelPart(child)));
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static @Nullable HeadCopy copyAnimatedHead(Model model, LivingEntityRenderState state) {
+        List<ModelPartState> originalModelState = model.root().getAllParts().stream()
+                .map(ModelPartState::capture)
+                .toList();
+        try {
+            model.setupAnim(state);
+            ModelPart primaryHead = model instanceof HeadedModel headedModel
+                    ? headedModel.getHead()
+                    : findExactPart(model.root(), "head");
+            if (primaryHead == null && model instanceof BabyChickenModel) {
+                primaryHead = findExactPart(model.root(), "body");
+            }
+            if (primaryHead == null) {
+                return null;
+            }
+            Set<ModelPart> selected = new HashSet<>();
+            collectSubtree(primaryHead, selected);
+            ModelPart rebaseRoot = primaryHead;
+            if (model instanceof AbstractEquineModel) {
+                ModelPart upperMouth = findExactPart(model.root(), "upper_mouth");
+                ModelPart headParent = findParent(model.root(), primaryHead);
+                if (upperMouth != null && headParent != null
+                        && findParent(model.root(), upperMouth) == headParent) {
+                    collectSubtree(upperMouth, selected);
+                    rebaseRoot = headParent;
+                }
+            }
+            if (model instanceof GuardianModel) {
+                ModelPart tail = findExactPart(primaryHead, "tail0");
+                if (tail != null) {
+                    removeSubtree(tail, selected);
+                }
+            }
+            ModelPart copied = copySelectedTree(rebaseRoot, selected);
+            ModelPart anchorModel = copySelectedTree(rebaseRoot, Set.of(primaryHead));
+            if (anchorModel == null) {
+                Set<ModelPart> anchorParts = new HashSet<>();
+                collectSubtree(primaryHead, anchorParts);
+                anchorModel = copySelectedTree(rebaseRoot, anchorParts);
+            }
+            if (copied == null || anchorModel == null) {
+                return null;
+            }
+            resetTransform(copied);
+            resetTransform(anchorModel);
+            Bounds anchor = Bounds.measure(List.of(anchorModel));
+            return new HeadCopy(copied, anchor);
+        } finally {
+            originalModelState.forEach(ModelPartState::restore);
+        }
+    }
 
-        return copyModelPart(source, accessor.noblePhantasms$getCubes(), children);
+    private static @Nullable HeadLayerData createHeadLayer(ModelSubmission submission,
+                                                           LivingEntityRenderState state) {
+        HeadCopy head = copyAnimatedHead(submission.model(), state);
+        return head == null ? null : new HeadLayerData(head.model(), submission.renderType(),
+                submission.color(), submission.order(), false);
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static List<ModelSubmission> captureLayerModels(List<?> layers, LivingEntityRenderState state) {
+        List<ModelSubmission> submissions = new ArrayList<>();
+        for (Object value : layers) {
+            if (!(value instanceof RenderLayer layer)) {
+                continue;
+            }
+            try {
+                layer.submit(new PoseStack(), layerCollector(submissions, 0), state.lightCoords,
+                        state, state.yRot, state.xRot);
+            } catch (RuntimeException exception) {
+                LOGGER.debug("Could not capture a trophy head render layer", exception);
+            }
+        }
+        return submissions;
+    }
+
+    private static SubmitNodeCollector layerCollector(List<ModelSubmission> submissions, int order) {
+        return (SubmitNodeCollector) Proxy.newProxyInstance(
+                SubmitNodeCollector.class.getClassLoader(),
+                new Class<?>[]{SubmitNodeCollector.class},
+                (proxy, method, arguments) -> {
+                    if (method.getName().equals("order")) {
+                        return layerCollector(submissions, (int) arguments[0]);
+                    }
+                    if (method.getName().equals("submitModel") && arguments != null
+                            && arguments.length >= 4 && arguments[0] instanceof Model<?> model) {
+                        RenderType renderType = arguments[3] instanceof RenderType value
+                                ? value
+                                : arguments[3] instanceof Identifier texture
+                                ? model.renderType(texture)
+                                : null;
+                        if (renderType != null) {
+                            int color = arguments.length >= 10 && arguments[6] instanceof Integer value
+                                    ? value
+                                    : -1;
+                            submissions.add(new ModelSubmission(model, renderType, color, order));
+                        }
+                    }
+                    return defaultValue(method.getReturnType());
+                });
+    }
+
+    private static @Nullable Object defaultValue(Class<?> type) {
+        if (!type.isPrimitive() || type == void.class) {
+            return null;
+        }
+        if (type == boolean.class) {
+            return false;
+        }
+        if (type == char.class) {
+            return '\0';
+        }
+        return 0;
     }
 
     private static ModelPart copyModelPart(ModelPart source, List<ModelPart.Cube> cubes,
@@ -228,15 +384,7 @@ public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData
         return copy;
     }
 
-    private static @Nullable ModelPart copySelection(ModelPart root, ModelPart selected) {
-        return copySelectedTree(root, selected);
-    }
-
-    private static @Nullable ModelPart copySelectedTree(ModelPart source, ModelPart selected) {
-        if (source == selected) {
-            return copyModelPart(source);
-        }
-
+    private static @Nullable ModelPart copySelectedTree(ModelPart source, Set<ModelPart> selected) {
         ModelPartAccessor accessor = (ModelPartAccessor) (Object) source;
         Map<String, ModelPart> children = new HashMap<>();
         accessor.noblePhantasms$getChildren().forEach((name, child) -> {
@@ -245,89 +393,66 @@ public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData
                 children.put(name, copiedChild);
             }
         });
-        if (children.isEmpty()) {
+        List<ModelPart.Cube> cubes = selected.contains(source)
+                ? accessor.noblePhantasms$getCubes()
+                : List.of();
+        if (cubes.isEmpty() && children.isEmpty()) {
             return null;
         }
-        return copyModelPart(source, List.of(), children);
+        return copyModelPart(source, cubes, children);
     }
 
-    private static @Nullable PartNode findHead(EntityModel<?> model) {
-        List<PartNode> parts = new ArrayList<>();
-        collectParts(model.root(), "root", parts);
-
-        PartNode head = null;
-        if (model instanceof HeadedModel headedModel) {
-            ModelPart declaredHead = headedModel.getHead();
-            head = parts.stream()
-                    .filter(node -> node.part() == declaredHead)
-                    .findFirst()
-                    .orElse(null);
+    private static @Nullable ModelPart findExactPart(ModelPart current, String targetName) {
+        ModelPartAccessor accessor = (ModelPartAccessor) (Object) current;
+        ModelPart direct = accessor.noblePhantasms$getChildren().get(targetName);
+        if (direct != null) {
+            return direct;
         }
-        if (head == null) {
-            head = parts.stream()
-                    .filter(node -> scoreHeadName(node.name()) >= 0)
-                    .max(java.util.Comparator.comparingInt(node -> scoreHeadName(node.name())))
-                    .orElse(null);
-        }
-        if (head == null) {
-            return null;
-        }
-        return head;
-    }
-
-    private static void collectParts(ModelPart part, String name, List<PartNode> output) {
-        output.add(new PartNode(name, part));
-        ModelPartAccessor accessor = (ModelPartAccessor) (Object) part;
-        accessor.noblePhantasms$getChildren().forEach(
-                (childName, child) -> collectParts(child, childName, output));
-    }
-
-    private static int scoreHeadName(String name) {
-        String normalized = normalizePartName(name);
-        if (isHeadOverlayName(normalized)) {
-            return -1;
-        }
-        if (normalized.equals("head")) {
-            return 100;
-        }
-        if (normalized.equals("skull") || normalized.equals("cranium")) {
-            return 95;
-        }
-        if (normalized.equals("mainhead") || normalized.equals("headmain")) {
-            return 90;
-        }
-        if (normalized.startsWith("head") || normalized.endsWith("head")) {
-            return 80;
-        }
-        if (normalized.contains("head") || normalized.contains("skull")) {
-            return 70;
-        }
-        if (normalized.equals("face")) {
-            return 60;
-        }
-        return -1;
-    }
-
-    private static boolean isHeadOverlayName(String name) {
-        String normalized = normalizePartName(name);
-        return normalized.equals("hat")
-                || normalized.equals("helmet")
-                || normalized.startsWith("headwear")
-                || normalized.startsWith("headlayer")
-                || normalized.startsWith("headoverlay")
-                || normalized.equals("outerhead")
-                || normalized.equals("headouter");
-    }
-
-    private static String normalizePartName(String name) {
-        StringBuilder normalized = new StringBuilder(name.length());
-        for (int i = 0; i < name.length(); i++) {
-            char character = Character.toLowerCase(name.charAt(i));
-            if (Character.isLetterOrDigit(character)) {
-                normalized.append(character);
+        for (ModelPart child : accessor.noblePhantasms$getChildren().values()) {
+            ModelPart result = findExactPart(child, targetName);
+            if (result != null) {
+                return result;
             }
         }
-        return normalized.toString();
+        return null;
+    }
+
+    private static void collectSubtree(ModelPart part, Set<ModelPart> selected) {
+        selected.add(part);
+        ModelPartAccessor accessor = (ModelPartAccessor) (Object) part;
+        accessor.noblePhantasms$getChildren().values().forEach(child -> collectSubtree(child, selected));
+    }
+
+    private static void removeSubtree(ModelPart part, Set<ModelPart> selected) {
+        selected.remove(part);
+        ModelPartAccessor accessor = (ModelPartAccessor) (Object) part;
+        accessor.noblePhantasms$getChildren().values().forEach(child -> removeSubtree(child, selected));
+    }
+
+    private static @Nullable ModelPart findParent(ModelPart current, ModelPart target) {
+        ModelPartAccessor accessor = (ModelPartAccessor) (Object) current;
+        for (ModelPart child : accessor.noblePhantasms$getChildren().values()) {
+            if (child == target) {
+                return current;
+            }
+            ModelPart result = findParent(child, target);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
+    }
+
+    private static void resetTransform(ModelPart part) {
+        part.x = 0.0F;
+        part.y = 0.0F;
+        part.z = 0.0F;
+        part.xRot = 0.0F;
+        part.yRot = 0.0F;
+        part.zRot = 0.0F;
+        part.xScale = 1.0F;
+        part.yScale = 1.0F;
+        part.zScale = 1.0F;
     }
 
     public record Unbaked() implements SpecialModelRenderer.Unbaked<TrophyData> {
@@ -344,11 +469,21 @@ public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData
         }
     }
 
-    private record HeadRenderData(ModelPart head, RenderType renderType, float width, float height, float depth,
-                                  float centerX, float centerY, float centerZ) {
+    private record HeadRenderData(List<HeadLayerData> layers, float width, float height, float depth,
+                                  float centerX, float centerY, float centerZ,
+                                  float anchorHeight, float anchorDepth) {
     }
 
-    private record PartNode(String name, ModelPart part) {
+    private record HeadLayerData(ModelPart head, RenderType renderType, int color, int order, boolean base) {
+    }
+
+    private record HeadCopy(ModelPart model, Bounds anchor) {
+    }
+
+    private record ModelSubmission(Model<?> model, RenderType renderType, int color, int order) {
+    }
+
+    private record ModelSelection(EntityModel<?> model, List<?> layers) {
     }
 
     private record ModelPartState(ModelPart part, float x, float y, float z, float xRot, float yRot, float zRot,
@@ -375,20 +510,23 @@ public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData
 
     private static final class ModelCapture {
         private EntityModel<?> model;
+        private List<?> layers = List.of();
     }
 
     private record Bounds(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
-        private static Bounds measure(ModelPart part) {
+        private static Bounds measure(List<ModelPart> parts) {
             float[] values = {Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY,
                     Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY};
-            part.getExtentsForGui(new PoseStack(), point -> {
-                values[0] = Math.min(values[0], point.x());
-                values[1] = Math.min(values[1], point.y());
-                values[2] = Math.min(values[2], point.z());
-                values[3] = Math.max(values[3], point.x());
-                values[4] = Math.max(values[4], point.y());
-                values[5] = Math.max(values[5], point.z());
-            });
+            for (ModelPart part : parts) {
+                part.getExtentsForGui(new PoseStack(), point -> {
+                    values[0] = Math.min(values[0], point.x());
+                    values[1] = Math.min(values[1], point.y());
+                    values[2] = Math.min(values[2], point.z());
+                    values[3] = Math.max(values[3], point.x());
+                    values[4] = Math.max(values[4], point.y());
+                    values[5] = Math.max(values[5], point.z());
+                });
+            }
             return new Bounds(values[0], values[1], values[2], values[3], values[4], values[5]);
         }
 
@@ -402,6 +540,11 @@ public final class TrophyHeadRenderer implements SpecialModelRenderer<TrophyData
 
         private float depth() {
             return maxZ - minZ;
+        }
+
+        private boolean isValid() {
+            return Float.isFinite(minX) && Float.isFinite(minY) && Float.isFinite(minZ)
+                    && Float.isFinite(maxX) && Float.isFinite(maxY) && Float.isFinite(maxZ);
         }
 
         private float centerX() {

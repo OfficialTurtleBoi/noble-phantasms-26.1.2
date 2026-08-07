@@ -14,23 +14,23 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.turtleboi.noblephantasms.NoblePhantasms;
-import net.turtleboi.noblephantasms.screens.menus.custom.RelicForgeMenu;
+import net.turtleboi.noblephantasms.screens.menus.custom.ReliquaryStationMenu;
 
-public record RelicForgeCompletePayload(int containerId, long seed) implements CustomPacketPayload {
-    public static final Type<RelicForgeCompletePayload> TYPE = new Type<>(
-            Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "relic_forge_complete"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, RelicForgeCompletePayload> STREAM_CODEC =
-            StreamCodec.composite(ByteBufCodecs.VAR_INT, RelicForgeCompletePayload::containerId,
-                    ByteBufCodecs.VAR_LONG, RelicForgeCompletePayload::seed,
-                    RelicForgeCompletePayload::new);
+public record ReliquaryStationCompletePayload(int containerId, long seed) implements CustomPacketPayload {
+    public static final Type<ReliquaryStationCompletePayload> TYPE = new Type<>(
+            Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "reliquary_station_complete"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ReliquaryStationCompletePayload> STREAM_CODEC =
+            StreamCodec.composite(ByteBufCodecs.VAR_INT, ReliquaryStationCompletePayload::containerId,
+                    ByteBufCodecs.VAR_LONG, ReliquaryStationCompletePayload::seed,
+                    ReliquaryStationCompletePayload::new);
 
     public static void register(RegisterPayloadHandlersEvent event) {
-        event.registrar("1").playToServer(TYPE, STREAM_CODEC, RelicForgeCompletePayload::handle);
+        event.registrar("1").playToServer(TYPE, STREAM_CODEC, ReliquaryStationCompletePayload::handle);
     }
 
-    private static void handle(RelicForgeCompletePayload payload, IPayloadContext context) {
+    private static void handle(ReliquaryStationCompletePayload payload, IPayloadContext context) {
         if (!(context.player() instanceof ServerPlayer player)
-                || !(player.containerMenu instanceof RelicForgeMenu menu)
+                || !(player.containerMenu instanceof ReliquaryStationMenu menu)
                 || menu.containerId != payload.containerId()
                 || !menu.complete(player, payload.seed())) {
             return;
@@ -46,7 +46,7 @@ public record RelicForgeCompletePayload(int containerId, long seed) implements C
     }
 
     @Override
-    public Type<RelicForgeCompletePayload> type() {
+    public Type<ReliquaryStationCompletePayload> type() {
         return TYPE;
     }
 }

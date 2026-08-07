@@ -1,6 +1,7 @@
 package net.turtleboi.noblephantasms.screens;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -23,11 +24,24 @@ import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.turtleboi.noblephantasms.NoblePhantasms;
-import net.turtleboi.noblephantasms.screens.menus.custom.RelicForgeMenu;
-import net.turtleboi.noblephantasms.network.RelicForgeCompletePayload;
+import net.turtleboi.noblephantasms.screens.menus.custom.ReliquaryStationMenu;
+import net.turtleboi.noblephantasms.network.ReliquaryStationCompletePayload;
 import net.turtleboi.noblephantasms.relic.RelicFragmenter;
 
-public final class RelicForgeScreen extends AbstractContainerScreen<RelicForgeMenu> {
+public final class ReliquaryStationScreen extends AbstractContainerScreen<ReliquaryStationMenu> {
+    private static final Identifier BACKGROUND = Identifier.fromNamespaceAndPath(
+            NoblePhantasms.MOD_ID, "textures/ui/reliquary_station.png");
+    private static final int BACKGROUND_WIDTH = 214;
+    private static final int BACKGROUND_HEIGHT = 207;
+    private static final int RELIC_CENTER_X = 139;
+    private static final int RELIC_CENTER_Y = 55;
+    private static final int RELIC_AREA_WIDTH = 126;
+    private static final int RELIC_AREA_HEIGHT = 90;
+    private static final int FRAGMENT_TRAY_X = 8;
+    private static final int FRAGMENT_TRAY_Y = 4;
+    private static final int FRAGMENT_TRAY_WIDTH = 54;
+    private static final int FRAGMENT_TRAY_HEIGHT = 102;
+    private static final float RELIC_SCALE_FACTOR = 0.75F;
     private static final long LOCK_MILLISECONDS_PER_PIXEL = 10L;
     private static final long LOCK_FLASH_DURATION = 90L;
     private static final long LOCK_FADE_DURATION = 260L;
@@ -45,44 +59,94 @@ public final class RelicForgeScreen extends AbstractContainerScreen<RelicForgeMe
     private PieceState assembledState;
     private long assemblyAnimationStarted;
 
-    public RelicForgeScreen(RelicForgeMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, 360, 240);
+    public ReliquaryStationScreen(ReliquaryStationMenu menu, Inventory inventory, Component title) {
+        super(menu, inventory, title, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
         inventoryLabelY = 10000;
     }
 
     @Override
     protected void init() {
+        int previousLeft = leftPos;
+        int previousTop = topPos;
+        boolean preservePuzzle = layout != null && assembledState != null;
         super.init();
-        releaseOutlineTextures();
+        if (preservePuzzle) {
+            movePuzzle(leftPos - previousLeft, topPos - previousTop);
+        } else {
+            initializePuzzle();
+        }
+        createForgeButton();
+    }
+
+    private void initializePuzzle() {
         layout = RelicFragmenter.create(menu.relicId(), menu.seed());
-        scale = Math.max(1, Math.min(5, Math.min(130 / layout.width(), 150 / layout.height())));
-        targetX = leftPos + (imageWidth - layout.width() * scale) / 2;
-        targetY = topPos + 18 + (160 - layout.height() * scale) / 2;
+        int largestPieceWidth = layout.pieces().stream()
+                .mapToInt(piece -> piece.maxX() - piece.minX() + 1)
+                .max()
+                .orElse(1);
+        int largestPieceHeight = layout.pieces().stream()
+                .mapToInt(piece -> piece.maxY() - piece.minY() + 1)
+                .max()
+                .orElse(1);
+        int fittedScale = Math.max(1, Math.min(5, Math.min(
+                Math.min(RELIC_AREA_WIDTH / layout.width(), RELIC_AREA_HEIGHT / layout.height()),
+                Math.min(FRAGMENT_TRAY_WIDTH / largestPieceWidth,
+                        FRAGMENT_TRAY_HEIGHT / largestPieceHeight))));
+        scale = Math.max(1, Math.round(fittedScale * RELIC_SCALE_FACTOR));
+        targetX = leftPos + RELIC_CENTER_X - scaledOffset(layout.width()) / 2;
+        targetY = topPos + RELIC_CENTER_Y - scaledOffset(layout.height()) / 2;
         pieces.clear();
         Random random = new Random(menu.seed() ^ 0x72656c6963466f72L);
-        for (RelicFragmenter.Piece piece : layout.pieces()) {
-            int pieceWidth = (piece.maxX() - piece.minX() + 1) * scale;
-            int pieceHeight = (piece.maxY() - piece.minY() + 1) * scale;
-            int availableWidth = Math.max(1, 98 - pieceWidth);
-            int availableHeight = Math.max(1, 190 - pieceHeight);
-            int x = leftPos + 5 + random.nextInt(availableWidth);
-            int y = topPos + 8 + random.nextInt(availableHeight);
+        List<RelicFragmenter.Piece> distributedPieces = new ArrayList<>(layout.pieces());
+        Collections.shuffle(distributedPieces, random);
+        for (int index = 0; index < distributedPieces.size(); index++) {
+            RelicFragmenter.Piece piece = distributedPieces.get(index);
+            int pieceWidth = scaledOffset(piece.maxX() - piece.minX() + 1);
+            int pieceHeight = scaledOffset(piece.maxY() - piece.minY() + 1);
+            int availableWidth = Math.max(1, FRAGMENT_TRAY_WIDTH - pieceWidth + 1);
+            int availableHeight = Math.max(1, FRAGMENT_TRAY_HEIGHT - pieceHeight + 1);
+            int x = leftPos + FRAGMENT_TRAY_X + random.nextInt(availableWidth);
+            int yOffset = distributedPieces.size() == 1
+                    ? (availableHeight - 1) / 2
+                    : Math.round(index * (availableHeight - 1.0F) / (distributedPieces.size() - 1));
+            int y = topPos + FRAGMENT_TRAY_Y + yOffset;
             PieceState state = new PieceState(piece, x, y, 3 + random.nextInt(5));
             cacheOutlineTexture(state, pieces.size());
             pieces.add(state);
         }
         RelicFragmenter.Piece assembledPiece = createAssembledPiece(layout);
         assembledState = new PieceState(assembledPiece,
-                targetX + assembledPiece.minX() * scale,
-                targetY + assembledPiece.minY() * scale, 2);
+                targetX + scaledOffset(assembledPiece.minX()),
+                targetY + scaledOffset(assembledPiece.minY()), 2);
         cacheOutlineTexture(assembledState, pieces.size());
         assemblyAnimationStarted = 0L;
+    }
+
+    private void movePuzzle(int offsetX, int offsetY) {
+        targetX += offsetX;
+        targetY += offsetY;
+        for (PieceState piece : pieces) {
+            piece.x += offsetX;
+            piece.y += offsetY;
+        }
+        assembledState.x += offsetX;
+        assembledState.y += offsetY;
+        if (dragging != null) {
+            dragging.height = 5;
+            dragging = null;
+        }
+    }
+
+    private void createForgeButton() {
         forgeButton = addRenderableWidget(Button.builder(
-                Component.translatable("menu.noblephantasms.relic_forge.forge"), button -> forge())
-                .bounds(leftPos + imageWidth / 2 - 40, topPos + imageHeight - 26, 80, 20)
+                Component.translatable("menu.noblephantasms.reliquary_station.forge"), button -> forge())
+                .bounds(leftPos + 166, topPos + 88, 42, 18)
                 .build());
-        forgeButton.active = false;
-        forgeButton.visible = false;
+        boolean ready = !pieces.isEmpty()
+                && pieces.stream().allMatch(piece -> piece.locked)
+                && assemblyAnimationStarted == 0L;
+        forgeButton.active = ready && !completionSent;
+        forgeButton.visible = ready;
     }
 
     @Override
@@ -92,11 +156,13 @@ public final class RelicForgeScreen extends AbstractContainerScreen<RelicForgeMe
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractBackground(graphics, mouseX, mouseY, partialTick);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND,
+                leftPos, topPos, 0, 0,
+                BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 256, 256);
         for (RelicFragmenter.Piece piece : layout.pieces()) {
             for (RelicFragmenter.Pixel pixel : piece.pixels()) {
-                int x = targetX + pixel.x() * scale;
-                int y = targetY + pixel.y() * scale;
-                graphics.fill(x, y, x + scale, y + scale, 0x28000000 | pixel.color() & 0x00FFFFFF);
+                fillScaledPixel(graphics, targetX, targetY, pixel.x(), pixel.y(),
+                        0x28000000 | pixel.color() & 0x00FFFFFF);
             }
         }
         Map<Integer, List<PieceState>> heightLayers = new TreeMap<>();
@@ -118,23 +184,21 @@ public final class RelicForgeScreen extends AbstractContainerScreen<RelicForgeMe
     }
 
     private void drawShadow(GuiGraphicsExtractor graphics, PieceState state) {
-        int offsetX = Math.max(1, state.height / 2);
-        int offsetY = Math.max(1, state.height);
+        int offsetX = Math.max(1, Math.round(state.height * scale / 8.0F));
+        int offsetY = Math.max(1, Math.round(state.height * scale / 4.0F));
         int alpha = Math.min(128, 40 + state.height * 7);
         for (RelicFragmenter.Pixel pixel : state.piece.pixels()) {
             int sourceAlpha = pixel.color() >>> 24;
             int color = sourceAlpha * alpha / 255 << 24;
-            int x = state.x + (pixel.x() - state.piece.minX()) * scale + offsetX;
-            int y = state.y + (pixel.y() - state.piece.minY()) * scale + offsetY;
-            graphics.fill(x, y, x + scale, y + scale, color);
+            fillScaledPixel(graphics, state.x + offsetX, state.y + offsetY,
+                    pixel.x() - state.piece.minX(), pixel.y() - state.piece.minY(), color);
         }
     }
 
     private void drawPiece(GuiGraphicsExtractor graphics, PieceState state) {
         for (RelicFragmenter.Pixel pixel : state.piece.pixels()) {
-            int x = state.x + (pixel.x() - state.piece.minX()) * scale;
-            int y = state.y + (pixel.y() - state.piece.minY()) * scale;
-            graphics.fill(x, y, x + scale, y + scale, pixel.color());
+            fillScaledPixel(graphics, state.x, state.y,
+                    pixel.x() - state.piece.minX(), pixel.y() - state.piece.minY(), pixel.color());
         }
     }
 
@@ -194,9 +258,8 @@ public final class RelicForgeScreen extends AbstractContainerScreen<RelicForgeMe
                 (int) Math.ceil(state.tracePixels.size() * progress));
         for (int index = 0; index < visiblePixels; index++) {
             OutlinePixel pixel = state.tracePixels.get(index);
-            int x = state.x + (pixel.x - state.piece.minX()) * scale;
-            int y = state.y + (pixel.y - state.piece.minY()) * scale;
-            graphics.fill(x, y, x + scale, y + scale, color);
+            fillScaledPixel(graphics, state.x, state.y,
+                    pixel.x - state.piece.minX(), pixel.y - state.piece.minY(), color);
         }
     }
 
@@ -204,10 +267,12 @@ public final class RelicForgeScreen extends AbstractContainerScreen<RelicForgeMe
         if (state.outlineTexture == null) {
             return;
         }
-        int x = state.x + (state.outline.minX - state.piece.minX()) * scale;
-        int y = state.y + (state.outline.minY - state.piece.minY()) * scale;
+        int sourceX = state.outline.minX - state.piece.minX();
+        int sourceY = state.outline.minY - state.piece.minY();
+        int x = state.x + scaledOffset(sourceX);
+        int y = state.y + scaledOffset(sourceY);
         graphics.blit(RenderPipelines.GUI_TEXTURED, state.outlineTexture, x, y, 0.0F, 0.0F,
-                state.outline.width() * scale, state.outline.height() * scale,
+                scaledSpan(sourceX, state.outline.width()), scaledSpan(sourceY, state.outline.height()),
                 state.outline.width(), state.outline.height(),
                 state.outline.width(), state.outline.height(), color);
     }
@@ -282,8 +347,8 @@ public final class RelicForgeScreen extends AbstractContainerScreen<RelicForgeMe
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
         if (event.button() == 0 && dragging != null) {
-            int correctX = targetX + dragging.piece.minX() * scale;
-            int correctY = targetY + dragging.piece.minY() * scale;
+            int correctX = targetX + scaledOffset(dragging.piece.minX());
+            int correctY = targetY + scaledOffset(dragging.piece.minY());
             int distanceX = dragging.x - correctX;
             int distanceY = dragging.y - correctY;
             if (distanceX * distanceX + distanceY * distanceY <= 100) {
@@ -315,9 +380,13 @@ public final class RelicForgeScreen extends AbstractContainerScreen<RelicForgeMe
 
     private boolean contains(PieceState state, double mouseX, double mouseY) {
         for (RelicFragmenter.Pixel pixel : state.piece.pixels()) {
-            int x = state.x + (pixel.x() - state.piece.minX()) * scale;
-            int y = state.y + (pixel.y() - state.piece.minY()) * scale;
-            if (mouseX >= x && mouseX < x + scale && mouseY >= y && mouseY < y + scale) {
+            int relativeX = pixel.x() - state.piece.minX();
+            int relativeY = pixel.y() - state.piece.minY();
+            int x = state.x + scaledOffset(relativeX);
+            int y = state.y + scaledOffset(relativeY);
+            int right = state.x + scaledOffset(relativeX + 1);
+            int bottom = state.y + scaledOffset(relativeY + 1);
+            if (mouseX >= x && mouseX < right && mouseY >= y && mouseY < bottom) {
                 return true;
             }
         }
@@ -328,8 +397,22 @@ public final class RelicForgeScreen extends AbstractContainerScreen<RelicForgeMe
         if (!completionSent && pieces.stream().allMatch(piece -> piece.locked)) {
             completionSent = true;
             forgeButton.active = false;
-            ClientPacketDistributor.sendToServer(new RelicForgeCompletePayload(menu.containerId, menu.seed()));
+            ClientPacketDistributor.sendToServer(new ReliquaryStationCompletePayload(menu.containerId, menu.seed()));
         }
+    }
+
+    private int scaledOffset(int sourcePixels) {
+        return sourcePixels * scale;
+    }
+
+    private int scaledSpan(int sourceStart, int sourceLength) {
+        return scaledOffset(sourceStart + sourceLength) - scaledOffset(sourceStart);
+    }
+
+    private void fillScaledPixel(GuiGraphicsExtractor graphics, int originX, int originY,
+                                 int sourceX, int sourceY, int color) {
+        graphics.fill(originX + scaledOffset(sourceX), originY + scaledOffset(sourceY),
+                originX + scaledOffset(sourceX + 1), originY + scaledOffset(sourceY + 1), color);
     }
 
     private static final class PieceState {

@@ -56,7 +56,7 @@ public class ModCreativeModeTabs {
                                 output.accept(ModItems.KAZAGURUMA);
                                 output.accept(ModItems.UCHIDE_NO_KOZUCHI);
                                 output.accept(ModItems.YAMAWARI);
-                                output.accept(ModItems.RELIC_FORGE);
+                                output.accept(ModItems.RELIQUARY_STATION);
                                 RelicFragmentDefinitions.relicIds().forEach(relicId -> output.accept(
                                         RelicFragmentItem.create(ModItems.RELIC_FRAGMENT.get(),
                                                 RelicFragmentData.forgePiece(relicId),

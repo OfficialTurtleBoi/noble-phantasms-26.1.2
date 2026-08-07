@@ -10,7 +10,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.block.custom.TrophyHeadBlock;
 import net.turtleboi.noblephantasms.block.custom.TrophyWallHeadBlock;
-import net.turtleboi.noblephantasms.block.custom.RelicForgeBlock;
+import net.turtleboi.noblephantasms.block.custom.ReliquaryStationBlock;
 import net.minecraft.world.level.block.Blocks;
 
 public final class ModBlocks {
@@ -32,8 +32,8 @@ public final class ModBlocks {
                             .overrideDescription(TROPHY_HEAD.get().getDescriptionId())
                             .dynamicShape());
 
-    public static final DeferredBlock<RelicForgeBlock> RELIC_FORGE =
-            BLOCKS.registerBlock("relic_forge", RelicForgeBlock::new,
+    public static final DeferredBlock<ReliquaryStationBlock> RELIQUARY_STATION =
+            BLOCKS.registerBlock("reliquary_station", ReliquaryStationBlock::new,
                     () -> BlockBehaviour.Properties.ofFullCopy(Blocks.SMITHING_TABLE));
 
     public static void register(IEventBus eventBus) {

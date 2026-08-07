@@ -123,8 +123,8 @@ public class ModItems {
     public static final DeferredItem<RelicFragmentItem> RELIC_FRAGMENT =
             ITEMS.registerItem("relic_fragment", RelicFragmentItem::new);
 
-    public static final DeferredItem<BlockItem> RELIC_FORGE =
-            ITEMS.registerSimpleBlockItem(ModBlocks.RELIC_FORGE);
+    public static final DeferredItem<BlockItem> RELIQUARY_STATION =
+            ITEMS.registerSimpleBlockItem(ModBlocks.RELIQUARY_STATION);
 
     public static final DeferredItem<HolyGrailItem> HOLY_GRAIL =
             ITEMS.registerItem("holy_grail", HolyGrailItem::new);

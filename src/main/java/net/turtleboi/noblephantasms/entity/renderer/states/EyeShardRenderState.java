@@ -6,4 +6,5 @@ import net.turtleboi.noblephantasms.relic.RelicFragmentData;
 public final class EyeShardRenderState extends EntityRenderState {
     public RelicFragmentData fragment;
     public float age;
+    public float glowPhase;
 }

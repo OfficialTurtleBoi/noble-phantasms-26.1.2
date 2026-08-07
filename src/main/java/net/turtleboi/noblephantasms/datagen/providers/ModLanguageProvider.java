@@ -25,7 +25,7 @@ public class ModLanguageProvider extends LanguageProvider {
         addSimpleItem(ModItems.BERTILAK);
         addSimpleItem(ModItems.TROPHY_HEAD, "Trophy Head");
         add(ModBlocks.TROPHY_HEAD.get(), "Trophy Head");
-        add(ModBlocks.RELIC_FORGE.get(), "Relic Forge");
+        add(ModBlocks.RELIQUARY_STATION.get(), "Reliquary Station");
         addSimpleItem(ModItems.CARNWENNAN);
         addSimpleItem(ModItems.EXCALIBUR);
         addSimpleItem(ModItems.GJALLARHORN);
@@ -50,8 +50,8 @@ public class ModLanguageProvider extends LanguageProvider {
         addSimpleItem(ModItems.SMOKING_MIRROR, "The Smoking Mirror");
         addSimpleItem(ModItems.RELIC_FRAGMENT, "Relic Fragment");
         add("item.noblephantasms.relic_fragment.named", "%s Fragment");
-        add("menu.noblephantasms.relic_forge", "Relic Forging");
-        add("menu.noblephantasms.relic_forge.forge", "Forge");
+        add("menu.noblephantasms.reliquary_station", "Reliquary Station");
+        add("menu.noblephantasms.reliquary_station.forge", "Forge");
         add("tooltip.noblephantasms.medju_netjer.reroll", "Turn the page (1 Lapis Lazuli)");
         add("tooltip.noblephantasms.medju_netjer.offer", "Medju Netjer reveals:");
         add("jei.noblephantasms.info.ankh",
