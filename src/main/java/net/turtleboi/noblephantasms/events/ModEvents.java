@@ -28,6 +28,7 @@ import net.turtleboi.noblephantasms.item.custom.BertilakItem;
 import net.turtleboi.noblephantasms.item.custom.MedjuNetjerItem;
 import net.turtleboi.noblephantasms.item.custom.EagleKnightTalonsItem;
 import net.turtleboi.noblephantasms.item.custom.HekaItem;
+import net.turtleboi.noblephantasms.item.custom.GramItem;
 import net.turtleboi.noblephantasms.item.custom.MegingjordItem;
 import net.turtleboi.noblephantasms.item.custom.NekhakhaItem;
 import net.turtleboi.noblephantasms.item.custom.ScabbardItem;
@@ -56,6 +57,11 @@ public final class ModEvents {
         AnkhItem.handleDamageFinalized(event);
     }
 
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    static void onDamageFinalizedLowest(LivingDamageEvent.Pre event) {
+        GramItem.handleDamage(event);
+    }
+
     @SubscribeEvent
     static void onDamageComplete(LivingDamageEvent.Post event) {
         MegingjordItem.handleDamageComplete(event);
@@ -71,6 +77,7 @@ public final class ModEvents {
     static void onLivingDeath(LivingDeathEvent event) {
         BertilakItem.handleLivingDeath(event);
         EyeOfHorusItem.handleLivingDeath(event);
+        GramItem.handleLivingDeath(event);
     }
 
     @SubscribeEvent

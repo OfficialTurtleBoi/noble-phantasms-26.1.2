@@ -46,6 +46,7 @@ public class ModCreativeModeTabs {
                                 output.accept(ModItems.HOLY_GRAIL);
 
                                 output.accept(ModItems.GUNGNIR);
+                                output.accept(ModItems.GRAM);
                                 output.accept(ModItems.GJALLARHORN);
                                 output.accept(ModItems.HULIOSHJALMR);
                                 output.accept(ModItems.ANDVARANAUT);

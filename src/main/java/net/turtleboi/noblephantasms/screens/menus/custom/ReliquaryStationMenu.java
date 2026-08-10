@@ -29,7 +29,7 @@ public final class ReliquaryStationMenu extends AbstractContainerMenu {
         super(ModMenus.RELIQUARY_STATION.get(), containerId);
         this.relicId = relicId;
         this.seed = seed;
-        RelicFragmenter.Layout layout = RelicFragmenter.create(relicId, seed);
+        RelicFragmenter.Layout layout = RelicFragmenter.createForStation(relicId, seed);
         this.pieceCount = layout == null ? 0 : layout.pieceCount();
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {

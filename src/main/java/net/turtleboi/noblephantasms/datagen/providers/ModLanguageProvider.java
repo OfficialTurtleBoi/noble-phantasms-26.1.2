@@ -28,6 +28,7 @@ public class ModLanguageProvider extends LanguageProvider {
         add(ModBlocks.RELIQUARY_STATION.get(), "Reliquary Station");
         addSimpleItem(ModItems.CARNWENNAN);
         addSimpleItem(ModItems.EXCALIBUR);
+        addSimpleItem(ModItems.GRAM);
         addSimpleItem(ModItems.GJALLARHORN);
         addSimpleItem(ModItems.HULIOSHJALMR, "Huliðshjálmr");
         addSimpleItem(ModItems.EYE_OF_HORUS, "Eye of Horus");
@@ -54,6 +55,62 @@ public class ModLanguageProvider extends LanguageProvider {
         add("menu.noblephantasms.reliquary_station.forge", "Forge");
         add("tooltip.noblephantasms.medju_netjer.reroll", "Turn the page (1 Lapis Lazuli)");
         add("tooltip.noblephantasms.medju_netjer.offer", "Medju Netjer reveals:");
+        add("tooltip.noblephantasms.eye_of_horus.flavor",
+                "Thoth restored Horus's wounded eye from scattered pieces, and the completed wedjat became a sign of protection and wholeness.");
+        add("tooltip.noblephantasms.ankh.flavor",
+                "This hieroglyph meant life; gods were often shown placing it at a pharaoh's lips to grant life's breath.");
+        add("tooltip.noblephantasms.kheper_scarab.flavor",
+                "Scarab amulets invoked Khepri, whose rising sun renewed itself each morning.");
+        add("tooltip.noblephantasms.scales_of_maat.flavor",
+                "Spell 125 of the Book of the Dead weighs the deceased's heart against Ma'at's feather.");
+        add("tooltip.noblephantasms.weben.flavor",
+                "The Egyptian verb behind its name described the sun in the act of rising and shining.");
+        add("tooltip.noblephantasms.heka.flavor",
+                "As royal regalia, the crook cast the pharaoh as shepherd and guardian of his people.");
+        add("tooltip.noblephantasms.nekhakha.flavor",
+                "Paired with the crook, the royal flail represented the pharaoh's power to drive, discipline, and command.");
+        add("tooltip.noblephantasms.medju_netjer.flavor",
+                "Hieroglyphs were 'words of the god,' sacred signs believed to carry the power they described.");
+        add("tooltip.noblephantasms.eagle_knight_talons.flavor",
+                "Elite Mexica warriors wore eagle-shaped war suits, invoking a predator that kills in its descent.");
+        add("tooltip.noblephantasms.macuahuitl.flavor",
+                "Mesoamerican warriors lined wooden weapons with inset obsidian blades, whose brittle edges cut even as they splintered.");
+        add("tooltip.noblephantasms.smoking_mirror.flavor",
+                "The god from whom it takes its name carried an obsidian mirror for divination and embodied change through conflict.");
+        add("tooltip.noblephantasms.scabbard.flavor",
+                "Malory valued Arthur's sheath above the sword itself, for its wearer could not lose a drop of blood.");
+        add("tooltip.noblephantasms.carnwennan.flavor",
+                "Welsh tradition calls Arthur's dagger the 'Little White Hilt'; later retellings let it shroud him in shadow.");
+        add("tooltip.noblephantasms.bertilak.flavor",
+                "The axe's namesake is revealed as the Green Knight, who claims the right to return Sir Gawain's axe blow and the right to his head...");
+        add("tooltip.noblephantasms.excalibur.flavor",
+                "Malory wrote that Arthur's drawn blade shone in his enemies' eyes with the light of thirty torches.");
+        add("tooltip.noblephantasms.rhongomyniad.flavor",
+                "Geoffrey of Monmouth calls Arthur's lance hard, broad, and fit for slaughter—the weapon he carried in the charge at Badon.");
+        add("tooltip.noblephantasms.holy_grail.flavor",
+                "Across medieval romances, the sacred vessel granted sustenance, healing, and divine grace.");
+        add("tooltip.noblephantasms.gungnir.flavor",
+                "Odin's dwarf-forged spear was so perfectly made that no throw could miss its mark.");
+        add("tooltip.noblephantasms.gram.flavor",
+                "Sigurd reforged his father's shattered sword, then slew Fafnir by thrusting upward from a pit beneath the dragon.");
+        add("tooltip.noblephantasms.gjallarhorn.flavor",
+                "Heimdall's horn will be heard through every realm when it calls the gods to Ragnarok.");
+        add("tooltip.noblephantasms.hulioshjalmr.flavor",
+                "In Norse saga, a 'concealing helmet' could mean not armor, but the very magic that made someone unseen.");
+        add("tooltip.noblephantasms.andvaranaut.flavor",
+                "Andvari's ring brought its owners a great hoard and a curse; each inheritor gained the treasure and paid in blood.");
+        add("tooltip.noblephantasms.draupnir.flavor",
+                "Every ninth night, Odin's golden ring dripped eight more rings of equal weight from itself.");
+        add("tooltip.noblephantasms.meginjord.flavor",
+                "Thor's 'power-belt' doubled his already immense strength whenever he fastened it.");
+        add("tooltip.noblephantasms.kusanagi_no_tsurugi.flavor",
+                "Yamato Takeru escaped a burning field by cutting down the grass and turning the flames with the wind.");
+        add("tooltip.noblephantasms.kazaguruma.flavor",
+                "Kusarigama wielders used the weighted chain to entangle a weapon or limb before closing with the sickle.");
+        add("tooltip.noblephantasms.uchide_no_kozuchi.flavor",
+                "In the tale of Issun-boshi, a stolen ogre's mallet grants wishes with a swing and restores the tiny hero to full size.");
+        add("tooltip.noblephantasms.yamawari.flavor",
+                "The child hero Kintaro was famed for superhuman strength and traditionally shown carrying a broad masakari axe.");
         add("jei.noblephantasms.info.ankh",
                 "Equip in a Curios charm or compatible totem slot. Fatal damage restores full health, "
                         + "releases a damaging and blinding radiant burst, and grants 15 seconds of invulnerability. "
@@ -103,6 +160,9 @@ public class ModLanguageProvider extends LanguageProvider {
         add("jei.noblephantasms.info.macuahuitl",
                 "Hits apply Bleeding for 5 seconds. Repeated hits add up to 5 stacks, with each stack dealing "
                         + "1 armor-bypassing damage every second.");
+        add("jei.noblephantasms.info.gram",
+                "Every third fully charged damaging hit against a hostile or neutral target triggers Fafnir's "
+                        + "Bite, adding damage that scales with how much the target's maximum health exceeds yours.");
 
         add("creativetab.noblephantasms.title", "Noble Phantasms");
         add("creativetab.noblephantasms.trophy_heads", "Trophy Heads");
@@ -115,9 +175,6 @@ public class ModLanguageProvider extends LanguageProvider {
         add("message.noblephantasms.bertilak.cooldown", "The Covenant can be bound again in %s seconds");
         add("message.noblephantasms.bertilak.fulfilled", "Covenant fulfilled: %s");
         add("message.noblephantasms.bertilak.target_bound", "That target is already bound by a Covenant");
-        add("message.noblephantasms.eye_of_horus.pieces", "Eye pieces: %s/%s");
-        add("message.noblephantasms.eye_of_horus.opened", "The Eye opens and scatters");
-        add("message.noblephantasms.eye_of_horus.scattered", "The Eye pieces have scattered");
         add("effect.noblephantasms.covenant", "Covenant");
         add("effect.noblephantasms.judgement", "Judgement");
         add("effect.noblephantasms.luminous", "Luminous");

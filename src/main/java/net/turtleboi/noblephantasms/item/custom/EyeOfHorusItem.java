@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.ColorParticleOption;
-import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -41,14 +40,14 @@ import top.theillusivec4.curios.api.SlotContext;
 
 public final class EyeOfHorusItem extends CurioRelicItem {
     public static final int BASE_FOCUS_DURATION = 20 * 2;
-    public static final int FOCUS_DECAY_PER_TICK = 4;
+    public static final float FOCUS_PROGRESS_DECAY_PER_TICK = 4.0F / BASE_FOCUS_DURATION;
     private static final Identifier EYE_ID = Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "eye_of_horus");
     private static final int FOCUS_REDUCTION_PER_PIECE = 5;
     private static final int JUDGEMENT_DURATION = 20 * 15;
     private static final double JUDGEMENT_RANGE = 64.0;
     private static final double OPEN_EYE_RADIUS = 8.0;
     private static final float DAMAGE_BONUS_PER_PIECE = 0.05F;
-    private static final Map<Player, Map<LivingEntity, Integer>> GAZE_STATES = new WeakHashMap<>();
+    private static final Map<Player, Map<LivingEntity, Float>> GAZE_STATES = new WeakHashMap<>();
 
     public EyeOfHorusItem(Properties properties) {
         super(properties.rarity(Rarity.EPIC));
@@ -62,19 +61,23 @@ public final class EyeOfHorusItem extends CurioRelicItem {
         }
 
         clearExpiredPieces(player);
+        if (isAssemblyPending(player)) {
+            clearGaze(player);
+            return;
+        }
 
         LivingEntity target = getLookTarget(player);
         if (target != null && target.hasEffect(ModEffects.JUDGEMENT)) {
             target = null;
         }
 
-        Map<LivingEntity, Integer> gazeStates = GAZE_STATES.get(player);
+        Map<LivingEntity, Float> gazeStates = GAZE_STATES.get(player);
         if (target != null) {
             if (gazeStates == null) {
                 gazeStates = new HashMap<>();
                 GAZE_STATES.put(player, gazeStates);
             }
-            gazeStates.putIfAbsent(target, 0);
+            gazeStates.putIfAbsent(target, 0.0F);
         }
         if (gazeStates == null) {
             return;
@@ -91,15 +94,18 @@ public final class EyeOfHorusItem extends CurioRelicItem {
                 continue;
             }
 
-            int focusTicks = entry.getValue()
-                    + (focusedEntity == target ? 1 : -FOCUS_DECAY_PER_TICK);
-            if (focusTicks >= getFocusDuration(player)) {
+            float previousProgress = entry.getValue();
+            float progressChange = focusedEntity == target
+                    ? 1.0F / getFocusDuration(player)
+                    : -FOCUS_PROGRESS_DECAY_PER_TICK;
+            float progress = Math.clamp(previousProgress + progressChange, 0.0F, 1.0F);
+            if (progress >= 1.0F) {
                 completeJudgement(level, player, focusedEntity);
                 iterator.remove();
-            } else if (focusTicks <= 0) {
+            } else if (progress <= 0.0F) {
                 iterator.remove();
             } else {
-                entry.setValue(focusTicks);
+                entry.setValue(progress);
             }
         }
 
@@ -112,10 +118,7 @@ public final class EyeOfHorusItem extends CurioRelicItem {
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
         if (slotContext.entity() instanceof Player player) {
-            Map<LivingEntity, Integer> removedStates = GAZE_STATES.remove(player);
-            if (player.level() instanceof ServerLevel && removedStates != null) {
-                syncGlowProgress(new HashSet<>(removedStates.keySet()));
-            }
+            clearGaze(player);
         }
     }
 
@@ -171,10 +174,10 @@ public final class EyeOfHorusItem extends CurioRelicItem {
             return false;
         }
         int newMask = mask | 1 << fragment.pieceIndex();
-        int newPieces = Integer.bitCount(newMask);
         player.setData(ModAttachments.EYE_OF_HORUS_PIECE_MASK, newMask);
-        player.sendOverlayMessage(Component.translatable(
-                "message.noblephantasms.eye_of_horus.pieces", newPieces, pieceCount));
+        if (Integer.bitCount(newMask) >= pieceCount) {
+            player.setData(ModAttachments.EYE_OF_HORUS_ASSEMBLED, false);
+        }
         return true;
     }
 
@@ -261,7 +264,7 @@ public final class EyeOfHorusItem extends CurioRelicItem {
         player.setData(ModAttachments.EYE_OF_HORUS_PIECE_MASK, 0);
         player.setData(ModAttachments.EYE_OF_HORUS_FRAGMENT_SEED, 0L);
         player.setData(ModAttachments.EYE_OF_HORUS_PIECES_EXPIRE_AT, 0L);
-        player.sendOverlayMessage(Component.translatable("message.noblephantasms.eye_of_horus.opened"));
+        player.setData(ModAttachments.EYE_OF_HORUS_ASSEMBLED, false);
     }
 
     private static void applyJudgement(ServerLevel level, Player player, LivingEntity target, boolean playSound) {
@@ -288,10 +291,7 @@ public final class EyeOfHorusItem extends CurioRelicItem {
             player.setData(ModAttachments.EYE_OF_HORUS_PIECE_MASK, 0);
             player.setData(ModAttachments.EYE_OF_HORUS_FRAGMENT_SEED, 0L);
             player.setData(ModAttachments.EYE_OF_HORUS_PIECES_EXPIRE_AT, 0L);
-            if (player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.sendOverlayMessage(Component.translatable(
-                        "message.noblephantasms.eye_of_horus.scattered"));
-            }
+            player.setData(ModAttachments.EYE_OF_HORUS_ASSEMBLED, false);
         }
     }
 
@@ -310,25 +310,66 @@ public final class EyeOfHorusItem extends CurioRelicItem {
         return RelicFragmenter.create(EYE_ID, seed).pieceCount();
     }
 
+    public static int getCollectedPieceMask(Player player) {
+        return player.getData(ModAttachments.EYE_OF_HORUS_PIECE_MASK);
+    }
+
+    public static long getFragmentSeed(Player player) {
+        return player.getData(ModAttachments.EYE_OF_HORUS_FRAGMENT_SEED);
+    }
+
+    public static RelicFragmenter.Layout createFragmentLayout(long seed) {
+        return RelicFragmenter.create(EYE_ID, seed);
+    }
+
+    public static boolean isAssembled(Player player) {
+        return player.getData(ModAttachments.EYE_OF_HORUS_ASSEMBLED);
+    }
+
+    public static boolean isAssemblyPending(Player player) {
+        return hasCompleteEye(player) && !isAssembled(player);
+    }
+
+    public static void finishAssembly(ServerPlayer player, long seed) {
+        if (isEquipped(player, ModItems.EYE_OF_HORUS.get())
+                && seed == getFragmentSeed(player)
+                && hasCompleteEye(player)) {
+            player.setData(ModAttachments.EYE_OF_HORUS_ASSEMBLED, true);
+            LivingEntity target = getLookTarget(player);
+            if (target != null && !target.hasEffect(ModEffects.JUDGEMENT)) {
+                GAZE_STATES.computeIfAbsent(player, ignored -> new HashMap<>())
+                        .putIfAbsent(target, 1.0F / getFocusDuration(player));
+                syncGlowProgress(Set.of(target));
+            }
+        }
+    }
+
     private static boolean hasCompleteEye(Player player) {
         int mask = player.getData(ModAttachments.EYE_OF_HORUS_PIECE_MASK);
         long seed = player.getData(ModAttachments.EYE_OF_HORUS_FRAGMENT_SEED);
         return seed != 0L && Integer.bitCount(mask) >= getPieceCount(seed);
     }
 
+    private static void clearGaze(Player player) {
+        Map<LivingEntity, Float> removedStates = GAZE_STATES.remove(player);
+        if (player.level() instanceof ServerLevel && removedStates != null) {
+            syncGlowProgress(new HashSet<>(removedStates.keySet()));
+        }
+    }
+
     private static void syncGlowProgress(Set<LivingEntity> targets) {
         for (LivingEntity target : targets) {
-            int focusTicks = GAZE_STATES.values().stream()
-                    .map(states -> states.getOrDefault(target, 0))
-                    .max(Integer::compareTo)
-                    .orElse(0);
-            Integer syncedFocusTicks = target.getExistingDataOrNull(ModAttachments.EYE_OF_HORUS_GLOW_PROGRESS);
-            if (focusTicks <= 0) {
-                if (syncedFocusTicks != null) {
+            float progress = GAZE_STATES.values().stream()
+                    .map(states -> states.getOrDefault(target, 0.0F))
+                    .max(Float::compareTo)
+                    .orElse(0.0F);
+            Float syncedProgress = target.getExistingDataOrNull(ModAttachments.EYE_OF_HORUS_GLOW_PROGRESS);
+            if (progress <= 0.0F) {
+                if (syncedProgress != null) {
                     target.removeData(ModAttachments.EYE_OF_HORUS_GLOW_PROGRESS);
                 }
-            } else if (syncedFocusTicks == null || syncedFocusTicks != focusTicks) {
-                target.setData(ModAttachments.EYE_OF_HORUS_GLOW_PROGRESS, focusTicks);
+            } else if (syncedProgress == null || Float.compare(syncedProgress, progress) != 0) {
+                target.setData(ModAttachments.EYE_OF_HORUS_GLOW_PROGRESS, progress);
             }
         }
     }

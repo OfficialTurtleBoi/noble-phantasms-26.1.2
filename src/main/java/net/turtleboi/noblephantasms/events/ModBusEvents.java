@@ -9,6 +9,7 @@ import net.turtleboi.noblephantasms.datagen.ModDatagen;
 import net.turtleboi.noblephantasms.network.TrophySupportPayload;
 import net.turtleboi.noblephantasms.network.KusanagiDashPayload;
 import net.turtleboi.noblephantasms.network.ReliquaryStationCompletePayload;
+import net.turtleboi.noblephantasms.network.EyeAssemblyPayload;
 
 @EventBusSubscriber(modid = NoblePhantasms.MOD_ID)
 public final class ModBusEvents {
@@ -17,6 +18,7 @@ public final class ModBusEvents {
         KusanagiDashPayload.register(event);
         TrophySupportPayload.register(event);
         ReliquaryStationCompletePayload.register(event);
+        EyeAssemblyPayload.register(event);
     }
 
     @SubscribeEvent

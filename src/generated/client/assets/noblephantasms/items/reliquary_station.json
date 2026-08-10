@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "noblephantasms:item/reliquary_station"
+    "model": "noblephantasms:block/reliquary_station"
   }
 }

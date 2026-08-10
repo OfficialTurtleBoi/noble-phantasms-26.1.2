@@ -1,7 +1,13 @@
 package net.turtleboi.noblephantasms.item;
 
+import java.util.List;
+import java.util.function.Function;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.component.ItemLore;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -17,6 +23,7 @@ import net.turtleboi.noblephantasms.item.custom.EagleKnightTalonsItem;
 import net.turtleboi.noblephantasms.item.custom.ExcaliburItem;
 import net.turtleboi.noblephantasms.item.custom.EyeOfHorusItem;
 import net.turtleboi.noblephantasms.item.custom.GjallarhornItem;
+import net.turtleboi.noblephantasms.item.custom.GramItem;
 import net.turtleboi.noblephantasms.item.custom.GungnirItem;
 import net.turtleboi.noblephantasms.item.custom.HekaItem;
 import net.turtleboi.noblephantasms.item.custom.HulioshjalmrItem;
@@ -42,83 +49,86 @@ public class ModItems {
             DeferredRegister.createItems(NoblePhantasms.MOD_ID);
 
     public static final DeferredItem<EyeOfHorusItem> EYE_OF_HORUS =
-            ITEMS.registerItem("eye_of_horus", EyeOfHorusItem::new);
+            registerRelic("eye_of_horus", EyeOfHorusItem::new);
 
     public static final DeferredItem<AnkhItem> ANKH =
-            ITEMS.registerItem("ankh", AnkhItem::new);
+            registerRelic("ankh", AnkhItem::new);
 
     public static final DeferredItem<KheperScarabItem> KHEPER_SCARAB =
-            ITEMS.registerItem("kheper_scarab", KheperScarabItem::new);
+            registerRelic("kheper_scarab", KheperScarabItem::new);
 
     public static final DeferredItem<ScalesOfMaatItem> SCALES_OF_MAAT =
-            ITEMS.registerItem("scales_of_maat", ScalesOfMaatItem::new);
+            registerRelic("scales_of_maat", ScalesOfMaatItem::new);
 
     public static final DeferredItem<ScabbardItem> SCABBARD =
-            ITEMS.registerItem("scabbard", ScabbardItem::new);
+            registerRelic("scabbard", ScabbardItem::new);
 
     public static final DeferredItem<CarnwennanItem> CARNWENNAN =
-            ITEMS.registerItem("carnwennan", CarnwennanItem::new);
+            registerRelic("carnwennan", CarnwennanItem::new);
 
     public static final DeferredItem<BertilakItem> BERTILAK =
-            ITEMS.registerItem("bertilak", BertilakItem::new);
+            registerRelic("bertilak", BertilakItem::new);
 
     public static final DeferredItem<TrophyHeadItem> TROPHY_HEAD =
             ITEMS.registerItem("trophy_head", properties -> new TrophyHeadItem(
                     ModBlocks.TROPHY_HEAD.get(), ModBlocks.TROPHY_WALL_HEAD.get(), properties));
 
     public static final DeferredItem<ExcaliburItem> EXCALIBUR =
-            ITEMS.registerItem("excalibur", ExcaliburItem::new);
+            registerRelic("excalibur", ExcaliburItem::new);
 
     public static final DeferredItem<GungnirItem> GUNGNIR =
-            ITEMS.registerItem("gungnir", GungnirItem::new);
+            registerRelic("gungnir", GungnirItem::new);
+
+    public static final DeferredItem<GramItem> GRAM =
+            registerRelic("gram", GramItem::new);
 
     public static final DeferredItem<GjallarhornItem> GJALLARHORN =
-            ITEMS.registerItem("gjallarhorn", GjallarhornItem::new);
+            registerRelic("gjallarhorn", GjallarhornItem::new);
 
     public static final DeferredItem<WebenItem> WEBEN =
-            ITEMS.registerItem("weben", WebenItem::new);
+            registerRelic("weben", WebenItem::new);
 
     public static final DeferredItem<KusanagiNoTsurugiItem> KUSANAGI_NO_TSURUGI =
-            ITEMS.registerItem("kusanagi_no_tsurugi", KusanagiNoTsurugiItem::new);
+            registerRelic("kusanagi_no_tsurugi", KusanagiNoTsurugiItem::new);
 
     public static final DeferredItem<KazagurumaItem> KAZAGURUMA =
-            ITEMS.registerItem("kazaguruma", KazagurumaItem::new);
+            registerRelic("kazaguruma", KazagurumaItem::new);
 
     public static final DeferredItem<RhongomyniadItem> RHONGOMYNIAD =
-            ITEMS.registerItem("rhongomyniad", RhongomyniadItem::new);
+            registerRelic("rhongomyniad", RhongomyniadItem::new);
 
     public static final DeferredItem<HulioshjalmrItem> HULIOSHJALMR =
-            ITEMS.registerItem("hulioshjalmr", HulioshjalmrItem::new);
+            registerRelic("hulioshjalmr", HulioshjalmrItem::new);
 
     public static final DeferredItem<UchideNoKozuchiItem> UCHIDE_NO_KOZUCHI =
-            ITEMS.registerItem("uchide_no_kozuchi", UchideNoKozuchiItem::new);
+            registerRelic("uchide_no_kozuchi", UchideNoKozuchiItem::new);
 
     public static final DeferredItem<YamawariItem> YAMAWARI =
-            ITEMS.registerItem("yamawari", YamawariItem::new);
+            registerRelic("yamawari", YamawariItem::new);
 
     public static final DeferredItem<AndvaranautItem> ANDVARANAUT =
-            ITEMS.registerItem("andvaranaut", AndvaranautItem::new);
+            registerRelic("andvaranaut", AndvaranautItem::new);
 
     public static final DeferredItem<DraupnirItem> DRAUPNIR =
-            ITEMS.registerItem("draupnir", DraupnirItem::new);
+            registerRelic("draupnir", DraupnirItem::new);
 
     public static final DeferredItem<EagleKnightTalonsItem> EAGLE_KNIGHT_TALONS =
-            ITEMS.registerItem("eagle_knight_talons", EagleKnightTalonsItem::new);
+            registerRelic("eagle_knight_talons", EagleKnightTalonsItem::new);
 
     public static final DeferredItem<MacuahuitlItem> MACUAHUITL =
-            ITEMS.registerItem("macuahuitl", MacuahuitlItem::new);
+            registerRelic("macuahuitl", MacuahuitlItem::new);
 
     public static final DeferredItem<MegingjordItem> MEGINGJORD =
-            ITEMS.registerItem("megingjord", MegingjordItem::new);
+            registerRelic("megingjord", MegingjordItem::new);
 
     public static final DeferredItem<HekaItem> HEKA =
-            ITEMS.registerItem("heka", HekaItem::new);
+            registerRelic("heka", HekaItem::new);
 
     public static final DeferredItem<NekhakhaItem> NEKHAKHA =
-            ITEMS.registerItem("nekhakha", NekhakhaItem::new);
+            registerRelic("nekhakha", NekhakhaItem::new);
 
     public static final DeferredItem<MedjuNetjerItem> MEDJU_NETJER =
-            ITEMS.registerItem("medju_netjer", MedjuNetjerItem::new);
+            registerRelic("medju_netjer", MedjuNetjerItem::new);
 
     public static final DeferredItem<RelicFragmentItem> RELIC_FRAGMENT =
             ITEMS.registerItem("relic_fragment", RelicFragmentItem::new);
@@ -127,10 +137,18 @@ public class ModItems {
             ITEMS.registerSimpleBlockItem(ModBlocks.RELIQUARY_STATION);
 
     public static final DeferredItem<HolyGrailItem> HOLY_GRAIL =
-            ITEMS.registerItem("holy_grail", HolyGrailItem::new);
+            registerRelic("holy_grail", HolyGrailItem::new);
 
     public static final DeferredItem<SmokingMirrorItem> SMOKING_MIRROR =
-            ITEMS.registerItem("smoking_mirror", SmokingMirrorItem::new);
+            registerRelic("smoking_mirror", SmokingMirrorItem::new);
+
+    private static <T extends Item> DeferredItem<T> registerRelic(
+            String name, Function<Item.Properties, ? extends T> factory) {
+        return ITEMS.registerItem(name, factory, properties -> properties.component(
+                DataComponents.LORE,
+                new ItemLore(List.of(Component.translatable("tooltip.noblephantasms." + name + ".flavor")
+                        .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC)))));
+    }
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

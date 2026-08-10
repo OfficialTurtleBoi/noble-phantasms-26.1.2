@@ -44,7 +44,6 @@ import net.minecraft.world.item.component.KineticWeapon;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.common.util.TransformationHelper;
 import net.turtleboi.noblephantasms.NoblePhantasms;
-import net.turtleboi.noblephantasms.client.gui.ItemPoseEditorScreen;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
 import net.turtleboi.noblephantasms.item.custom.GungnirItem;
 import net.turtleboi.noblephantasms.item.custom.RhongomyniadItem;
@@ -82,7 +81,7 @@ public final class ItemPoseEditor {
         }
 
         activeSession = new Session(List.copyOf(targets));
-        minecraft.setScreen(new ItemPoseEditorScreen(activeSession));
+        minecraft.setScreen(new net.turtleboi.noblephantasms.client.ui.ItemPoseEditor(activeSession));
         return 1;
     }
 

@@ -21,8 +21,10 @@ public final class EyeOfHorusClientState {
             return;
         }
 
+        boolean assemblyPending = EyeOfHorusItem.isAssemblyPending(minecraft.player);
         LivingEntity target = null;
-        if (CurioRelicItem.isEquipped(minecraft.player, ModItems.EYE_OF_HORUS.get())) {
+        if (CurioRelicItem.isEquipped(minecraft.player, ModItems.EYE_OF_HORUS.get())
+                && !assemblyPending) {
             target = EyeOfHorusItem.getLookTarget(minecraft.player);
             if (target != null && hasJudgementGlow(target)) {
                 target = null;
@@ -45,16 +47,11 @@ public final class EyeOfHorusClientState {
 
             state.previousFocusProgress = state.focusProgress;
             state.previousJudgementProgress = state.judgementProgress;
-            int focusDuration = EyeOfHorusItem.getFocusDuration(minecraft.player);
-            float focusChange = entity == target
-                    ? 1.0F / focusDuration
-                    : -((float) EyeOfHorusItem.FOCUS_DECAY_PER_TICK / focusDuration);
-            state.focusProgress = Mth.clamp(state.focusProgress + focusChange, 0.0F, 1.0F);
+            state.focusProgress = getSyncedFocusProgress(entity, assemblyPending);
             state.judgementProgress = hasJudgementGlow(entity)
                     ? 1.0F
                     : Mth.clamp(
-                            state.judgementProgress
-                                    - (float) EyeOfHorusItem.FOCUS_DECAY_PER_TICK / focusDuration,
+                            state.judgementProgress - EyeOfHorusItem.FOCUS_PROGRESS_DECAY_PER_TICK,
                             0.0F,
                             1.0F);
             if (state.focusProgress == 0.0F && state.previousFocusProgress == 0.0F
@@ -75,14 +72,16 @@ public final class EyeOfHorusClientState {
             state.judgementProgress = 1.0F;
         }
 
-        Integer syncedFocusTicks = entity.getExistingDataOrNull(ModAttachments.EYE_OF_HORUS_GLOW_PROGRESS);
         Minecraft minecraft = Minecraft.getInstance();
-        int focusDuration = minecraft.player == null
-                ? EyeOfHorusItem.BASE_FOCUS_DURATION
-                : EyeOfHorusItem.getFocusDuration(minecraft.player);
-        float syncedFocusProgress = syncedFocusTicks == null
-                ? 0.0F
-                : Mth.clamp((float) syncedFocusTicks / focusDuration, 0.0F, 1.0F);
+        boolean assemblyPending = minecraft.player != null
+                && EyeOfHorusItem.isAssemblyPending(minecraft.player);
+        float syncedFocusProgress = getSyncedFocusProgress(entity, assemblyPending);
+        if (state == null && syncedFocusProgress > 0.0F) {
+            state = new GlowState();
+            state.previousFocusProgress = syncedFocusProgress;
+            state.focusProgress = syncedFocusProgress;
+            GLOW_STATES.put(entity, state);
+        }
         float focusProgress;
         float judgementProgress;
         if (state == null) {
@@ -96,6 +95,13 @@ public final class EyeOfHorusClientState {
                     partialTick, state.previousJudgementProgress, state.judgementProgress);
         }
         return new GlowProgress(focusProgress, judgementProgress);
+    }
+
+    private static float getSyncedFocusProgress(LivingEntity entity, boolean assemblyPending) {
+        Float syncedProgress = entity.getExistingDataOrNull(ModAttachments.EYE_OF_HORUS_GLOW_PROGRESS);
+        return syncedProgress == null || assemblyPending
+                ? 0.0F
+                : Mth.clamp(syncedProgress, 0.0F, 1.0F);
     }
 
     private static boolean hasJudgementGlow(LivingEntity entity) {

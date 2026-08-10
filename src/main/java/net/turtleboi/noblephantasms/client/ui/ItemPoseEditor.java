@@ -1,4 +1,4 @@
-package net.turtleboi.noblephantasms.client.gui;
+package net.turtleboi.noblephantasms.client.ui;
 
 import java.util.Locale;
 import java.util.function.DoubleConsumer;
@@ -10,13 +10,12 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.turtleboi.noblephantasms.client.ItemPoseEditor;
 import net.turtleboi.noblephantasms.client.ItemPoseEditor.SaveResult;
 import net.turtleboi.noblephantasms.client.ItemPoseEditor.Session;
 import net.turtleboi.noblephantasms.client.ItemPoseEditor.Target;
 import net.turtleboi.noblephantasms.client.ItemPoseEditor.Transform;
 
-public class ItemPoseEditorScreen extends Screen {
+public class ItemPoseEditor extends Screen {
     private static final int PANEL_WIDTH = 176;
     private static final int PANEL_HEIGHT = 130;
     private static final int SLIDER_HEIGHT = 14;
@@ -26,7 +25,7 @@ public class ItemPoseEditorScreen extends Screen {
     private int panelY;
     private boolean waitingForTransform;
 
-    public ItemPoseEditorScreen(Session session) {
+    public ItemPoseEditor(Session session) {
         super(Component.literal("Item Pose Editor"));
         this.session = session;
     }
@@ -121,7 +120,7 @@ public class ItemPoseEditorScreen extends Screen {
     }
 
     private void save() {
-        SaveResult result = ItemPoseEditor.save(session);
+        SaveResult result = net.turtleboi.noblephantasms.client.ItemPoseEditor.save(session);
         status = result.success() ? "Saved + copied" : "Save failed";
     }
 
@@ -164,7 +163,7 @@ public class ItemPoseEditorScreen extends Screen {
 
     @Override
     public void removed() {
-        ItemPoseEditor.close(session);
+        net.turtleboi.noblephantasms.client.ItemPoseEditor.close(session);
     }
 
     private static final class PoseSlider extends AbstractSliderButton {

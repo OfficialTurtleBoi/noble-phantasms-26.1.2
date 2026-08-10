@@ -34,9 +34,9 @@ public final class ModAttachments {
                     .sync(ByteBufCodecs.VAR_INT)
                     .build());
 
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> EYE_OF_HORUS_GLOW_PROGRESS =
-            ATTACHMENTS.register("eye_of_horus_glow_progress", () -> AttachmentType.builder(() -> 0)
-                    .sync(ByteBufCodecs.VAR_INT)
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Float>> EYE_OF_HORUS_GLOW_PROGRESS =
+            ATTACHMENTS.register("eye_of_horus_glow_progress", () -> AttachmentType.builder(() -> 0.0F)
+                    .sync(ByteBufCodecs.FLOAT)
                     .build());
 
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> EYE_OF_HORUS_JUDGEMENT_GLOW =
@@ -60,6 +60,12 @@ public final class ModAttachments {
             ATTACHMENTS.register("eye_of_horus_pieces_expire_at", () -> AttachmentType.builder(() -> 0L)
                     .serialize(Codec.LONG.fieldOf("expires_at"))
                     .sync(ByteBufCodecs.VAR_LONG)
+                    .build());
+
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> EYE_OF_HORUS_ASSEMBLED =
+            ATTACHMENTS.register("eye_of_horus_assembled", () -> AttachmentType.builder(() -> false)
+                    .serialize(Codec.BOOL.fieldOf("assembled"), Boolean::booleanValue)
+                    .sync(ByteBufCodecs.BOOL)
                     .build());
 
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Float>> BERTILAK_GLOW_PROGRESS =

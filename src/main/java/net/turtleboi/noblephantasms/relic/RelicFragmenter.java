@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -29,11 +30,17 @@ public final class RelicFragmenter {
 
     public static Layout create(Identifier relicId, long seed) {
         RelicFragmentDefinitions.Definition definition = RelicFragmentDefinitions.get(relicId);
-        return definition == null ? null : create(definition, seed);
+        return definition == null ? null : create(definition, definition.textureId(), seed);
     }
 
-    private static Layout create(RelicFragmentDefinitions.Definition definition, long seed) {
-        Key key = new Key(definition.relicId().toString(), seed);
+    public static Layout createForStation(Identifier relicId, long seed) {
+        RelicFragmentDefinitions.Definition definition = RelicFragmentDefinitions.get(relicId);
+        return definition == null ? null : create(definition, definition.stationTextureId(), seed);
+    }
+
+    private static Layout create(RelicFragmentDefinitions.Definition definition,
+                                 Identifier textureId, long seed) {
+        Key key = new Key(textureId.toString(), seed);
         synchronized (CACHE) {
             Layout cached = CACHE.get(key);
             if (cached != null) {
@@ -41,7 +48,7 @@ public final class RelicFragmenter {
             }
         }
 
-        ImagePixels image = load(definition);
+        ImagePixels image = load(textureId);
         int minimumPieces = Math.clamp(definition.minimumPieces(),
                 image.components().size(), image.opaquePixels().size());
         int requestedPieces = Math.clamp(image.opaquePixels().size() / MINIMUM_PIXELS_PER_PIECE,
@@ -67,8 +74,7 @@ public final class RelicFragmenter {
         return result;
     }
 
-    private static ImagePixels load(RelicFragmentDefinitions.Definition definition) {
-        var textureId = definition.textureId();
+    private static ImagePixels load(Identifier textureId) {
         String path = "/assets/" + textureId.getNamespace() + "/textures/" + textureId.getPath() + ".png";
         try (InputStream stream = RelicFragmenter.class.getResourceAsStream(path)) {
             if (stream == null) {
@@ -266,6 +272,114 @@ public final class RelicFragmenter {
         return minimum > 0 && (double) maximum / minimum <= MAXIMUM_SIZE_RATIO;
     }
 
+    public static Piece assemble(Layout layout) {
+        List<Pixel> pixels = layout.pieces().stream()
+                .flatMap(piece -> piece.pixels().stream())
+                .toList();
+        int minX = pixels.stream().mapToInt(Pixel::x).min().orElse(0);
+        int minY = pixels.stream().mapToInt(Pixel::y).min().orElse(0);
+        int maxX = pixels.stream().mapToInt(Pixel::x).max().orElse(0);
+        int maxY = pixels.stream().mapToInt(Pixel::y).max().orElse(0);
+        return new Piece(pixels, minX, minY, maxX, maxY);
+    }
+
+    public static OutlineMask createOutline(Piece piece) {
+        Set<Long> occupied = new HashSet<>();
+        for (Pixel pixel : piece.pixels()) {
+            occupied.add(point(pixel.x(), pixel.y()));
+        }
+        List<BoundaryEdge> edges = new ArrayList<>();
+        for (Pixel pixel : piece.pixels()) {
+            int x = pixel.x();
+            int y = pixel.y();
+            if (!occupied.contains(point(x, y - 1))) edges.add(new BoundaryEdge(x, y, x + 1, y));
+            if (!occupied.contains(point(x + 1, y))) edges.add(new BoundaryEdge(x + 1, y, x + 1, y + 1));
+            if (!occupied.contains(point(x, y + 1))) edges.add(new BoundaryEdge(x + 1, y + 1, x, y + 1));
+            if (!occupied.contains(point(x - 1, y))) edges.add(new BoundaryEdge(x, y + 1, x, y));
+        }
+        Map<Long, List<BoundaryEdge>> byStart = new HashMap<>();
+        for (BoundaryEdge edge : edges) {
+            byStart.computeIfAbsent(point(edge.x0, edge.y0), ignored -> new ArrayList<>()).add(edge);
+        }
+        List<BoundaryEdge> ordered = new ArrayList<>();
+        Set<BoundaryEdge> used = new HashSet<>();
+        while (used.size() < edges.size()) {
+            BoundaryEdge current = edges.stream()
+                    .filter(edge -> !used.contains(edge))
+                    .min((first, second) -> {
+                        int yComparison = Integer.compare(first.y0, second.y0);
+                        return yComparison != 0 ? yComparison : Integer.compare(first.x0, second.x0);
+                    })
+                    .orElseThrow();
+            while (current != null && used.add(current)) {
+                ordered.add(current);
+                List<BoundaryEdge> candidates = byStart.getOrDefault(
+                        point(current.x1, current.y1), List.of());
+                current = chooseNextEdge(current, candidates, used);
+            }
+        }
+        LinkedHashSet<OutlinePixel> pixels = new LinkedHashSet<>();
+        for (BoundaryEdge edge : ordered) {
+            pixels.add(edge.outsidePixel());
+        }
+        int minX = pixels.stream().mapToInt(OutlinePixel::x).min().orElse(piece.minX());
+        int minY = pixels.stream().mapToInt(OutlinePixel::y).min().orElse(piece.minY());
+        int maxX = pixels.stream().mapToInt(OutlinePixel::x).max().orElse(piece.maxX());
+        int maxY = pixels.stream().mapToInt(OutlinePixel::y).max().orElse(piece.maxY());
+        return new OutlineMask(List.copyOf(pixels), minX, minY, maxX, maxY);
+    }
+
+    public static List<OutlinePixel> startOutlineNear(List<OutlinePixel> outline, Piece piece) {
+        if (outline.isEmpty()) {
+            return outline;
+        }
+        int nearestIndex = 0;
+        int nearestDistance = Integer.MAX_VALUE;
+        for (int index = 0; index < outline.size(); index++) {
+            OutlinePixel outlinePixel = outline.get(index);
+            for (Pixel piecePixel : piece.pixels()) {
+                int distance = Math.abs(outlinePixel.x - piecePixel.x())
+                        + Math.abs(outlinePixel.y - piecePixel.y());
+                if (distance < nearestDistance) {
+                    nearestDistance = distance;
+                    nearestIndex = index;
+                }
+            }
+        }
+        List<OutlinePixel> reordered = new ArrayList<>(outline.size());
+        reordered.addAll(outline.subList(nearestIndex, outline.size()));
+        reordered.addAll(outline.subList(0, nearestIndex));
+        return List.copyOf(reordered);
+    }
+
+    private static BoundaryEdge chooseNextEdge(BoundaryEdge previous, List<BoundaryEdge> candidates,
+                                               Set<BoundaryEdge> used) {
+        int previousDirection = previous.direction();
+        BoundaryEdge best = null;
+        int bestTurn = Integer.MAX_VALUE;
+        for (BoundaryEdge candidate : candidates) {
+            if (used.contains(candidate)) {
+                continue;
+            }
+            int turn = (candidate.direction() - previousDirection + 4) % 4;
+            int priority = switch (turn) {
+                case 1 -> 0;
+                case 0 -> 1;
+                case 3 -> 2;
+                default -> 3;
+            };
+            if (priority < bestTurn) {
+                bestTurn = priority;
+                best = candidate;
+            }
+        }
+        return best;
+    }
+
+    private static long point(int x, int y) {
+        return (long) x << 32 | y & 0xFFFFFFFFL;
+    }
+
     private static int manhattan(int first, int second, int width) {
         return Math.abs(first % width - second % width) + Math.abs(first / width - second / width);
     }
@@ -292,10 +406,41 @@ public final class RelicFragmenter {
     public record Pixel(int x, int y, int color) {
     }
 
+    public record OutlinePixel(int x, int y) {
+    }
+
+    public record OutlineMask(List<OutlinePixel> pixels, int minX, int minY, int maxX, int maxY) {
+        public int width() {
+            return maxX - minX + 1;
+        }
+
+        public int height() {
+            return maxY - minY + 1;
+        }
+    }
+
     private record ImagePixels(int width, int height, List<Integer> opaquePixels,
                                List<List<Integer>> components, Map<Integer, Integer> colors) {
     }
 
     private record Key(String relic, long seed) {
+    }
+
+    private record BoundaryEdge(int x0, int y0, int x1, int y1) {
+        private int direction() {
+            if (x1 > x0) return 0;
+            if (y1 > y0) return 1;
+            if (x1 < x0) return 2;
+            return 3;
+        }
+
+        private OutlinePixel outsidePixel() {
+            return switch (direction()) {
+                case 0 -> new OutlinePixel(x0, y0 - 1);
+                case 1 -> new OutlinePixel(x0, y0);
+                case 2 -> new OutlinePixel(x1, y0);
+                default -> new OutlinePixel(x0 - 1, y1);
+            };
+        }
     }
 }

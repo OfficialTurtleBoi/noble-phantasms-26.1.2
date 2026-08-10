@@ -9,6 +9,7 @@ import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.renderer.item.properties.select.DisplayContext;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.data.PackOutput;
@@ -60,21 +61,25 @@ public class ModModelProvider extends ModelProvider {
                 BlockModelGenerators.createSimpleBlock(ModBlocks.TROPHY_HEAD.get(), skullModel));
         blockModels.blockStateOutput.accept(
                 BlockModelGenerators.createSimpleBlock(ModBlocks.TROPHY_WALL_HEAD.get(), skullModel));
-        Identifier reliquaryStationModel = Identifier.fromNamespaceAndPath(
-                NoblePhantasms.MOD_ID, "block/reliquary_station");
+        TextureMapping reliquaryStationTextures = new TextureMapping()
+                .put(TextureSlot.BOTTOM, new Material(Identifier.withDefaultNamespace("block/obsidian")))
+                .put(TextureSlot.SIDE, new Material(Identifier.withDefaultNamespace("block/polished_blackstone_bricks")))
+                .put(TextureSlot.TOP, new Material(Identifier.withDefaultNamespace("block/smithing_table_top")));
+        Identifier reliquaryStationModel = ModelTemplates.CUBE_BOTTOM_TOP.create(
+                ModBlocks.RELIQUARY_STATION.get(), reliquaryStationTextures, blockModels.modelOutput);
         blockModels.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(
                 ModBlocks.RELIQUARY_STATION.get(), BlockModelGenerators.plainVariant(reliquaryStationModel)));
         blockModels.registerSimpleItemModel(ModBlocks.RELIQUARY_STATION.get(), reliquaryStationModel);
         generateTrophyHeadItem(itemModels);
         generateBigItem(itemModels, ModItems.BERTILAK.get(), BigItemType.AXE);
         generateBigItem(itemModels, ModItems.EXCALIBUR.get(), BigItemType.SWORD);
+        generateBigItem(itemModels, ModItems.GRAM.get(), BigItemType.SWORD);
         generateBigItem(itemModels, ModItems.GUNGNIR.get(), BigItemType.SPEAR);
         generateBigItem(itemModels, ModItems.WEBEN.get(), BigItemType.SWORD);
         generateBigItem(itemModels, ModItems.KUSANAGI_NO_TSURUGI.get(), BigItemType.SWORD);
         generateBigItem(itemModels, ModItems.RHONGOMYNIAD.get(), BigItemType.LANCE);
         generateBigItem(itemModels, ModItems.YAMAWARI.get(), BigItemType.AXE);
-        generateBigItem(itemModels, ModItems.MACUAHUITL.get(), BigItemType.SWORD,
-                "macuahuitl", "macuahuitl");
+        generateBigItem(itemModels, ModItems.MACUAHUITL.get(), BigItemType.SWORD);
     }
 
     private static void generateHornItem(ItemModelGenerators itemModels, Item item) {
