@@ -26,6 +26,8 @@ public class ModItemTagsProvider extends IntrinsicHolderTagsProvider<Item> {
                 .add(ModItems.CARNWENNAN.get())
                 .add(ModItems.EXCALIBUR.get())
                 .add(ModItems.GRAM.get())
+                .add(ModItems.TYRFING.get())
+                .add(ModItems.BIA_EN_PET.get())
                 .add(ModItems.WEBEN.get())
                 .add(ModItems.KUSANAGI_NO_TSURUGI.get())
                 .add(ModItems.KAZAGURUMA.get())
@@ -71,7 +73,8 @@ public class ModItemTagsProvider extends IntrinsicHolderTagsProvider<Item> {
                 .add(ModItems.SCABBARD.get());
         tag(ModTags.Items.CURIOS_CHARM)
                 .add(ModItems.ANKH.get())
-                .add(ModItems.KHEPER_SCARAB.get());
+                .add(ModItems.KHEPER_SCARAB.get())
+                .add(ModItems.HOFSKOR.get());
         tag(ModTags.Items.CURIOS_TOTEM)
                 .add(ModItems.ANKH.get());
     }

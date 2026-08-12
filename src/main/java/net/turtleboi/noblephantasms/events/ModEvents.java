@@ -7,6 +7,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingSwapItemsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.entity.living.EffectParticleModificationEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -16,6 +17,7 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.PistonEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.effect.custom.BleedEffect;
 import net.turtleboi.noblephantasms.effect.custom.CovenantEffect;
@@ -25,17 +27,21 @@ import net.turtleboi.noblephantasms.effect.custom.UndyingEffect;
 import net.turtleboi.noblephantasms.item.custom.AndvaranautItem;
 import net.turtleboi.noblephantasms.item.custom.AnkhItem;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
+import net.turtleboi.noblephantasms.item.custom.BiaEnPetItem;
 import net.turtleboi.noblephantasms.item.custom.MedjuNetjerItem;
 import net.turtleboi.noblephantasms.item.custom.EagleKnightTalonsItem;
 import net.turtleboi.noblephantasms.item.custom.HekaItem;
+import net.turtleboi.noblephantasms.item.custom.HofskorItem;
 import net.turtleboi.noblephantasms.item.custom.GramItem;
 import net.turtleboi.noblephantasms.item.custom.MegingjordItem;
 import net.turtleboi.noblephantasms.item.custom.NekhakhaItem;
+import net.turtleboi.noblephantasms.item.custom.PridwenItem;
 import net.turtleboi.noblephantasms.item.custom.ScabbardItem;
 import net.turtleboi.noblephantasms.item.custom.UchideNoKozuchiItem;
 import net.turtleboi.noblephantasms.item.custom.YamawariItem;
 import net.turtleboi.noblephantasms.item.custom.EyeOfHorusItem;
 import net.turtleboi.noblephantasms.item.custom.SmokingMirrorItem;
+import net.turtleboi.noblephantasms.item.custom.TyrfingItem;
 import net.turtleboi.noblephantasms.world.ArtificialOreSavedData;
 import net.minecraft.world.entity.Mob;
 
@@ -45,6 +51,9 @@ public final class ModEvents {
     static void onIncomingDamage(LivingIncomingDamageEvent event) {
         AnkhItem.handleIncomingDamage(event);
         BertilakItem.handleIncomingDamage(event);
+        BiaEnPetItem.handleIncomingDamage(event);
+        HofskorItem.handleIncomingDamage(event);
+        PridwenItem.handleIncomingDamage(event);
     }
 
     @SubscribeEvent
@@ -78,6 +87,7 @@ public final class ModEvents {
         BertilakItem.handleLivingDeath(event);
         EyeOfHorusItem.handleLivingDeath(event);
         GramItem.handleLivingDeath(event);
+        TyrfingItem.handleLivingDeath(event);
     }
 
     @SubscribeEvent
@@ -117,6 +127,17 @@ public final class ModEvents {
         BertilakItem.handlePlayerTick(event.getEntity());
         HekaItem.handlePlayerTick(event.getEntity());
         NekhakhaItem.handlePlayerTick(event.getEntity());
+        TyrfingItem.handlePlayerTick(event.getEntity());
+    }
+
+    @SubscribeEvent
+    static void onItemToss(ItemTossEvent event) {
+        TyrfingItem.handleToss(event);
+    }
+
+    @SubscribeEvent
+    static void onHandSwap(LivingSwapItemsEvent.Hands event) {
+        TyrfingItem.handleHandSwap(event);
     }
 
     @SubscribeEvent

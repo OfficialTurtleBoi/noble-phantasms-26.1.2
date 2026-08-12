@@ -14,6 +14,7 @@ public final class RelicFragmentDefinitions {
             standard(ModItems.KHEPER_SCARAB, 5),
             standard(ModItems.SCALES_OF_MAAT, 6),
             weapon(ModItems.WEBEN, 8),
+            standard(ModItems.BIA_EN_PET, 5).withStationTexture(TextureVariant.DISPLAY),
             standard(ModItems.HEKA, 4),
             standard(ModItems.NEKHAKHA, 4),
             standard(ModItems.MEDJU_NETJER, 6),
@@ -24,8 +25,11 @@ public final class RelicFragmentDefinitions {
             weapon(ModItems.BERTILAK, 8),
             weapon(ModItems.EXCALIBUR, 9),
             weapon(ModItems.RHONGOMYNIAD, 9),
+            standard(ModItems.PRIDWEN, 6),
+            standard(ModItems.CLYDNO_HALTER, 4),
             weapon(ModItems.GUNGNIR, 10),
             weapon(ModItems.GRAM, 9).withStationTexture(TextureVariant.DISPLAY),
+            weapon(ModItems.TYRFING, 7),
             standard(ModItems.GJALLARHORN, 6),
             standard(ModItems.HULIOSHJALMR, 6),
             standard(ModItems.UCHIDE_NO_KOZUCHI, 6),
@@ -33,10 +37,12 @@ public final class RelicFragmentDefinitions {
             standard(ModItems.ANDVARANAUT, 4),
             standard(ModItems.DRAUPNIR, 4),
             standard(ModItems.MEGINGJORD, 5),
+            standard(ModItems.HOFSKOR, 4),
             weapon(ModItems.KUSANAGI_NO_TSURUGI, 8),
             held(ModItems.KAZAGURUMA, 8),
             standard(ModItems.EAGLE_KNIGHT_TALONS, 6),
-            standard(ModItems.MACUAHUITL, 7));
+            standard(ModItems.MACUAHUITL, 7),
+            standard(ModItems.RAIKO, 6).withTextureAlias("raiko_item"));
 
     public static Definition get(Identifier relicId) {
         return DEFINITIONS.stream()
@@ -59,30 +65,36 @@ public final class RelicFragmentDefinitions {
 
     private static Definition standard(Supplier<? extends Item> relic, int minimumPieces, int maximumPieces) {
         return new Definition(relic, TextureVariant.STANDARD, TextureVariant.STANDARD,
-                null, minimumPieces, maximumPieces);
+                null, 0, minimumPieces, maximumPieces);
     }
 
     private static Definition weapon(Supplier<? extends Item> relic, int maximumPieces) {
         return new Definition(relic, TextureVariant.WEAPON, TextureVariant.WEAPON,
-                null, 4, maximumPieces);
+                null, 0, 4, maximumPieces);
     }
 
     private static Definition held(Supplier<? extends Item> relic, int maximumPieces) {
         return new Definition(relic, TextureVariant.HELD, TextureVariant.HELD,
-                null, 4, maximumPieces);
+                null, 0, 4, maximumPieces);
     }
 
     public record Definition(Supplier<? extends Item> relic, TextureVariant textureVariant,
                              TextureVariant stationTextureVariant, String textureAlias,
+                             int textureFrameHeight,
                              int minimumPieces, int maximumPieces) {
         public Definition withTextureAlias(String textureAlias) {
             return new Definition(relic, textureVariant, stationTextureVariant,
-                    textureAlias, minimumPieces, maximumPieces);
+                    textureAlias, textureFrameHeight, minimumPieces, maximumPieces);
         }
 
         public Definition withStationTexture(TextureVariant stationTextureVariant) {
             return new Definition(relic, textureVariant, stationTextureVariant,
-                    textureAlias, minimumPieces, maximumPieces);
+                    textureAlias, textureFrameHeight, minimumPieces, maximumPieces);
+        }
+
+        public Definition withTextureFrameHeight(int textureFrameHeight) {
+            return new Definition(relic, textureVariant, stationTextureVariant,
+                    textureAlias, textureFrameHeight, minimumPieces, maximumPieces);
         }
 
         public Identifier relicId() {

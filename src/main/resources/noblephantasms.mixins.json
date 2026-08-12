@@ -13,13 +13,18 @@
   "client": [
     "client.AvatarRendererMixin",
     "client.BlockOutlineRendererMixin",
+    "client.BufferSourceAccessor",
+    "client.ColoredGlintSpecialModelMixin",
     "client.CustomHeadLayerMixin",
+    "client.CuboidItemModelWrapperMixin",
     "client.HumanoidMobRendererMixin",
     "client.IsUsingItemMixin",
     "client.ItemInHandRendererMixin",
     "client.ItemInHandLayerMixin",
+    "client.ItemFeatureRendererMixin",
     "client.ItemModelResolverMixin",
     "client.ItemStackRenderStateMixin",
+    "client.SubmitNodeCollectionMixin",
     "client.ItemTransformMixin",
     "client.LivingEntityRendererMixin",
     "client.ModelPartAccessor",
@@ -29,6 +34,7 @@
     "client.LuminousLivingEntityRendererMixin",
     "client.LuminousModelPartCubeMixin",
     "client.SpearAnimationsMixin",
+    "client.SpecialModelWrapperMixin",
     "client.EnchantmentScreenMixin"
   ],
   "injectors": {

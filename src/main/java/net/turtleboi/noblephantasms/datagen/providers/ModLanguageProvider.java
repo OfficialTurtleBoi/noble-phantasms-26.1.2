@@ -29,14 +29,20 @@ public class ModLanguageProvider extends LanguageProvider {
         addSimpleItem(ModItems.CARNWENNAN);
         addSimpleItem(ModItems.EXCALIBUR);
         addSimpleItem(ModItems.GRAM);
+        addSimpleItem(ModItems.TYRFING);
+        addSimpleItem(ModItems.HOFSKOR, "Hófskór");
         addSimpleItem(ModItems.GJALLARHORN);
         addSimpleItem(ModItems.HULIOSHJALMR, "Huliðshjálmr");
         addSimpleItem(ModItems.EYE_OF_HORUS, "Eye of Horus");
         addSimpleItem(ModItems.GUNGNIR);
         addSimpleItem(ModItems.WEBEN);
+        addSimpleItem(ModItems.BIA_EN_PET, "Bia-en-Pet");
         addSimpleItem(ModItems.KUSANAGI_NO_TSURUGI, "Kusanagi-no-Tsurugi");
         addSimpleItem(ModItems.KAZAGURUMA);
         addSimpleItem(ModItems.RHONGOMYNIAD);
+        addSimpleItem(ModItems.PRIDWEN);
+        addSimpleItem(ModItems.CLYDNO_HALTER, "Clydno Halter");
+        addSimpleItem(ModItems.RECALL_BELL, "Recall Bell");
         addSimpleItem(ModItems.UCHIDE_NO_KOZUCHI, "Uchide no Kozuchi");
         addSimpleItem(ModItems.YAMAWARI);
         addSimpleItem(ModItems.ANDVARANAUT);
@@ -49,6 +55,7 @@ public class ModLanguageProvider extends LanguageProvider {
         addSimpleItem(ModItems.MEDJU_NETJER, "Medju Netjer");
         addSimpleItem(ModItems.HOLY_GRAIL, "The Holy Grail");
         addSimpleItem(ModItems.SMOKING_MIRROR, "The Smoking Mirror");
+        addSimpleItem(ModItems.RAIKO);
         addSimpleItem(ModItems.RELIC_FRAGMENT, "Relic Fragment");
         add("item.noblephantasms.relic_fragment.named", "%s Fragment");
         add("menu.noblephantasms.reliquary_station", "Reliquary Station");
@@ -65,6 +72,8 @@ public class ModLanguageProvider extends LanguageProvider {
                 "Spell 125 of the Book of the Dead weighs the deceased's heart against Ma'at's feather.");
         add("tooltip.noblephantasms.weben.flavor",
                 "The Egyptian verb behind its name described the sun in the act of rising and shining.");
+        add("tooltip.noblephantasms.bia_en_pet.flavor",
+                "Tutankhamun was buried with a dagger of meteoritic iron—a metal fallen from the sky in an age of bronze.");
         add("tooltip.noblephantasms.heka.flavor",
                 "As royal regalia, the crook cast the pharaoh as shepherd and guardian of his people.");
         add("tooltip.noblephantasms.nekhakha.flavor",
@@ -89,10 +98,16 @@ public class ModLanguageProvider extends LanguageProvider {
                 "Geoffrey of Monmouth calls Arthur's lance hard, broad, and fit for slaughter—the weapon he carried in the charge at Badon.");
         add("tooltip.noblephantasms.holy_grail.flavor",
                 "Across medieval romances, the sacred vessel granted sustenance, healing, and divine grace.");
+        add("tooltip.noblephantasms.pridwen.flavor",
+                "Welsh tradition numbers Arthur's broad shield among the arms that guarded him and those who stood at his side.");
+        add("tooltip.noblephantasms.clydno_halter.flavor",
+                "One of Britain's Thirteen Treasures, its keeper found within it whatever horse he wished for.");
         add("tooltip.noblephantasms.gungnir.flavor",
                 "Odin's dwarf-forged spear was so perfectly made that no throw could miss its mark.");
         add("tooltip.noblephantasms.gram.flavor",
                 "Sigurd reforged his father's shattered sword, then slew Fafnir by thrusting upward from a pit beneath the dragon.");
+        add("tooltip.noblephantasms.tyrfing.flavor",
+                "The dwarfs Dvalinn and Durinn cursed their sword so that once drawn, it could not be sheathed before taking a life.");
         add("tooltip.noblephantasms.gjallarhorn.flavor",
                 "Heimdall's horn will be heard through every realm when it calls the gods to Ragnarok.");
         add("tooltip.noblephantasms.hulioshjalmr.flavor",
@@ -103,6 +118,8 @@ public class ModLanguageProvider extends LanguageProvider {
                 "Every ninth night, Odin's golden ring dripped eight more rings of equal weight from itself.");
         add("tooltip.noblephantasms.meginjord.flavor",
                 "Thor's 'power-belt' doubled his already immense strength whenever he fastened it.");
+        add("tooltip.noblephantasms.hofskor.flavor",
+                "Old Norse hoof-shoes were protective fittings for a steed; these bear molten signs of impossible swiftness.");
         add("tooltip.noblephantasms.kusanagi_no_tsurugi.flavor",
                 "Yamato Takeru escaped a burning field by cutting down the grass and turning the flames with the wind.");
         add("tooltip.noblephantasms.kazaguruma.flavor",
@@ -111,6 +128,8 @@ public class ModLanguageProvider extends LanguageProvider {
                 "In the tale of Issun-boshi, a stolen ogre's mallet grants wishes with a swing and restores the tiny hero to full size.");
         add("tooltip.noblephantasms.yamawari.flavor",
                 "The child hero Kintaro was famed for superhuman strength and traditionally shown carrying a broad masakari axe.");
+        add("tooltip.noblephantasms.raiko.flavor",
+                "Raijin is encircled by drums whose thunder calls lightning down with every beat.");
         add("jei.noblephantasms.info.ankh",
                 "Equip in a Curios charm or compatible totem slot. Fatal damage restores full health, "
                         + "releases a damaging and blinding radiant burst, and grants 15 seconds of invulnerability. "
@@ -163,6 +182,20 @@ public class ModLanguageProvider extends LanguageProvider {
         add("jei.noblephantasms.info.gram",
                 "Every third fully charged damaging hit against a hostile or neutral target triggers Fafnir's "
                         + "Bite, adding damage that scales with how much the target's maximum health exceeds yours.");
+        add("jei.noblephantasms.info.bia_en_pet",
+                "Melee strikes ignore the target's armor while still respecting shields, enchantments, effects, absorption, and immunity frames.");
+        add("jei.noblephantasms.info.clydno_halter",
+                "Use on a horse to fit the halter and receive its bound Recall Bell. Ring the bell anywhere to summon the horse. "
+                        + "Sneak-use the bell on that horse to recover the halter.");
+        add("jei.noblephantasms.info.hofskor",
+                "Equip in a Curios charm slot. Your horse gains 40% speed, two-block step height, and immunity to fall damage while ridden.");
+        add("jei.noblephantasms.info.pridwen",
+                "Raise the shield to project a wide barrier that protects allies behind you. Melee attackers recoil and suffer Weakness.");
+        add("jei.noblephantasms.info.raiko",
+                "Use to beat the drum and call lightning at the point you are looking at within 40 blocks. 5 second cooldown.");
+        add("jei.noblephantasms.info.tyrfing",
+                "Drawing the sword grants tremendous attack damage and speed, but it cannot leave your hand until you kill a living target. "
+                        + "After a kill, you have 4 seconds to put it away before the curse binds it again.");
 
         add("creativetab.noblephantasms.title", "Noble Phantasms");
         add("creativetab.noblephantasms.trophy_heads", "Trophy Heads");
@@ -175,6 +208,11 @@ public class ModLanguageProvider extends LanguageProvider {
         add("message.noblephantasms.bertilak.cooldown", "The Covenant can be bound again in %s seconds");
         add("message.noblephantasms.bertilak.fulfilled", "Covenant fulfilled: %s");
         add("message.noblephantasms.bertilak.target_bound", "That target is already bound by a Covenant");
+        add("message.noblephantasms.clydno_halter.bound", "Bound to %s");
+        add("message.noblephantasms.clydno_halter.already_bound", "%s already wears a Clydno Halter");
+        add("message.noblephantasms.clydno_halter.recovered", "Recovered the halter from %s");
+        add("message.noblephantasms.clydno_halter.unanswered", "The bound mount does not answer");
+        add("tooltip.noblephantasms.recall_bell.mount", "Bound Mount: %s");
         add("effect.noblephantasms.covenant", "Covenant");
         add("effect.noblephantasms.judgement", "Judgement");
         add("effect.noblephantasms.luminous", "Luminous");

@@ -52,5 +52,17 @@ public final class NoblePhantasmsJeiPlugin implements IModPlugin {
                 Component.translatable("jei.noblephantasms.info.macuahuitl"));
         registration.addIngredientInfo(ModItems.GRAM.get(),
                 Component.translatable("jei.noblephantasms.info.gram"));
+        registration.addIngredientInfo(ModItems.BIA_EN_PET.get(),
+                Component.translatable("jei.noblephantasms.info.bia_en_pet"));
+        registration.addIngredientInfo(ModItems.CLYDNO_HALTER.get(),
+                Component.translatable("jei.noblephantasms.info.clydno_halter"));
+        registration.addIngredientInfo(ModItems.HOFSKOR.get(),
+                Component.translatable("jei.noblephantasms.info.hofskor"));
+        registration.addIngredientInfo(ModItems.PRIDWEN.get(),
+                Component.translatable("jei.noblephantasms.info.pridwen"));
+        registration.addIngredientInfo(ModItems.RAIKO.get(),
+                Component.translatable("jei.noblephantasms.info.raiko"));
+        registration.addIngredientInfo(ModItems.TYRFING.get(),
+                Component.translatable("jei.noblephantasms.info.tyrfing"));
     }
 }

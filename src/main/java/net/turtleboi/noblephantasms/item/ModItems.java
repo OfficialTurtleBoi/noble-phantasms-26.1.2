@@ -16,6 +16,8 @@ import net.turtleboi.noblephantasms.block.ModBlocks;
 import net.turtleboi.noblephantasms.item.custom.AndvaranautItem;
 import net.turtleboi.noblephantasms.item.custom.AnkhItem;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
+import net.turtleboi.noblephantasms.item.custom.BiaEnPetItem;
+import net.turtleboi.noblephantasms.item.custom.ClydnoHalterItem;
 import net.turtleboi.noblephantasms.item.custom.MedjuNetjerItem;
 import net.turtleboi.noblephantasms.item.custom.CarnwennanItem;
 import net.turtleboi.noblephantasms.item.custom.DraupnirItem;
@@ -41,7 +43,12 @@ import net.turtleboi.noblephantasms.item.custom.TrophyHeadItem;
 import net.turtleboi.noblephantasms.item.custom.UchideNoKozuchiItem;
 import net.turtleboi.noblephantasms.item.custom.YamawariItem;
 import net.turtleboi.noblephantasms.item.custom.HolyGrailItem;
+import net.turtleboi.noblephantasms.item.custom.HofskorItem;
+import net.turtleboi.noblephantasms.item.custom.PridwenItem;
+import net.turtleboi.noblephantasms.item.custom.RaikoItem;
+import net.turtleboi.noblephantasms.item.custom.RecallBellItem;
 import net.turtleboi.noblephantasms.item.custom.SmokingMirrorItem;
+import net.turtleboi.noblephantasms.item.custom.TyrfingItem;
 import net.turtleboi.noblephantasms.item.custom.RelicFragmentItem;
 
 public class ModItems {
@@ -82,11 +89,17 @@ public class ModItems {
     public static final DeferredItem<GramItem> GRAM =
             registerRelic("gram", GramItem::new);
 
+    public static final DeferredItem<TyrfingItem> TYRFING =
+            registerRelic("tyrfing", TyrfingItem::new);
+
     public static final DeferredItem<GjallarhornItem> GJALLARHORN =
             registerRelic("gjallarhorn", GjallarhornItem::new);
 
     public static final DeferredItem<WebenItem> WEBEN =
             registerRelic("weben", WebenItem::new);
+
+    public static final DeferredItem<BiaEnPetItem> BIA_EN_PET =
+            registerRelic("bia_en_pet", BiaEnPetItem::new);
 
     public static final DeferredItem<KusanagiNoTsurugiItem> KUSANAGI_NO_TSURUGI =
             registerRelic("kusanagi_no_tsurugi", KusanagiNoTsurugiItem::new);
@@ -96,6 +109,15 @@ public class ModItems {
 
     public static final DeferredItem<RhongomyniadItem> RHONGOMYNIAD =
             registerRelic("rhongomyniad", RhongomyniadItem::new);
+
+    public static final DeferredItem<PridwenItem> PRIDWEN =
+            registerRelic("pridwen", PridwenItem::new);
+
+    public static final DeferredItem<ClydnoHalterItem> CLYDNO_HALTER =
+            registerRelic("clydno_halter", ClydnoHalterItem::new);
+
+    public static final DeferredItem<RecallBellItem> RECALL_BELL =
+            ITEMS.registerItem("recall_bell", RecallBellItem::new);
 
     public static final DeferredItem<HulioshjalmrItem> HULIOSHJALMR =
             registerRelic("hulioshjalmr", HulioshjalmrItem::new);
@@ -121,6 +143,9 @@ public class ModItems {
     public static final DeferredItem<MegingjordItem> MEGINGJORD =
             registerRelic("megingjord", MegingjordItem::new);
 
+    public static final DeferredItem<HofskorItem> HOFSKOR =
+            registerRelic("hofskor", HofskorItem::new);
+
     public static final DeferredItem<HekaItem> HEKA =
             registerRelic("heka", HekaItem::new);
 
@@ -141,6 +166,9 @@ public class ModItems {
 
     public static final DeferredItem<SmokingMirrorItem> SMOKING_MIRROR =
             registerRelic("smoking_mirror", SmokingMirrorItem::new);
+
+    public static final DeferredItem<RaikoItem> RAIKO =
+            registerRelic("raiko", RaikoItem::new);
 
     private static <T extends Item> DeferredItem<T> registerRelic(
             String name, Function<Item.Properties, ? extends T> factory) {

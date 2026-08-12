@@ -26,6 +26,18 @@ public class ModDataComponents {
                     .persistent(Codec.INT)
                     .networkSynchronized(ByteBufCodecs.VAR_INT));
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> TYRFING_CURSE_ACTIVE =
+            DATA_COMPONENTS.registerComponentType("tyrfing_curse_active", builder -> builder
+                    .persistent(Codec.BOOL)
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.BOOL));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Long>> TYRFING_CURSE_CHANGED_AT =
+            DATA_COMPONENTS.registerComponentType("tyrfing_curse_changed_at", builder -> builder
+                    .persistent(Codec.LONG)
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.VAR_LONG));
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<RelicFragmentData>> RELIC_FRAGMENT =
             DATA_COMPONENTS.registerComponentType("relic_fragment", builder -> builder
                     .persistent(RelicFragmentData.CODEC)

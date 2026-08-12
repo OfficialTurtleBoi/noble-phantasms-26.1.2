@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.turtleboi.noblephantasms.client.ItemPoseEditor;
 import net.turtleboi.noblephantasms.client.RhongomyniadSpinState;
+import net.turtleboi.noblephantasms.client.renderer.ColoredGlintRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,6 +25,7 @@ public class ItemStackRenderStateMixin {
                                                          CallbackInfo callbackInfo) {
         ItemPoseEditor.beginModelTransform((ItemStackRenderState) (Object) this, displayContext);
         RhongomyniadSpinState.beginModelTransform(displayContext);
+        ColoredGlintRenderer.beginSubmit((ItemStackRenderState) (Object) this);
     }
 
     @Inject(method = "submit", at = @At("RETURN"))
@@ -33,5 +35,6 @@ public class ItemStackRenderStateMixin {
                                                        CallbackInfo callbackInfo) {
         ItemPoseEditor.endModelTransform();
         RhongomyniadSpinState.endModelTransform();
+        ColoredGlintRenderer.endSubmit();
     }
 }

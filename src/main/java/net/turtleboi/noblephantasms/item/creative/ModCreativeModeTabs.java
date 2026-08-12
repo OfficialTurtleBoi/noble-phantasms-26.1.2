@@ -26,6 +26,7 @@ public class ModCreativeModeTabs {
                             .title(Component.translatable("creativetab.noblephantasms.title"))
                             .displayItems((itemDisplayParameters, output) -> {
                                 output.accept(ModItems.WEBEN);
+                                output.accept(ModItems.BIA_EN_PET);
                                 output.accept(ModItems.HEKA);
                                 output.accept(ModItems.NEKHAKHA);
                                 output.accept(ModItems.EYE_OF_HORUS);
@@ -42,21 +43,26 @@ public class ModCreativeModeTabs {
                                 output.accept(ModItems.SCABBARD);
                                 output.accept(ModItems.CARNWENNAN);
                                 output.accept(ModItems.RHONGOMYNIAD);
+                                output.accept(ModItems.PRIDWEN);
+                                output.accept(ModItems.CLYDNO_HALTER);
                                 output.accept(ModItems.BERTILAK);
                                 output.accept(ModItems.HOLY_GRAIL);
 
                                 output.accept(ModItems.GUNGNIR);
                                 output.accept(ModItems.GRAM);
+                                output.accept(ModItems.TYRFING);
                                 output.accept(ModItems.GJALLARHORN);
                                 output.accept(ModItems.HULIOSHJALMR);
                                 output.accept(ModItems.ANDVARANAUT);
                                 output.accept(ModItems.DRAUPNIR);
                                 output.accept(ModItems.MEGINGJORD);
+                                output.accept(ModItems.HOFSKOR);
 
                                 output.accept(ModItems.KUSANAGI_NO_TSURUGI);
                                 output.accept(ModItems.KAZAGURUMA);
                                 output.accept(ModItems.UCHIDE_NO_KOZUCHI);
                                 output.accept(ModItems.YAMAWARI);
+                                output.accept(ModItems.RAIKO);
                                 output.accept(ModItems.RELIQUARY_STATION);
                                 RelicFragmentDefinitions.relicIds().forEach(relicId -> output.accept(
                                         RelicFragmentItem.create(ModItems.RELIC_FRAGMENT.get(),

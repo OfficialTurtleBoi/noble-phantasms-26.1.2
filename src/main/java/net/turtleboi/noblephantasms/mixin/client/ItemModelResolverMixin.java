@@ -7,6 +7,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.turtleboi.noblephantasms.client.ItemPoseEditor;
+import net.turtleboi.noblephantasms.client.renderer.ColoredGlintRenderer;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,5 +21,6 @@ public class ItemModelResolverMixin {
                                                     ItemDisplayContext displayContext, @Nullable Level level,
                                                     @Nullable ItemOwner owner, int seed, CallbackInfo callbackInfo) {
         ItemPoseEditor.track(output, item, displayContext, owner);
+        ColoredGlintRenderer.track(output, item);
     }
 }

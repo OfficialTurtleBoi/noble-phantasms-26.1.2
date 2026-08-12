@@ -28,6 +28,12 @@ public final class ModAttachments {
                     .sync(ByteBufCodecs.BOOL)
                     .build());
 
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> CLYDNO_HALTERED =
+            ATTACHMENTS.register("clydno_haltered", () -> AttachmentType.builder(() -> false)
+                    .serialize(Codec.BOOL.fieldOf("haltered"), Boolean::booleanValue)
+                    .sync(ByteBufCodecs.BOOL)
+                    .build());
+
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> LUMINOUS_COLOR =
             ATTACHMENTS.register("luminous_color", () -> AttachmentType.builder(() -> 0)
                     .serialize(Codec.INT.fieldOf("color"))

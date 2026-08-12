@@ -33,6 +33,7 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ModItems.EYE_OF_HORUS.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.KHEPER_SCARAB.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.SCALES_OF_MAAT.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.BIA_EN_PET.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(ModItems.SCABBARD.get(), ModelTemplates.FLAT_ITEM);
         generateHornItem(itemModels, ModItems.GJALLARHORN.get());
         itemModels.generateFlatItem(ModItems.HULIOSHJALMR.get(), ModelTemplates.FLAT_ITEM);
@@ -49,12 +50,17 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ModItems.ANDVARANAUT.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.DRAUPNIR.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.MEGINGJORD.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.HOFSKOR.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.CLYDNO_HALTER.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.RECALL_BELL.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.PRIDWEN.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(ModItems.MEDJU_NETJER.get(), ModelTemplates.FLAT_ITEM);
         generateMappedFlatItem(itemModels, ModItems.RELIC_FRAGMENT.get(),
                 Identifier.withDefaultNamespace("item/gold_nugget"));
         itemModels.generateFlatItem(ModItems.HOLY_GRAIL.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.SMOKING_MIRROR.get(), ModelTemplates.FLAT_ITEM);
         generateKazagurumaItem(itemModels, ModItems.KAZAGURUMA.get());
+        generateRaikoItem(itemModels);
         var skullModel = BlockModelGenerators.plainVariant(
                 ModelLocationUtils.decorateBlockModelLocation("skull"));
         blockModels.blockStateOutput.accept(
@@ -74,6 +80,7 @@ public class ModModelProvider extends ModelProvider {
         generateBigItem(itemModels, ModItems.BERTILAK.get(), BigItemType.AXE);
         generateBigItem(itemModels, ModItems.EXCALIBUR.get(), BigItemType.SWORD);
         generateBigItem(itemModels, ModItems.GRAM.get(), BigItemType.SWORD);
+        generateBigItem(itemModels, ModItems.TYRFING.get(), BigItemType.SWORD);
         generateBigItem(itemModels, ModItems.GUNGNIR.get(), BigItemType.SPEAR);
         generateBigItem(itemModels, ModItems.WEBEN.get(), BigItemType.SWORD);
         generateBigItem(itemModels, ModItems.KUSANAGI_NO_TSURUGI.get(), BigItemType.SWORD);
@@ -114,6 +121,19 @@ public class ModModelProvider extends ModelProvider {
                         ItemDisplayContext.THIRD_PERSON_LEFT_HAND, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
                         ItemDisplayContext.FIRST_PERSON_LEFT_HAND), deployedHeldItemModel),
                 ItemModelUtils.when(ItemDisplayContext.FIXED, heldItemModel)));
+    }
+
+    private static void generateRaikoItem(ItemModelGenerators itemModels) {
+        Identifier standardModel = ModelTemplates.FLAT_ITEM.create(
+                ModelLocationUtils.getModelLocation(ModItems.RAIKO.get(), "_item"),
+                TextureMapping.layer0(new Material(Identifier.fromNamespaceAndPath(
+                        NoblePhantasms.MOD_ID, "item/raiko_item"))), itemModels.modelOutput);
+        Identifier drumModel = Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/raiko_drum");
+        itemModels.itemModelOutput.accept(ModItems.RAIKO.get(), ItemModelUtils.select(
+                new DisplayContext(), ItemModelUtils.plainModel(standardModel),
+                ItemModelUtils.when(List.of(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
+                        ItemDisplayContext.THIRD_PERSON_LEFT_HAND, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
+                        ItemDisplayContext.FIRST_PERSON_LEFT_HAND), ItemModelUtils.plainModel(drumModel))));
     }
 
     private static void generateTrophyHeadItem(ItemModelGenerators itemModels) {

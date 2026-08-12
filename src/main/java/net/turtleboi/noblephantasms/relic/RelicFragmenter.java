@@ -40,7 +40,7 @@ public final class RelicFragmenter {
 
     private static Layout create(RelicFragmentDefinitions.Definition definition,
                                  Identifier textureId, long seed) {
-        Key key = new Key(textureId.toString(), seed);
+        Key key = new Key(textureId.toString(), definition.textureFrameHeight(), seed);
         synchronized (CACHE) {
             Layout cached = CACHE.get(key);
             if (cached != null) {
@@ -48,7 +48,7 @@ public final class RelicFragmenter {
             }
         }
 
-        ImagePixels image = load(textureId);
+        ImagePixels image = load(textureId, definition.textureFrameHeight());
         int minimumPieces = Math.clamp(definition.minimumPieces(),
                 image.components().size(), image.opaquePixels().size());
         int requestedPieces = Math.clamp(image.opaquePixels().size() / MINIMUM_PIXELS_PER_PIECE,
@@ -74,7 +74,7 @@ public final class RelicFragmenter {
         return result;
     }
 
-    private static ImagePixels load(Identifier textureId) {
+    private static ImagePixels load(Identifier textureId, int frameHeight) {
         String path = "/assets/" + textureId.getNamespace() + "/textures/" + textureId.getPath() + ".png";
         try (InputStream stream = RelicFragmenter.class.getResourceAsStream(path)) {
             if (stream == null) {
@@ -83,6 +83,12 @@ public final class RelicFragmenter {
             BufferedImage image = ImageIO.read(stream);
             if (image == null) {
                 throw new IllegalStateException("Unable to read relic texture " + path);
+            }
+            if (frameHeight > 0) {
+                if (frameHeight > image.getHeight()) {
+                    throw new IllegalStateException("Relic texture frame exceeds image height " + path);
+                }
+                image = image.getSubimage(0, 0, image.getWidth(), frameHeight);
             }
             return readPixels(image);
         } catch (IOException exception) {
@@ -423,7 +429,7 @@ public final class RelicFragmenter {
                                List<List<Integer>> components, Map<Integer, Integer> colors) {
     }
 
-    private record Key(String relic, long seed) {
+    private record Key(String relic, int frameHeight, long seed) {
     }
 
     private record BoundaryEdge(int x0, int y0, int x1, int y1) {

@@ -1,0 +1,96 @@
+{
+  "format_version": "1.21.11",
+  "credit": "Made with Blockbench",
+  "textures": {
+    "1": "noblephantasms:item/raiko_drum"
+  },
+  "elements": [
+    {
+      "name": "drum_main",
+      "from": [2, 0, 2],
+      "to": [14, 14, 14],
+      "rotation": {"angle": 0, "axis": "y", "origin": [1, 0, 1]},
+      "faces": {
+        "north": {"uv": [0, 0, 6, 7], "texture": "#1"},
+        "east": {"uv": [0, 0, 6, 7], "texture": "#1"},
+        "south": {"uv": [0, 0, 6, 7], "texture": "#1"},
+        "west": {"uv": [0, 0, 6, 7], "texture": "#1"},
+        "up": {"uv": [12, 6, 6, 0], "texture": "#1"},
+        "down": {"uv": [12, 6, 6, 12], "texture": "#1"}
+      }
+    },
+    {
+      "name": "drum_head_wrap",
+      "from": [1.75, 9.25, 1.75],
+      "to": [14.25, 11.75, 14.25],
+      "rotation": {"angle": 0, "axis": "y", "origin": [2, 9.5, 2]},
+      "faces": {
+        "north": {"uv": [0, 9.5, 6, 10.5], "texture": "#1"},
+        "east": {"uv": [0, 9.5, 6, 10.5], "texture": "#1"},
+        "south": {"uv": [0, 9.5, 6, 10.5], "texture": "#1"},
+        "west": {"uv": [0, 9.5, 6, 10.5], "texture": "#1"}
+      }
+    },
+    {
+      "name": "drum_wrap",
+      "from": [1.75, 1.75, 1.75],
+      "to": [14.25, 7.25, 14.25],
+      "rotation": {"angle": 0, "axis": "y", "origin": [2, 5, 2]},
+      "faces": {
+        "north": {"uv": [0, 7, 6, 9.5], "texture": "#1"},
+        "east": {"uv": [0, 7, 6, 9.5], "texture": "#1"},
+        "south": {"uv": [0, 7, 6, 9.5], "texture": "#1"},
+        "west": {"uv": [0, 7, 6, 9.5], "texture": "#1"}
+      }
+    },
+    {
+      "name": "fabric1",
+      "from": [1.75, 2.75, 5],
+      "to": [1.75, 10.75, 9],
+      "rotation": {"x": 19.58779, "y": 9.79271, "z": -12.45176, "origin": [1.75, 10.75, 8]},
+      "faces": {
+        "north": {"uv": [0, 0, 0, 4], "texture": "#1"},
+        "east": {"uv": [12, 0, 14, 4], "texture": "#1"},
+        "south": {"uv": [0, 0, 0, 4], "texture": "#1"},
+        "west": {"uv": [12, 0, 14, 4], "texture": "#1"},
+        "up": {"uv": [0, 2, 0, 0], "texture": "#1"},
+        "down": {"uv": [0, 0, 0, 2], "texture": "#1"}
+      }
+    },
+    {
+      "name": "fabric2",
+      "from": [1.66148, 2.73905, 6.99601],
+      "to": [1.66148, 10.73905, 10.99601],
+      "rotation": {"x": -20.60546, "y": -4.28391, "z": -10.61524, "origin": [1.75, 10.75, 8]},
+      "faces": {
+        "north": {"uv": [0, 0, 0, 4], "texture": "#1"},
+        "east": {"uv": [12, 0, 14, 4], "texture": "#1"},
+        "south": {"uv": [0, 0, 0, 4], "texture": "#1"},
+        "west": {"uv": [12, 0, 14, 4], "texture": "#1"},
+        "up": {"uv": [0, 0, 0, 2], "texture": "#1"},
+        "down": {"uv": [0, 0, 0, 2], "texture": "#1"}
+      }
+    }
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "translation": [0, 1.5, 1],
+      "scale": [0.55, 0.55, 0.55]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [0, -180, 0],
+      "translation": [0, 1.5, 1],
+      "scale": [0.55, 0.55, 0.55]
+    },
+    "firstperson_righthand": {
+      "rotation": [0, 15, 25],
+      "translation": [-0.25, 2.75, -0.5],
+      "scale": [0.68, 0.68, 0.68]
+    },
+    "firstperson_lefthand": {
+      "rotation": [0, -165, -25],
+      "translation": [-0.25, 2.75, -0.5],
+      "scale": [0.68, 0.68, 0.68]
+    }
+  }
+}
