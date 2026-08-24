@@ -64,13 +64,28 @@ public final class EyeShardRenderer extends EntityRenderer<EyeShardEntity, EyeSh
         super.submit(state, poseStack, collector, camera);
     }
 
-    private static void drawPiece(PoseStack.Pose pose, VertexConsumer buffer,
-                                  RelicFragmenter.Layout layout, RelicFragmenter.Piece piece,
-                                  int color, float outlineWidth) {
-        float unit = 0.65F / Math.max(layout.width(), layout.height());
-        float halfThickness = 0.025F + outlineWidth;
+    static void drawPiece(PoseStack.Pose pose, VertexConsumer buffer,
+                          RelicFragmenter.Layout layout, RelicFragmenter.Piece piece,
+                          int color, float outlineWidth) {
         float centerX = (piece.minX() + piece.maxX() + 1) * 0.5F;
         float centerY = (piece.minY() + piece.maxY() + 1) * 0.5F;
+        drawPiece(pose, buffer, layout, piece, color, outlineWidth,
+                0.65F, centerX, centerY, 15728880);
+    }
+
+    public static void drawAssembledPiece(PoseStack.Pose pose, VertexConsumer buffer,
+                                          RelicFragmenter.Layout layout, RelicFragmenter.Piece piece,
+                                          int lightCoords) {
+        drawPiece(pose, buffer, layout, piece, -1, 0.0F,
+                1.0F, layout.width() * 0.5F, layout.height() * 0.5F, lightCoords);
+    }
+
+    private static void drawPiece(PoseStack.Pose pose, VertexConsumer buffer,
+                                  RelicFragmenter.Layout layout, RelicFragmenter.Piece piece,
+                                  int color, float outlineWidth, float size,
+                                  float centerX, float centerY, int lightCoords) {
+        float unit = size / Math.max(layout.width(), layout.height());
+        float halfThickness = 0.025F + outlineWidth;
         Set<Long> occupied = new HashSet<>();
         for (RelicFragmenter.Pixel pixel : piece.pixels()) {
             occupied.add(coordinate(pixel.x(), pixel.y()));
@@ -94,37 +109,37 @@ public final class EyeShardRenderer extends EntityRenderer<EyeShardEntity, EyeSh
             float renderedX1 = x1 + (exposedRight ? outlineWidth : 0.0F);
             float renderedY0 = y0 - (exposedBottom ? outlineWidth : 0.0F);
             float renderedY1 = y1 + (exposedTop ? outlineWidth : 0.0F);
-            vertex(pose, buffer, renderedX0, renderedY0, halfThickness, u0, v1, color, 0.0F, 0.0F, 1.0F);
-            vertex(pose, buffer, renderedX1, renderedY0, halfThickness, u1, v1, color, 0.0F, 0.0F, 1.0F);
-            vertex(pose, buffer, renderedX1, renderedY1, halfThickness, u1, v0, color, 0.0F, 0.0F, 1.0F);
-            vertex(pose, buffer, renderedX0, renderedY1, halfThickness, u0, v0, color, 0.0F, 0.0F, 1.0F);
-            vertex(pose, buffer, renderedX0, renderedY1, -halfThickness, u0, v0, color, 0.0F, 0.0F, -1.0F);
-            vertex(pose, buffer, renderedX1, renderedY1, -halfThickness, u1, v0, color, 0.0F, 0.0F, -1.0F);
-            vertex(pose, buffer, renderedX1, renderedY0, -halfThickness, u1, v1, color, 0.0F, 0.0F, -1.0F);
-            vertex(pose, buffer, renderedX0, renderedY0, -halfThickness, u0, v1, color, 0.0F, 0.0F, -1.0F);
+            vertex(pose, buffer, renderedX0, renderedY0, halfThickness, u0, v1, color, lightCoords, 0.0F, 0.0F, 1.0F);
+            vertex(pose, buffer, renderedX1, renderedY0, halfThickness, u1, v1, color, lightCoords, 0.0F, 0.0F, 1.0F);
+            vertex(pose, buffer, renderedX1, renderedY1, halfThickness, u1, v0, color, lightCoords, 0.0F, 0.0F, 1.0F);
+            vertex(pose, buffer, renderedX0, renderedY1, halfThickness, u0, v0, color, lightCoords, 0.0F, 0.0F, 1.0F);
+            vertex(pose, buffer, renderedX0, renderedY1, -halfThickness, u0, v0, color, lightCoords, 0.0F, 0.0F, -1.0F);
+            vertex(pose, buffer, renderedX1, renderedY1, -halfThickness, u1, v0, color, lightCoords, 0.0F, 0.0F, -1.0F);
+            vertex(pose, buffer, renderedX1, renderedY0, -halfThickness, u1, v1, color, lightCoords, 0.0F, 0.0F, -1.0F);
+            vertex(pose, buffer, renderedX0, renderedY0, -halfThickness, u0, v1, color, lightCoords, 0.0F, 0.0F, -1.0F);
             if (exposedLeft) {
-                vertex(pose, buffer, renderedX0, renderedY0, -halfThickness, centerU, v1, color, -1.0F, 0.0F, 0.0F);
-                vertex(pose, buffer, renderedX0, renderedY0, halfThickness, centerU, v1, color, -1.0F, 0.0F, 0.0F);
-                vertex(pose, buffer, renderedX0, renderedY1, halfThickness, centerU, v0, color, -1.0F, 0.0F, 0.0F);
-                vertex(pose, buffer, renderedX0, renderedY1, -halfThickness, centerU, v0, color, -1.0F, 0.0F, 0.0F);
+                vertex(pose, buffer, renderedX0, renderedY0, -halfThickness, centerU, v1, color, lightCoords, -1.0F, 0.0F, 0.0F);
+                vertex(pose, buffer, renderedX0, renderedY0, halfThickness, centerU, v1, color, lightCoords, -1.0F, 0.0F, 0.0F);
+                vertex(pose, buffer, renderedX0, renderedY1, halfThickness, centerU, v0, color, lightCoords, -1.0F, 0.0F, 0.0F);
+                vertex(pose, buffer, renderedX0, renderedY1, -halfThickness, centerU, v0, color, lightCoords, -1.0F, 0.0F, 0.0F);
             }
             if (exposedRight) {
-                vertex(pose, buffer, renderedX1, renderedY1, -halfThickness, centerU, v0, color, 1.0F, 0.0F, 0.0F);
-                vertex(pose, buffer, renderedX1, renderedY1, halfThickness, centerU, v0, color, 1.0F, 0.0F, 0.0F);
-                vertex(pose, buffer, renderedX1, renderedY0, halfThickness, centerU, v1, color, 1.0F, 0.0F, 0.0F);
-                vertex(pose, buffer, renderedX1, renderedY0, -halfThickness, centerU, v1, color, 1.0F, 0.0F, 0.0F);
+                vertex(pose, buffer, renderedX1, renderedY1, -halfThickness, centerU, v0, color, lightCoords, 1.0F, 0.0F, 0.0F);
+                vertex(pose, buffer, renderedX1, renderedY1, halfThickness, centerU, v0, color, lightCoords, 1.0F, 0.0F, 0.0F);
+                vertex(pose, buffer, renderedX1, renderedY0, halfThickness, centerU, v1, color, lightCoords, 1.0F, 0.0F, 0.0F);
+                vertex(pose, buffer, renderedX1, renderedY0, -halfThickness, centerU, v1, color, lightCoords, 1.0F, 0.0F, 0.0F);
             }
             if (exposedTop) {
-                vertex(pose, buffer, renderedX0, renderedY1, -halfThickness, u0, centerV, color, 0.0F, 1.0F, 0.0F);
-                vertex(pose, buffer, renderedX0, renderedY1, halfThickness, u0, centerV, color, 0.0F, 1.0F, 0.0F);
-                vertex(pose, buffer, renderedX1, renderedY1, halfThickness, u1, centerV, color, 0.0F, 1.0F, 0.0F);
-                vertex(pose, buffer, renderedX1, renderedY1, -halfThickness, u1, centerV, color, 0.0F, 1.0F, 0.0F);
+                vertex(pose, buffer, renderedX0, renderedY1, -halfThickness, u0, centerV, color, lightCoords, 0.0F, 1.0F, 0.0F);
+                vertex(pose, buffer, renderedX0, renderedY1, halfThickness, u0, centerV, color, lightCoords, 0.0F, 1.0F, 0.0F);
+                vertex(pose, buffer, renderedX1, renderedY1, halfThickness, u1, centerV, color, lightCoords, 0.0F, 1.0F, 0.0F);
+                vertex(pose, buffer, renderedX1, renderedY1, -halfThickness, u1, centerV, color, lightCoords, 0.0F, 1.0F, 0.0F);
             }
             if (exposedBottom) {
-                vertex(pose, buffer, renderedX1, renderedY0, -halfThickness, u1, centerV, color, 0.0F, -1.0F, 0.0F);
-                vertex(pose, buffer, renderedX1, renderedY0, halfThickness, u1, centerV, color, 0.0F, -1.0F, 0.0F);
-                vertex(pose, buffer, renderedX0, renderedY0, halfThickness, u0, centerV, color, 0.0F, -1.0F, 0.0F);
-                vertex(pose, buffer, renderedX0, renderedY0, -halfThickness, u0, centerV, color, 0.0F, -1.0F, 0.0F);
+                vertex(pose, buffer, renderedX1, renderedY0, -halfThickness, u1, centerV, color, lightCoords, 0.0F, -1.0F, 0.0F);
+                vertex(pose, buffer, renderedX1, renderedY0, halfThickness, u1, centerV, color, lightCoords, 0.0F, -1.0F, 0.0F);
+                vertex(pose, buffer, renderedX0, renderedY0, halfThickness, u0, centerV, color, lightCoords, 0.0F, -1.0F, 0.0F);
+                vertex(pose, buffer, renderedX0, renderedY0, -halfThickness, u0, centerV, color, lightCoords, 0.0F, -1.0F, 0.0F);
             }
         }
     }
@@ -135,13 +150,13 @@ public final class EyeShardRenderer extends EntityRenderer<EyeShardEntity, EyeSh
 
     private static void vertex(PoseStack.Pose pose, VertexConsumer buffer,
                                float x, float y, float z, float u, float v,
-                               int color,
+                               int color, int lightCoords,
                                float normalX, float normalY, float normalZ) {
         buffer.addVertex(pose, x, y, z)
                 .setColor(color)
                 .setUv(u, v)
                 .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(15728880)
+                .setLight(lightCoords)
                 .setNormal(pose, normalX, normalY, normalZ);
     }
 

@@ -1,6 +1,7 @@
 package net.turtleboi.noblephantasms.mixin;
 
 import net.minecraft.world.entity.LivingEntity;
+import net.turtleboi.noblephantasms.item.custom.IwatoshiAttackState;
 import net.turtleboi.noblephantasms.item.custom.RhongomyniadItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -9,6 +10,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LivingEntity.class)
 public class LivingEntityMixin {
+    @Inject(method = "handleEntityEvent", at = @At("HEAD"), cancellable = true)
+    private void animateIwatoshiAttack(byte eventId, CallbackInfo callbackInfo) {
+        if (IwatoshiAttackState.handleAttackEvent((LivingEntity) (Object) this, eventId)) {
+            callbackInfo.cancel();
+        }
+    }
+
     @Inject(
             method = "releaseUsingItem",
             at = @At(

@@ -35,6 +35,7 @@ import net.turtleboi.noblephantasms.item.ModRarities;
 public class RhongomyniadItem extends Item {
     private static final float ATTACK_DURATION = 1.15F;
     private static final float DAMAGE_PHASE_DURATION = 3600.0F;
+    private static final int JOUST_LOWER_TICKS = 8;
     public static final int FULL_CHARGE_TICKS = 60;
     public static final float MIN_LAUNCH_SPEED = 1.5F;
     public static final float MAX_LAUNCH_SPEED = 6.0F;
@@ -47,7 +48,7 @@ public class RhongomyniadItem extends Item {
 
     public RhongomyniadItem(Properties properties) {
         super(properties
-                .spear(ToolMaterial.NETHERITE, ATTACK_DURATION, 1.2F, 0.4F, 2.5F,
+                .spear(ToolMaterial.NETHERITE, ATTACK_DURATION, 1.2F, JOUST_LOWER_TICKS / 20.0F, 2.5F,
                         9.0F, 5.5F, 5.1F, DAMAGE_PHASE_DURATION, 4.6F)
                 .component(DataComponents.ATTACK_RANGE, new AttackRange(2.0F, 5.5F, 2.0F, 7.5F, 0.125F, 0.5F))
                 .attributes(createAttributes())
@@ -200,6 +201,10 @@ public class RhongomyniadItem extends Item {
 
     public static float getChargeTicks(ItemStack itemStack, float timeHeld) {
         return Math.max(timeHeld - getChargeStartTick(itemStack), 0.0F);
+    }
+
+    public static int getJoustLowerTicks() {
+        return JOUST_LOWER_TICKS;
     }
 
     public static int getChargeStartTick(ItemStack itemStack) {

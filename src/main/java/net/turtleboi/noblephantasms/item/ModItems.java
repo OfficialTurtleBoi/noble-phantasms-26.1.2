@@ -50,6 +50,12 @@ import net.turtleboi.noblephantasms.item.custom.RecallBellItem;
 import net.turtleboi.noblephantasms.item.custom.SmokingMirrorItem;
 import net.turtleboi.noblephantasms.item.custom.TyrfingItem;
 import net.turtleboi.noblephantasms.item.custom.RelicFragmentItem;
+import net.turtleboi.noblephantasms.item.custom.ApilolliItem;
+import net.turtleboi.noblephantasms.item.custom.IwatoshiItem;
+import net.turtleboi.noblephantasms.item.custom.TecpatlOfTheFifthSunItem;
+import net.turtleboi.noblephantasms.item.custom.XiuhcoatlItem;
+import net.turtleboi.noblephantasms.item.custom.YasakaniNoMagatamaItem;
+import net.turtleboi.noblephantasms.item.custom.YataNoKagamiItem;
 
 public class ModItems {
     public static final DeferredRegister.Items ITEMS =
@@ -103,6 +109,15 @@ public class ModItems {
 
     public static final DeferredItem<KusanagiNoTsurugiItem> KUSANAGI_NO_TSURUGI =
             registerRelic("kusanagi_no_tsurugi", KusanagiNoTsurugiItem::new);
+
+    public static final DeferredItem<YasakaniNoMagatamaItem> YASAKANI_NO_MAGATAMA =
+            registerRelic("yasakani_no_magatama", YasakaniNoMagatamaItem::new);
+
+    public static final DeferredItem<YataNoKagamiItem> YATA_NO_KAGAMI =
+            registerRelic("yata_no_kagami", YataNoKagamiItem::new);
+
+    public static final DeferredItem<IwatoshiItem> IWATOSHI =
+            registerRelic("iwatoshi", IwatoshiItem::new);
 
     public static final DeferredItem<KazagurumaItem> KAZAGURUMA =
             registerRelic("kazaguruma", KazagurumaItem::new);
@@ -169,6 +184,15 @@ public class ModItems {
 
     public static final DeferredItem<RaikoItem> RAIKO =
             registerRelic("raiko", RaikoItem::new);
+
+    public static final DeferredItem<ApilolliItem> APILOLLI =
+            registerRelic("apilolli", ApilolliItem::new);
+
+    public static final DeferredItem<XiuhcoatlItem> XIUHCOATL =
+            registerRelic("xiuhcoatl", XiuhcoatlItem::new);
+
+    public static final DeferredItem<TecpatlOfTheFifthSunItem> TECPATL_OF_THE_FIFTH_SUN =
+            registerRelic("tecpatl_of_the_fifth_sun", TecpatlOfTheFifthSunItem::new);
 
     private static <T extends Item> DeferredItem<T> registerRelic(
             String name, Function<Item.Properties, ? extends T> factory) {

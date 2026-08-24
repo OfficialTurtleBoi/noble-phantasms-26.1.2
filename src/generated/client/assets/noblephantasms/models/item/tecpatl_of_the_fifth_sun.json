@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "noblephantasms:item/tecpatl_of_the_fifth_sun"
+  }
+}

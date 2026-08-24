@@ -1,12 +1,10 @@
 package net.turtleboi.noblephantasms.item.custom;
 
-import java.util.Optional;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Position;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -14,27 +12,14 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwingAnimationType;
-import net.minecraft.world.item.ToolMaterial;
-import net.minecraft.world.item.TridentItem;
-import net.minecraft.world.item.component.AttackRange;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.minecraft.world.item.component.PiercingWeapon;
-import net.minecraft.world.item.component.SwingAnimation;
-import net.minecraft.world.item.component.Weapon;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -44,26 +29,13 @@ import net.minecraft.world.phys.Vec3;
 import net.turtleboi.noblephantasms.entity.custom.GungnirProjectile;
 import net.turtleboi.noblephantasms.item.ModRarities;
 
-public class GungnirItem extends TridentItem {
+public class GungnirItem extends SpearRelicItem {
     private static final double HOMING_RANGE = 32.0;
     private static final int TARGET_MEMORY_TICKS = 60;
     private static final WeakHashMap<Player, TargetMemory> TARGET_MEMORY = new WeakHashMap<>();
 
     public GungnirItem(Properties properties) {
-        super(properties
-                .durability(ToolMaterial.NETHERITE.durability())
-                .repairable(ToolMaterial.NETHERITE.repairItems())
-                .enchantable(ToolMaterial.NETHERITE.enchantmentValue())
-                .component(DataComponents.TOOL, TridentItem.createToolProperties())
-                .component(DataComponents.WEAPON, new Weapon(1))
-                .component(DataComponents.ATTACK_RANGE, new AttackRange(2.0F, 5.0F, 2.0F, 7.0F, 0.125F, 0.5F))
-                .component(DataComponents.PIERCING_WEAPON, new PiercingWeapon(true, false,
-                        Optional.of(SoundEvents.SPEAR_ATTACK), Optional.of(SoundEvents.SPEAR_HIT)))
-                .component(DataComponents.MINIMUM_ATTACK_CHARGE, 1.0F)
-                .component(DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, 23))
-                .attributes(createGungnirAttributes())
-                .rarity(ModRarities.LEGENDARY.getValue())
-                .fireResistant());
+        super(properties, ModRarities.LEGENDARY.getValue());
     }
 
     @Override
@@ -112,28 +84,6 @@ public class GungnirItem extends TridentItem {
                 level, position.x(), position.y(), position.z(), itemStack.copyWithCount(1));
         projectile.pickup = AbstractArrow.Pickup.ALLOWED;
         return projectile;
-    }
-
-    @Override
-    public boolean supportsEnchantment(ItemStack itemStack, Holder<Enchantment> enchantment) {
-        if (enchantment.is(Enchantments.SHARPNESS)) {
-            return false;
-        }
-        if (enchantment.is(Enchantments.IMPALING)) {
-            return true;
-        }
-        return super.supportsEnchantment(itemStack, enchantment);
-    }
-
-    @Override
-    public boolean isPrimaryItemFor(ItemStack itemStack, Holder<Enchantment> enchantment) {
-        if (enchantment.is(Enchantments.SHARPNESS)) {
-            return false;
-        }
-        if (enchantment.is(Enchantments.IMPALING)) {
-            return true;
-        }
-        return super.isPrimaryItemFor(itemStack, enchantment);
     }
 
     @Override
@@ -198,17 +148,5 @@ public class GungnirItem extends TridentItem {
     }
 
     private record TargetMemory(UUID targetId, long gameTime) {
-    }
-
-    private static ItemAttributeModifiers createGungnirAttributes() {
-        return ItemAttributeModifiers.builder()
-                .add(Attributes.ATTACK_DAMAGE,
-                        new AttributeModifier(BASE_ATTACK_DAMAGE_ID, 8.0, AttributeModifier.Operation.ADD_VALUE),
-                        EquipmentSlotGroup.MAINHAND)
-                .add(Attributes.ATTACK_SPEED,
-                        new AttributeModifier(BASE_ATTACK_SPEED_ID, 1.0F / 1.15F - 4.0F,
-                                AttributeModifier.Operation.ADD_VALUE),
-                        EquipmentSlotGroup.MAINHAND)
-                .build();
     }
 }

@@ -38,6 +38,9 @@ public class ModCreativeModeTabs {
                                 output.accept(ModItems.EAGLE_KNIGHT_TALONS);
                                 output.accept(ModItems.MACUAHUITL);
                                 output.accept(ModItems.SMOKING_MIRROR);
+                                output.accept(ModItems.APILOLLI);
+                                output.accept(ModItems.XIUHCOATL);
+                                output.accept(ModItems.TECPATL_OF_THE_FIFTH_SUN);
 
                                 output.accept(ModItems.EXCALIBUR);
                                 output.accept(ModItems.SCABBARD);
@@ -63,6 +66,9 @@ public class ModCreativeModeTabs {
                                 output.accept(ModItems.UCHIDE_NO_KOZUCHI);
                                 output.accept(ModItems.YAMAWARI);
                                 output.accept(ModItems.RAIKO);
+                                output.accept(ModItems.YASAKANI_NO_MAGATAMA);
+                                output.accept(ModItems.YATA_NO_KAGAMI);
+                                output.accept(ModItems.IWATOSHI);
                                 output.accept(ModItems.RELIQUARY_STATION);
                                 RelicFragmentDefinitions.relicIds().forEach(relicId -> output.accept(
                                         RelicFragmentItem.create(ModItems.RELIC_FRAGMENT.get(),

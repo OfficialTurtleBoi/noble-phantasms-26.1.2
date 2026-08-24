@@ -8,6 +8,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingSwapItemsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.entity.living.EffectParticleModificationEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -42,6 +43,9 @@ import net.turtleboi.noblephantasms.item.custom.YamawariItem;
 import net.turtleboi.noblephantasms.item.custom.EyeOfHorusItem;
 import net.turtleboi.noblephantasms.item.custom.SmokingMirrorItem;
 import net.turtleboi.noblephantasms.item.custom.TyrfingItem;
+import net.turtleboi.noblephantasms.item.custom.TecpatlOfTheFifthSunItem;
+import net.turtleboi.noblephantasms.item.custom.YasakaniNoMagatamaItem;
+import net.turtleboi.noblephantasms.item.custom.YataNoKagamiItem;
 import net.turtleboi.noblephantasms.world.ArtificialOreSavedData;
 import net.minecraft.world.entity.Mob;
 
@@ -54,6 +58,7 @@ public final class ModEvents {
         BiaEnPetItem.handleIncomingDamage(event);
         HofskorItem.handleIncomingDamage(event);
         PridwenItem.handleIncomingDamage(event);
+        YasakaniNoMagatamaItem.handleIncomingDamage(event);
     }
 
     @SubscribeEvent
@@ -75,6 +80,7 @@ public final class ModEvents {
     static void onDamageComplete(LivingDamageEvent.Post event) {
         MegingjordItem.handleDamageComplete(event);
         BertilakItem.handleDamageComplete(event);
+        YasakaniNoMagatamaItem.handleDamageComplete(event);
     }
 
     @SubscribeEvent
@@ -88,6 +94,10 @@ public final class ModEvents {
         EyeOfHorusItem.handleLivingDeath(event);
         GramItem.handleLivingDeath(event);
         TyrfingItem.handleLivingDeath(event);
+        YasakaniNoMagatamaItem.handleLivingDeath(event);
+        if (event.getEntity() instanceof net.minecraft.world.entity.player.Player player) {
+            TecpatlOfTheFifthSunItem.handlePlayerDeath(player);
+        }
     }
 
     @SubscribeEvent
@@ -128,6 +138,13 @@ public final class ModEvents {
         HekaItem.handlePlayerTick(event.getEntity());
         NekhakhaItem.handlePlayerTick(event.getEntity());
         TyrfingItem.handlePlayerTick(event.getEntity());
+        YasakaniNoMagatamaItem.handlePlayerTick(event.getEntity());
+        TecpatlOfTheFifthSunItem.handlePlayerTick(event.getEntity());
+    }
+
+    @SubscribeEvent
+    static void onShieldBlock(LivingShieldBlockEvent event) {
+        YataNoKagamiItem.handleShieldBlock(event);
     }
 
     @SubscribeEvent

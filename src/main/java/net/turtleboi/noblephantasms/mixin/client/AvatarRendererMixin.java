@@ -3,7 +3,7 @@ package net.turtleboi.noblephantasms.mixin.client;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.world.entity.Avatar;
-import net.turtleboi.noblephantasms.client.ItemPoseEditor;
+import net.turtleboi.noblephantasms.client.animation.ItemPoseEditor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

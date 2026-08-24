@@ -11,6 +11,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.component.AttackRange;
 import net.minecraft.world.item.component.PiercingWeapon;
 import net.minecraft.world.level.ClipContext;
@@ -18,10 +19,12 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.turtleboi.noblephantasms.client.RhongomyniadSpinState;
-import net.turtleboi.noblephantasms.client.ItemPoseEditor;
+import net.turtleboi.noblephantasms.client.animation.ItemPoseEditor;
 import net.turtleboi.noblephantasms.client.GungnirExtensions;
-import net.turtleboi.noblephantasms.item.custom.GungnirItem;
+import net.turtleboi.noblephantasms.client.animation.RelicWeaponAnimationContext;
+import net.turtleboi.noblephantasms.client.animation.RelicWeaponAnimations;
 import net.turtleboi.noblephantasms.item.custom.RhongomyniadItem;
+import net.turtleboi.noblephantasms.item.custom.SpearRelicItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,8 +34,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemInHandRenderer.class)
 public class ItemInHandRendererMixin {
-    private final ThrustSwingState gungnirMainHandState = new ThrustSwingState();
-    private final ThrustSwingState gungnirOffHandState = new ThrustSwingState();
+    private final ThrustSwingState spearMainHandState = new ThrustSwingState();
+    private final ThrustSwingState spearOffHandState = new ThrustSwingState();
     private static final float RHONGOMYNIAD_INWARD_ROTATION = 15.0F;
     private static final float RHONGOMYNIAD_DOWNWARD_ROTATION = -15.0F;
     private static final float RHONGOMYNIAD_MAX_EXTENSION = 0.15F;
@@ -59,7 +62,10 @@ public class ItemInHandRendererMixin {
         rhongomyniadRenderPlayer = player;
         rhongomyniadRenderStack = itemStack;
         rhongomyniadFrameInterp = frameInterp;
-        RhongomyniadSpinState.begin(itemStack, timeHeld, player, frameInterp);
+        ItemDisplayContext displayContext = armFor(player, hand) == HumanoidArm.RIGHT
+                ? ItemDisplayContext.FIRST_PERSON_RIGHT_HAND : ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
+        RelicWeaponAnimationContext.begin(player, itemStack, frameInterp, hand, displayContext);
+        RhongomyniadSpinState.begin(itemStack, timeHeld, player);
     }
 
     @Inject(method = "renderArmWithItem", at = @At("RETURN"))
@@ -67,6 +73,7 @@ public class ItemInHandRendererMixin {
                                      float attack, ItemStack itemStack, float inverseArmHeight, PoseStack poseStack,
                                      SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo callbackInfo) {
         RhongomyniadSpinState.end();
+        RelicWeaponAnimationContext.end();
         rhongomyniadRenderPlayer = null;
         rhongomyniadRenderStack = ItemStack.EMPTY;
         rhongomyniadFrameInterp = 0.0F;
@@ -91,14 +98,17 @@ public class ItemInHandRendererMixin {
     @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/model/effects/SpearAnimations;firstPersonAttack(FLcom/mojang/blaze3d/vertex/PoseStack;ILnet/minecraft/world/entity/HumanoidArm;)V",
             shift = At.Shift.AFTER))
-    private void adjustGungnirStab(AbstractClientPlayer player, float frameInterp, float xRot, InteractionHand hand,
-                                   float attack, ItemStack itemStack, float inverseArmHeight, PoseStack poseStack,
-                                   SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo callbackInfo) {
-        if (!(itemStack.getItem() instanceof GungnirItem)) {
+    private void adjustSpearStab(AbstractClientPlayer player, float frameInterp, float xRot, InteractionHand hand,
+                                 float attack, ItemStack itemStack, float inverseArmHeight, PoseStack poseStack,
+                                 SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo callbackInfo) {
+        if (!(itemStack.getItem() instanceof SpearRelicItem)
+                || ItemPoseEditor.isPreviewingUse(hand, itemStack)
+                || RelicWeaponAnimations.isIwatoshiRightClickAttack(player, itemStack)) {
             return;
         }
 
-        ThrustSwingState swingState = hand == InteractionHand.MAIN_HAND ? gungnirMainHandState : gungnirOffHandState;
+        ThrustSwingState swingState = hand == InteractionHand.MAIN_HAND
+                ? spearMainHandState : spearOffHandState;
         applyThrustAdjustment(player, hand, attack, itemStack, poseStack, swingState,
                 GungnirExtensions.STAB_ROTATION_Z, GungnirExtensions.STAB_ROTATION_X,
                 GungnirExtensions.STAB_TRANSLATION_Y, GungnirExtensions.STAB_MIN_EXTENSION);
@@ -112,7 +122,8 @@ public class ItemInHandRendererMixin {
                                         float inverseArmHeight, PoseStack poseStack,
                                         SubmitNodeCollector submitNodeCollector, int lightCoords,
                                         CallbackInfo callbackInfo) {
-        if (!(itemStack.getItem() instanceof RhongomyniadItem)) {
+        if (!(itemStack.getItem() instanceof RhongomyniadItem)
+                || ItemPoseEditor.isPreviewingUse(hand, itemStack)) {
             return;
         }
 
@@ -139,7 +150,7 @@ public class ItemInHandRendererMixin {
                                   float attack, ItemStack itemStack, float inverseArmHeight, PoseStack poseStack,
                                   SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo callbackInfo) {
         HumanoidArm arm = hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
-        ItemPoseEditor.applyFirstPersonUsePreview(poseStack, hand, itemStack, arm);
+        ItemPoseEditor.applyFirstPersonUsePreview(poseStack, hand, itemStack, arm, inverseArmHeight);
     }
 
     @Unique
@@ -202,6 +213,11 @@ public class ItemInHandRendererMixin {
     @Unique
     private static float progress(float time, float start, float end) {
         return Mth.clamp(Mth.inverseLerp(time, start, end), 0.0F, 1.0F);
+    }
+
+    @Unique
+    private static HumanoidArm armFor(AbstractClientPlayer player, InteractionHand hand) {
+        return hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
     }
 
     private static final class ThrustSwingState {

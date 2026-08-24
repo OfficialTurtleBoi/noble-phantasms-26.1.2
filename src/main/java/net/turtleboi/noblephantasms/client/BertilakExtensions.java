@@ -3,6 +3,7 @@ package net.turtleboi.noblephantasms.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
 import net.minecraft.util.Ease;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -12,22 +13,24 @@ import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.turtleboi.noblephantasms.item.ModItems;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
+import net.turtleboi.noblephantasms.client.animation.ItemPoseEditor;
+import net.turtleboi.noblephantasms.client.animation.RelicTransform;
 
 public class BertilakExtensions implements IClientItemExtensions {
     private static final float TARGETING_TRANSITION_TICKS = 12.0F;
     private static final float RECOVERY_TRANSITION_TICKS = 8.0F;
-    static final float TARGETING_TRANSLATION_X = -0.08206835F;
-    static final float TARGETING_TRANSLATION_Y = 0.15765251F;
-    static final float TARGETING_TRANSLATION_Z = 0.1965506F;
-    static final float TARGETING_ROTATION_X = 103.96179F;
-    static final float TARGETING_ROTATION_Y = -75.43994F;
-    static final float TARGETING_ROTATION_Z = 177.19794F;
-    static final float THIRD_PERSON_TRANSLATION_X = -0.1033F;
-    static final float THIRD_PERSON_TRANSLATION_Y = 0.3011F;
-    static final float THIRD_PERSON_TRANSLATION_Z = -0.2967F;
-    static final float THIRD_PERSON_ROTATION_X = 0.0F;
-    static final float THIRD_PERSON_ROTATION_Y = 75.0F;
-    static final float THIRD_PERSON_ROTATION_Z = -52.0F;
+    public static final float TARGETING_TRANSLATION_X = -0.08206835F;
+    public static final float TARGETING_TRANSLATION_Y = 0.15765251F;
+    public static final float TARGETING_TRANSLATION_Z = 0.1965506F;
+    public static final float TARGETING_ROTATION_X = 103.96179F;
+    public static final float TARGETING_ROTATION_Y = -75.43994F;
+    public static final float TARGETING_ROTATION_Z = 177.19794F;
+    public static final float THIRD_PERSON_TRANSLATION_X = -0.1033F;
+    public static final float THIRD_PERSON_TRANSLATION_Y = 0.3011F;
+    public static final float THIRD_PERSON_TRANSLATION_Z = -0.2967F;
+    public static final float THIRD_PERSON_ROTATION_X = 0.0F;
+    public static final float THIRD_PERSON_ROTATION_Y = 75.0F;
+    public static final float THIRD_PERSON_ROTATION_Z = -52.0F;
     private float poseWeight;
     private float lastFrameTime = Float.NaN;
     private HumanoidArm animatedArm = HumanoidArm.RIGHT;
@@ -37,13 +40,14 @@ public class BertilakExtensions implements IClientItemExtensions {
     }
 
     public static void applyEditorCovenantTransform(PoseStack poseStack, HumanoidArm arm,
-                                                    ItemPoseEditor.Transform transform) {
+                                                    RelicTransform transform) {
         applyTransform(poseStack, arm, transform, 1.0F);
     }
 
-    public static void applyThirdPersonCovenantTransform(PoseStack poseStack, HumanoidArm arm,
+    public static void applyThirdPersonCovenantTransform(ArmedEntityRenderState state,
+                                                         PoseStack poseStack, HumanoidArm arm,
                                                          ItemStack itemStack, float timeHeld) {
-        ItemPoseEditor.Transform transform = ItemPoseEditor.getThirdPersonTransform(itemStack, "covenant");
+        RelicTransform transform = ItemPoseEditor.getThirdPersonTransform(state, itemStack, "covenant");
         float progress = Ease.inOutSine(Mth.clamp(timeHeld / TARGETING_TRANSITION_TICKS, 0.0F, 1.0F));
         if (transform != null) {
             applyTransform(poseStack, arm, transform, progress);
@@ -59,16 +63,8 @@ public class BertilakExtensions implements IClientItemExtensions {
     }
 
     private static void applyTransform(PoseStack poseStack, HumanoidArm arm,
-                                       ItemPoseEditor.Transform transform, float progress) {
-        int direction = arm == HumanoidArm.RIGHT ? 1 : -1;
-        poseStack.translate(direction * transform.translationX * progress,
-                transform.translationY * progress, transform.translationZ * progress);
-        poseStack.mulPose(Axis.XP.rotationDegrees(transform.rotationX * progress));
-        poseStack.mulPose(Axis.YP.rotationDegrees(direction * transform.rotationY * progress));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(direction * transform.rotationZ * progress));
-        poseStack.scale(Mth.lerp(progress, 1.0F, transform.scaleX),
-                Mth.lerp(progress, 1.0F, transform.scaleY),
-                Mth.lerp(progress, 1.0F, transform.scaleZ));
+                                       RelicTransform transform, float progress) {
+        transform.apply(poseStack, arm, progress);
     }
 
     @Override

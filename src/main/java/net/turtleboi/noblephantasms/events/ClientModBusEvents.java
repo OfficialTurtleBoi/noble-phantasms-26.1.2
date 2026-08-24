@@ -11,27 +11,33 @@ import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.client.BertilakExtensions;
 import net.turtleboi.noblephantasms.client.EagleKnightTalonsExtensions;
 import net.turtleboi.noblephantasms.client.GungnirExtensions;
 import net.turtleboi.noblephantasms.client.HulioshjalmrExtensions;
-import net.turtleboi.noblephantasms.client.model.HulioshjalmrModel;
-import net.turtleboi.noblephantasms.client.renderer.LuminousRenderer;
-import net.turtleboi.noblephantasms.client.renderer.ClydnoHalterLayer;
 import net.turtleboi.noblephantasms.client.model.EagleKnightTalonsModel;
-import net.turtleboi.noblephantasms.client.renderer.TrophyHeadRenderer;
+import net.turtleboi.noblephantasms.client.model.HulioshjalmrModel;
+import net.turtleboi.noblephantasms.client.model.XiuhcoatlModel;
+import net.turtleboi.noblephantasms.client.renderer.ClydnoHalterLayer;
+import net.turtleboi.noblephantasms.client.renderer.LuminousRenderer;
+import net.turtleboi.noblephantasms.client.renderer.TecpatlRebuildingRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadBlockEntityRenderer;
+import net.turtleboi.noblephantasms.client.renderer.TrophyHeadRenderer;
 import net.turtleboi.noblephantasms.datagen.ModDatagen;
+import net.turtleboi.noblephantasms.entity.renderer.EyeShardRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.GungnirProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.KazagurumaProjectileRenderer;
+import net.turtleboi.noblephantasms.entity.renderer.SimpleEntityRenderers;
+import net.turtleboi.noblephantasms.entity.renderer.TecpatlShardRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.WindCutterRenderer;
-import net.turtleboi.noblephantasms.entity.renderer.EyeShardRenderer;
+import net.turtleboi.noblephantasms.entity.renderer.XiuhcoatlProjectileRenderer;
+import net.turtleboi.noblephantasms.particle.custom.CovenantLeafParticle;
+import net.turtleboi.noblephantasms.particle.custom.FireFangsParticle;
+import net.turtleboi.noblephantasms.particle.custom.GungnirRuneParticle;
 import net.turtleboi.noblephantasms.screens.ReliquaryStationScreen;
 import net.turtleboi.noblephantasms.screens.menus.ModMenus;
-import net.turtleboi.noblephantasms.particle.custom.GungnirRuneParticle;
-import net.turtleboi.noblephantasms.particle.custom.CovenantLeafParticle;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 @EventBusSubscriber(modid = NoblePhantasms.MOD_ID, value = Dist.CLIENT)
 public final class ClientModBusEvents {
@@ -69,6 +75,7 @@ public final class ClientModBusEvents {
     static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
         HulioshjalmrModel.registerLayerDefinition(event);
         EagleKnightTalonsModel.registerLayerDefinition(event);
+        XiuhcoatlModel.registerLayerDefinition(event);
     }
 
     @SubscribeEvent
@@ -82,7 +89,10 @@ public final class ClientModBusEvents {
         KazagurumaProjectileRenderer.register(event);
         WindCutterRenderer.register(event);
         EyeShardRenderer.register(event);
+        TecpatlShardRenderer.register(event);
+        XiuhcoatlProjectileRenderer.register(event);
         TrophyHeadBlockEntityRenderer.register(event);
+        SimpleEntityRenderers.register(event);
     }
 
     @SubscribeEvent
@@ -94,10 +104,12 @@ public final class ClientModBusEvents {
     static void registerParticleProviders(RegisterParticleProvidersEvent event) {
         GungnirRuneParticle.registerProvider(event);
         CovenantLeafParticle.registerProvider(event);
+        FireFangsParticle.registerProvider(event);
     }
 
     @SubscribeEvent
     static void registerSpecialModelRenderers(RegisterSpecialModelRendererEvent event) {
+        TecpatlRebuildingRenderer.register(event);
         TrophyHeadRenderer.register(event);
     }
 }

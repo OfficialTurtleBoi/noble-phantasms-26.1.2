@@ -19,6 +19,7 @@ import net.minecraft.world.item.ToolMaterial;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.turtleboi.noblephantasms.particle.ModParticles;
 
 public final class GramItem extends Item {
     private static final ToolMaterial GRAM_MATERIAL = new ToolMaterial(
@@ -92,9 +93,12 @@ public final class GramItem extends Item {
     }
 
     private static void spawnBiteParticles(ServerLevel level, LivingEntity target) {
+        level.sendParticles(ModParticles.FIRE_FANGS.get(),
+                target.getX(), target.getY() + target.getBbHeight() * 0.5, target.getZ(),
+                1, 0.0, 0.0, 0.0, 0.0);
         level.sendParticles(ParticleTypes.FLAME,
                 target.getX(), target.getY() + target.getBbHeight() * 0.5, target.getZ(),
-                48, target.getBbWidth() * 0.45, target.getBbHeight() * 0.35,
+                18, target.getBbWidth() * 0.45, target.getBbHeight() * 0.35,
                 target.getBbWidth() * 0.45, 0.08);
     }
 }

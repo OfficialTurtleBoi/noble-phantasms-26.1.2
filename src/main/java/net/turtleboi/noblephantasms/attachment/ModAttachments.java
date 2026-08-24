@@ -84,6 +84,11 @@ public final class ModAttachments {
                     .sync(ByteBufCodecs.BOOL)
                     .build());
 
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<TecpatlDeploymentState>> TECPATL_DEPLOYMENT =
+            ATTACHMENTS.register("tecpatl_deployment", () -> AttachmentType.builder(() -> TecpatlDeploymentState.EMPTY)
+                    .serialize(TecpatlDeploymentState.CODEC)
+                    .build());
+
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<UUID>>> BLEED_SOURCE =
             ATTACHMENTS.register("bleed_source", () -> AttachmentType.builder(Optional::<UUID>empty)
                     .serialize(UUIDUtil.CODEC.optionalFieldOf("source"))

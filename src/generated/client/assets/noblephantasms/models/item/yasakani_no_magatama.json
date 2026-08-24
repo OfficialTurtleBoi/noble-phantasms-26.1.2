@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "noblephantasms:item/tyrfing_item"
+    "layer0": "noblephantasms:item/yasakani_no_magatama"
   }
 }

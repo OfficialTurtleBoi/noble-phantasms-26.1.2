@@ -18,6 +18,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.block.ModBlocks;
+import net.turtleboi.noblephantasms.client.renderer.TecpatlRebuildingRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadRenderer;
 import net.turtleboi.noblephantasms.component.ModDataComponents;
 import net.turtleboi.noblephantasms.item.ModItems;
@@ -44,6 +45,7 @@ public class ModModelProvider extends ModelProvider {
         itemModels.itemModelOutput.accept(ModItems.EAGLE_KNIGHT_TALONS.get(),
                 ItemModelUtils.plainModel(talonsModel));
         itemModels.generateFlatItem(ModItems.CARNWENNAN.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(ModItems.TYRFING.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(ModItems.UCHIDE_NO_KOZUCHI.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(ModItems.HEKA.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(ModItems.NEKHAKHA.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
@@ -59,6 +61,10 @@ public class ModModelProvider extends ModelProvider {
                 Identifier.withDefaultNamespace("item/gold_nugget"));
         itemModels.generateFlatItem(ModItems.HOLY_GRAIL.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.SMOKING_MIRROR.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.YASAKANI_NO_MAGATAMA.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.YATA_NO_KAGAMI.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.APILOLLI.get(), ModelTemplates.FLAT_ITEM);
+        generateTecpatlItem(itemModels);
         generateKazagurumaItem(itemModels, ModItems.KAZAGURUMA.get());
         generateRaikoItem(itemModels);
         var skullModel = BlockModelGenerators.plainVariant(
@@ -80,13 +86,14 @@ public class ModModelProvider extends ModelProvider {
         generateBigItem(itemModels, ModItems.BERTILAK.get(), BigItemType.AXE);
         generateBigItem(itemModels, ModItems.EXCALIBUR.get(), BigItemType.SWORD);
         generateBigItem(itemModels, ModItems.GRAM.get(), BigItemType.SWORD);
-        generateBigItem(itemModels, ModItems.TYRFING.get(), BigItemType.SWORD);
-        generateBigItem(itemModels, ModItems.GUNGNIR.get(), BigItemType.SPEAR);
+        generateBigItem(itemModels, ModItems.GUNGNIR.get(), BigItemType.THROWING_SPEAR);
         generateBigItem(itemModels, ModItems.WEBEN.get(), BigItemType.SWORD);
         generateBigItem(itemModels, ModItems.KUSANAGI_NO_TSURUGI.get(), BigItemType.SWORD);
         generateBigItem(itemModels, ModItems.RHONGOMYNIAD.get(), BigItemType.LANCE);
         generateBigItem(itemModels, ModItems.YAMAWARI.get(), BigItemType.AXE);
         generateBigItem(itemModels, ModItems.MACUAHUITL.get(), BigItemType.SWORD);
+        generateBigItem(itemModels, ModItems.IWATOSHI.get(), BigItemType.SPEAR);
+        generateBigItem(itemModels, ModItems.XIUHCOATL.get(), BigItemType.STAFF);
     }
 
     private static void generateHornItem(ItemModelGenerators itemModels, Item item) {
@@ -136,6 +143,16 @@ public class ModModelProvider extends ModelProvider {
                         ItemDisplayContext.FIRST_PERSON_LEFT_HAND), ItemModelUtils.plainModel(drumModel))));
     }
 
+    private static void generateTecpatlItem(ItemModelGenerators itemModels) {
+        Item item = ModItems.TECPATL_OF_THE_FIFTH_SUN.get();
+        Identifier model = ModelTemplates.FLAT_HANDHELD_ITEM.create(
+                ModelLocationUtils.getModelLocation(item), TextureMapping.layer0(item), itemModels.modelOutput);
+        itemModels.itemModelOutput.accept(item, ItemModelUtils.conditional(
+                ItemModelUtils.hasComponent(ModDataComponents.TECPATL_DEPLOYMENT.get()),
+                ItemModelUtils.specialModel(model, new TecpatlRebuildingRenderer.Unbaked()),
+                ItemModelUtils.plainModel(model)));
+    }
+
     private static void generateTrophyHeadItem(ItemModelGenerators itemModels) {
         Identifier baseModel = Identifier.withDefaultNamespace("item/template_skull");
         itemModels.itemModelOutput.accept(ModItems.TROPHY_HEAD.get(), ItemModelUtils.specialModel(
@@ -146,7 +163,9 @@ public class ModModelProvider extends ModelProvider {
         AXE,
         SWORD,
         SPEAR,
-        LANCE
+        THROWING_SPEAR,
+        LANCE,
+        STAFF
     }
 
     public static void generateBigItem(ItemModelGenerators itemModels, Item item, BigItemType type) {
@@ -163,8 +182,9 @@ public class ModModelProvider extends ModelProvider {
         ModelTemplate template = switch (type) {
             case AXE -> BIG_HANDHELD_AXE;
             case SWORD -> BIG_HANDHELD_SWORD;
-            case SPEAR -> BIG_HANDHELD_SPEAR;
+            case SPEAR, THROWING_SPEAR -> BIG_HANDHELD_SPEAR;
             case LANCE -> BIG_HANDHELD_LANCE;
+            case STAFF -> BIG_HANDHELD_STAFF;
         };
 
         Identifier standardModel = ModelTemplates.FLAT_ITEM.create(
@@ -178,7 +198,7 @@ public class ModModelProvider extends ModelProvider {
         var standardItemModel = ItemModelUtils.plainModel(standardModel);
         var heldItemModel = ItemModelUtils.plainModel(heldModel);
 
-        if (type == BigItemType.SPEAR) {
+        if (type == BigItemType.THROWING_SPEAR) {
             Identifier throwingModel = BIG_HANDHELD_SPEAR_THROWING.create(
                     ModelLocationUtils.getModelLocation(item, "_weapon_throwing"),
                     TextureMapping.layer0(new Material(Identifier.fromNamespaceAndPath(
@@ -292,6 +312,25 @@ public class ModModelProvider extends ModelProvider {
             .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND, transform -> transform
                     .rotation(0.0F, -90.0F, -45.0F)
                     .translation(1.26F, 7.5F, 1.13F)
+                    .scale(1.36F, 1.36F, 0.68F))
+            .build();
+
+    private static final ModelTemplate BIG_HANDHELD_STAFF = ModelTemplates.FLAT_HANDHELD_ITEM.extend()
+            .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, transform -> transform
+                    .rotation(0.0F, -90.0F, 45.0F)
+                    .translation(0.0F, 0.0F, 1.5F)
+                    .scale(1.7F, 1.7F, 0.85F))
+            .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND, transform -> transform
+                    .rotation(0.0F, -90.0F, -45.0F)
+                    .translation(0.0F, 0.0F, 1.5F)
+                    .scale(1.7F, 1.7F, 0.85F))
+            .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, transform -> transform
+                    .rotation(0.0F, -90.0F, 35.0F)
+                    .translation(1.26F, 0.0F, 1.13F)
+                    .scale(1.36F, 1.36F, 0.68F))
+            .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND, transform -> transform
+                    .rotation(0.0F, -90.0F, -45.0F)
+                    .translation(1.26F, 0.0F, 1.13F)
                     .scale(1.36F, 1.36F, 0.68F))
             .build();
 

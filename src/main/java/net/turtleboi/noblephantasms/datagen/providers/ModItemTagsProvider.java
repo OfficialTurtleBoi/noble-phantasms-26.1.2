@@ -34,12 +34,16 @@ public class ModItemTagsProvider extends IntrinsicHolderTagsProvider<Item> {
                 .add(ModItems.HEKA.get())
                 .add(ModItems.NEKHAKHA.get())
                 .add(ModItems.MACUAHUITL.get());
+        tag(ItemTags.SWORDS)
+                .add(ModItems.TECPATL_OF_THE_FIFTH_SUN.get());
         tag(ItemTags.AXES)
                 .add(ModItems.BERTILAK.get())
                 .add(ModItems.UCHIDE_NO_KOZUCHI.get())
                 .add(ModItems.YAMAWARI.get());
         tag(ItemTags.SPEARS)
-                .add(ModItems.RHONGOMYNIAD.get());
+                .add(ModItems.RHONGOMYNIAD.get())
+                .add(ModItems.GUNGNIR.get())
+                .add(ModItems.IWATOSHI.get());
         tag(ItemTags.SKULLS)
                 .add(ModItems.TROPHY_HEAD.get());
         tag(ItemTags.NOTE_BLOCK_TOP_INSTRUMENTS)
@@ -54,9 +58,13 @@ public class ModItemTagsProvider extends IntrinsicHolderTagsProvider<Item> {
                 .add(ModItems.EAGLE_KNIGHT_TALONS.get());
         tag(ItemTags.VANISHING_ENCHANTABLE)
                 .add(ModItems.EAGLE_KNIGHT_TALONS.get());
-        tag(ItemTags.DURABILITY_ENCHANTABLE).add(ModItems.GUNGNIR.get());
+        tag(ItemTags.DURABILITY_ENCHANTABLE)
+                .add(ModItems.GUNGNIR.get())
+                .add(ModItems.IWATOSHI.get());
         tag(ItemTags.DURABILITY_ENCHANTABLE).add(ModItems.EAGLE_KNIGHT_TALONS.get());
-        tag(ItemTags.MELEE_WEAPON_ENCHANTABLE).add(ModItems.GUNGNIR.get());
+        tag(ItemTags.MELEE_WEAPON_ENCHANTABLE)
+                .add(ModItems.GUNGNIR.get())
+                .add(ModItems.IWATOSHI.get());
         tag(LOYALTY_ENCHANTABLE)
                 .addOptionalTag(ItemTags.TRIDENT_ENCHANTABLE)
                 .add(ModItems.GUNGNIR.get());
@@ -67,7 +75,8 @@ public class ModItemTagsProvider extends IntrinsicHolderTagsProvider<Item> {
                 .add(ModItems.ANDVARANAUT.get())
                 .add(ModItems.DRAUPNIR.get());
         tag(ModTags.Items.CURIOS_NECKLACE)
-                .add(ModItems.EYE_OF_HORUS.get());
+                .add(ModItems.EYE_OF_HORUS.get())
+                .add(ModItems.YASAKANI_NO_MAGATAMA.get());
         tag(ModTags.Items.CURIOS_BELT)
                 .add(ModItems.MEGINGJORD.get())
                 .add(ModItems.SCABBARD.get());

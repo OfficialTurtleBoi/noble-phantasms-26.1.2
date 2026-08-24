@@ -21,6 +21,34 @@ public class ModDataComponents {
                     .persistent(UUIDUtil.CODEC)
                     .networkSynchronized(UUIDUtil.STREAM_CODEC));
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> TECPATL_DEPLOYMENT =
+            DATA_COMPONENTS.registerComponentType("tecpatl_deployment", builder -> builder
+                    .persistent(UUIDUtil.CODEC)
+                    .networkSynchronized(UUIDUtil.STREAM_CODEC));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TECPATL_RETURNED_SHARDS =
+            DATA_COMPONENTS.registerComponentType("tecpatl_returned_shards", builder -> builder
+                    .persistent(Codec.INT)
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.VAR_INT));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TECPATL_LAUNCHED_SHARDS =
+            DATA_COMPONENTS.registerComponentType("tecpatl_launched_shards", builder -> builder
+                    .persistent(Codec.INT)
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.VAR_INT));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> APILOLLI_FILLED =
+            DATA_COMPONENTS.registerComponentType("apilolli_filled", builder -> builder
+                    .persistent(Codec.BOOL)
+                    .networkSynchronized(ByteBufCodecs.BOOL));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> KHEPER_SCARAB_ACTIVE =
+            DATA_COMPONENTS.registerComponentType("kheper_scarab_active", builder -> builder
+                    .persistent(Codec.BOOL)
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.BOOL));
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> WEBEN_SUNLIGHT_CHARGE =
             DATA_COMPONENTS.registerComponentType("weben_sunlight_charge", builder -> builder
                     .persistent(Codec.INT)

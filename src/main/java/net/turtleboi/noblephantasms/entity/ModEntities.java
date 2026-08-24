@@ -6,10 +6,14 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
-import net.turtleboi.noblephantasms.entity.custom.GungnirProjectile;
+import net.turtleboi.noblephantasms.entity.custom.ApilolliCloudEntity;
 import net.turtleboi.noblephantasms.entity.custom.EyeShardEntity;
+import net.turtleboi.noblephantasms.entity.custom.GungnirProjectile;
 import net.turtleboi.noblephantasms.entity.custom.KazagurumaProjectile;
+import net.turtleboi.noblephantasms.entity.custom.TecpatlShardEntity;
 import net.turtleboi.noblephantasms.entity.custom.WindCutterProjectile;
+import net.turtleboi.noblephantasms.entity.custom.XiuhcoatlProjectile;
+import net.turtleboi.noblephantasms.entity.custom.YasakaniGuardianEntity;
 
 public class ModEntities {
     public static final DeferredRegister.Entities ENTITY_TYPES =
@@ -34,6 +38,28 @@ public class ModEntities {
             ENTITY_TYPES.registerEntityType("eye_shard", EyeShardEntity::new, MobCategory.MISC,
                     builder -> builder.noLootTable().sized(0.25F, 0.25F)
                             .clientTrackingRange(8).updateInterval(10));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<ApilolliCloudEntity>> APILOLLI_CLOUD =
+            ENTITY_TYPES.registerEntityType("apilolli_cloud", ApilolliCloudEntity::new, MobCategory.MISC,
+                    builder -> builder.noLootTable().sized(4.0F, 1.0F)
+                            .clientTrackingRange(10).updateInterval(10));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<XiuhcoatlProjectile>> XIUHCOATL =
+            ENTITY_TYPES.registerEntityType("xiuhcoatl", XiuhcoatlProjectile::new, MobCategory.MISC,
+                    builder -> builder.noLootTable().sized(
+                                    XiuhcoatlProjectile.HEAD_HITBOX_WIDTH,
+                                    XiuhcoatlProjectile.HEAD_HITBOX_HEIGHT)
+                            .clientTrackingRange(8).updateInterval(1));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<TecpatlShardEntity>> TECPATL_SHARD =
+            ENTITY_TYPES.registerEntityType("tecpatl_shard", TecpatlShardEntity::new, MobCategory.MISC,
+                    builder -> builder.noLootTable().sized(0.3F, 0.3F)
+                            .clientTrackingRange(10).updateInterval(1));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<YasakaniGuardianEntity>> YASAKANI_GUARDIAN =
+            ENTITY_TYPES.registerEntityType("yasakani_guardian", YasakaniGuardianEntity::new, MobCategory.MISC,
+                    builder -> builder.noLootTable().fireImmune().sized(0.55F, 0.85F)
+                            .clientTrackingRange(10).updateInterval(2));
 
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);

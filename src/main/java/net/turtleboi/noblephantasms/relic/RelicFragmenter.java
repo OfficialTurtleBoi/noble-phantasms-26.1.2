@@ -30,17 +30,23 @@ public final class RelicFragmenter {
 
     public static Layout create(Identifier relicId, long seed) {
         RelicFragmentDefinitions.Definition definition = RelicFragmentDefinitions.get(relicId);
-        return definition == null ? null : create(definition, definition.textureId(), seed);
+        return definition == null ? null : create(definition, definition.textureId(), seed, 0);
+    }
+
+    public static Layout createExact(Identifier relicId, long seed, int pieceCount) {
+        RelicFragmentDefinitions.Definition definition = RelicFragmentDefinitions.get(relicId);
+        return definition == null ? null
+                : create(definition, definition.textureId(), seed, Math.max(1, pieceCount));
     }
 
     public static Layout createForStation(Identifier relicId, long seed) {
         RelicFragmentDefinitions.Definition definition = RelicFragmentDefinitions.get(relicId);
-        return definition == null ? null : create(definition, definition.stationTextureId(), seed);
+        return definition == null ? null : create(definition, definition.stationTextureId(), seed, 0);
     }
 
     private static Layout create(RelicFragmentDefinitions.Definition definition,
-                                 Identifier textureId, long seed) {
-        Key key = new Key(textureId.toString(), definition.textureFrameHeight(), seed);
+                                 Identifier textureId, long seed, int exactPieceCount) {
+        Key key = new Key(textureId.toString(), definition.textureFrameHeight(), seed, exactPieceCount);
         synchronized (CACHE) {
             Layout cached = CACHE.get(key);
             if (cached != null) {
@@ -51,10 +57,13 @@ public final class RelicFragmenter {
         ImagePixels image = load(textureId, definition.textureFrameHeight());
         int minimumPieces = Math.clamp(definition.minimumPieces(),
                 image.components().size(), image.opaquePixels().size());
-        int requestedPieces = Math.clamp(image.opaquePixels().size() / MINIMUM_PIXELS_PER_PIECE,
-                minimumPieces, Math.max(minimumPieces, definition.maximumPieces()));
+        int requestedPieces = exactPieceCount > 0
+                ? Math.clamp(exactPieceCount, image.components().size(), image.opaquePixels().size())
+                : Math.clamp(image.opaquePixels().size() / MINIMUM_PIXELS_PER_PIECE,
+                        minimumPieces, Math.max(minimumPieces, definition.maximumPieces()));
+        int lastPieceCount = exactPieceCount > 0 ? requestedPieces : minimumPieces;
         Layout result = null;
-        for (int count = requestedPieces; count >= minimumPieces && result == null; count--) {
+        for (int count = requestedPieces; count >= lastPieceCount && result == null; count--) {
             for (int attempt = 0; attempt < MAXIMUM_ATTEMPTS; attempt++) {
                 long attemptSeed = mix(seed + count * 341873128712L + attempt * 132897987541L);
                 Layout candidate = partition(image, count, new Random(attemptSeed));
@@ -65,7 +74,7 @@ public final class RelicFragmenter {
             }
         }
         if (result == null) {
-            result = partition(image, minimumPieces, new Random(seed));
+            result = partition(image, lastPieceCount, new Random(seed));
         }
 
         synchronized (CACHE) {
@@ -429,7 +438,7 @@ public final class RelicFragmenter {
                                List<List<Integer>> components, Map<Integer, Integer> colors) {
     }
 
-    private record Key(String relic, int frameHeight, long seed) {
+    private record Key(String relic, int frameHeight, long seed, int exactPieceCount) {
     }
 
     private record BoundaryEdge(int x0, int y0, int x1, int y1) {

@@ -16,6 +16,8 @@ public class ModParticles {
             PARTICLE_TYPES.register("gungnir_rune", GungnirRuneType::new);
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> COVENANT_LEAF =
             PARTICLE_TYPES.register("covenant_leaf", CovenantLeafType::new);
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> FIRE_FANGS =
+            PARTICLE_TYPES.register("fire_fangs", FireFangsType::new);
 
     public static void register(IEventBus eventBus) {
         PARTICLE_TYPES.register(eventBus);
@@ -29,6 +31,12 @@ public class ModParticles {
 
     private static final class CovenantLeafType extends SimpleParticleType {
         private CovenantLeafType() {
+            super(false);
+        }
+    }
+
+    private static final class FireFangsType extends SimpleParticleType {
+        private FireFangsType() {
             super(false);
         }
     }

@@ -1,0 +1,18 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "component": "noblephantasms:tecpatl_deployment",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "noblephantasms:item/tecpatl_of_the_fifth_sun"
+    },
+    "on_true": {
+      "type": "minecraft:special",
+      "base": "noblephantasms:item/tecpatl_of_the_fifth_sun",
+      "model": {
+        "type": "noblephantasms:tecpatl_rebuilding"
+      }
+    },
+    "property": "minecraft:has_component"
+  }
+}

@@ -2,7 +2,7 @@ package net.turtleboi.noblephantasms.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.resources.model.cuboid.ItemTransform;
-import net.turtleboi.noblephantasms.client.ItemPoseEditor;
+import net.turtleboi.noblephantasms.client.animation.ItemPoseEditor;
 import net.turtleboi.noblephantasms.client.RhongomyniadSpinState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,8 +14,7 @@ public class ItemTransformMixin {
     @Inject(method = "apply", at = @At("HEAD"), cancellable = true)
     private void applyEditedItemPose(boolean applyLeftHandFix, PoseStack.Pose pose, CallbackInfo callbackInfo) {
         ItemTransform transform = (ItemTransform) (Object) this;
-        if (ItemPoseEditor.applyModelTransform(transform, applyLeftHandFix, pose)
-                || RhongomyniadSpinState.applyModelTransform(transform, applyLeftHandFix, pose)) {
+        if (ItemPoseEditor.applyModelTransform(transform, applyLeftHandFix, pose)) {
             callbackInfo.cancel();
         }
     }

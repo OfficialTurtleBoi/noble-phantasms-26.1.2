@@ -56,6 +56,12 @@ public class ModLanguageProvider extends LanguageProvider {
         addSimpleItem(ModItems.HOLY_GRAIL, "The Holy Grail");
         addSimpleItem(ModItems.SMOKING_MIRROR, "The Smoking Mirror");
         addSimpleItem(ModItems.RAIKO);
+        addSimpleItem(ModItems.YASAKANI_NO_MAGATAMA, "Yasakani no Magatama");
+        addSimpleItem(ModItems.YATA_NO_KAGAMI, "Yata no Kagami");
+        addSimpleItem(ModItems.IWATOSHI, "Iwatōshi");
+        addSimpleItem(ModItems.APILOLLI);
+        addSimpleItem(ModItems.XIUHCOATL);
+        addSimpleItem(ModItems.TECPATL_OF_THE_FIFTH_SUN, "Técpatl of the Fifth Sun");
         addSimpleItem(ModItems.RELIC_FRAGMENT, "Relic Fragment");
         add("item.noblephantasms.relic_fragment.named", "%s Fragment");
         add("menu.noblephantasms.reliquary_station", "Reliquary Station");
@@ -130,6 +136,18 @@ public class ModLanguageProvider extends LanguageProvider {
                 "The child hero Kintaro was famed for superhuman strength and traditionally shown carrying a broad masakari axe.");
         add("tooltip.noblephantasms.raiko.flavor",
                 "Raijin is encircled by drums whose thunder calls lightning down with every beat.");
+        add("tooltip.noblephantasms.yasakani_no_magatama.flavor",
+                "Susanoo crushed Amaterasu's jewel-string in his teeth and breathed five deities from its beads.");
+        add("tooltip.noblephantasms.yata_no_kagami.flavor",
+                "The sacred mirror drew Amaterasu from her cave by returning the sun goddess's own brilliance to her.");
+        add("tooltip.noblephantasms.iwatoshi.flavor",
+                "Benkei held the Stone-Cutter at the bridge where he died upright, and his enemies feared to approach him.");
+        add("tooltip.noblephantasms.apilolli.flavor",
+                "The Tlaloque carried rain in jars; thunder was the sound of their vessels breaking open above the earth.");
+        add("tooltip.noblephantasms.xiuhcoatl.flavor",
+                "Huitzilopochtli wielded the turquoise fire serpent at his birth upon Coatepec.");
+        add("tooltip.noblephantasms.tecpatl_of_the_fifth_sun.flavor",
+                "A celestial flint knife fell from heaven and shattered, birthing the countless Mimixcoa from its pieces.");
         add("jei.noblephantasms.info.ankh",
                 "Equip in a Curios charm or compatible totem slot. Fatal damage restores full health, "
                         + "releases a damaging and blinding radiant burst, and grants 15 seconds of invulnerability. "
@@ -141,8 +159,9 @@ public class ModLanguageProvider extends LanguageProvider {
                         + "Shards. Up to six pieces grant 5% damage and reduce gaze time by 0.25 seconds each. "
                         + "At six pieces, the next fully charged Judgement marks nearby enemies in a radiant burst.");
         add("jei.noblephantasms.info.kheper_scarab",
-                "Equip in a Curios charm slot. Repairs each damaged item in your hands and armor slots by "
-                        + "1 durability every 2 seconds.");
+                "Right-click while held to toggle the scarab. While active in a Curios charm slot, it repairs "
+                        + "each damaged item in your hands and armor slots by 1 durability every 2 seconds, "
+                        + "consuming 1 experience point per durability restored.");
         add("jei.noblephantasms.info.scales_of_maat",
                 "Right-click a living target to set your health percentage and theirs to their average. "
                         + "Bosses can lose at most 10% of their maximum health per use. 30 second cooldown.");
@@ -196,6 +215,18 @@ public class ModLanguageProvider extends LanguageProvider {
         add("jei.noblephantasms.info.tyrfing",
                 "Drawing the sword grants tremendous attack damage and speed, but it cannot leave your hand until you kill a living target. "
                         + "After a kill, you have 4 seconds to put it away before the curse binds it again.");
+        add("jei.noblephantasms.info.yasakani_no_magatama",
+                "Equip as a Curios necklace. Damage can birth one of five 30-second guardians. Each fights with your attack damage, grants +1 armor toughness and 4% damage reduction, and has a distinct role.");
+        add("jei.noblephantasms.info.yata_no_kagami",
+                "Raise the mirror as a shield. Projectiles it blocks reverse course at twice their incoming speed and belong to you after reflection.");
+        add("jei.noblephantasms.info.iwatoshi",
+                "Hold use to charge an expanding sweep, gaining a tier every second. Release early for a growing frontal cleave. At four seconds, Iwatōshi automatically unleashes a 360-degree cleave that knocks surrounding enemies outward.");
+        add("jei.noblephantasms.info.apilolli",
+                "Release a rain cloud that follows for 90 seconds, accelerates crops, extinguishes fire, solidifies lava, grants fishing Luck, speeds up bites, grants conduit power, and enables Riptide. Refill the empty jar at source water.");
+        add("jei.noblephantasms.info.xiuhcoatl",
+                "Fire a serpent that seeks hostile creatures, deals fire damage, and ignites its target. 8 second cooldown.");
+        add("jei.noblephantasms.info.tecpatl_of_the_fifth_sun",
+                "Hold right-click to fire the knife's ten shards in sequence, or Shift-right-click to release every attached shard in a shotgun blast. Once firing ends, the shards return in reverse order and visibly rebuild the knife in your hand.");
 
         add("creativetab.noblephantasms.title", "Noble Phantasms");
         add("creativetab.noblephantasms.trophy_heads", "Trophy Heads");

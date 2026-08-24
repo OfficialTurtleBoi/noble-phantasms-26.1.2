@@ -4,8 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.turtleboi.noblephantasms.client.ItemPoseEditor;
-import net.turtleboi.noblephantasms.client.RhongomyniadSpinState;
+import net.turtleboi.noblephantasms.client.animation.ItemPoseEditor;
 import net.turtleboi.noblephantasms.client.renderer.ColoredGlintRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,7 +23,6 @@ public class ItemStackRenderStateMixin {
                                                          int lightCoords, int overlayCoords, int outlineColor,
                                                          CallbackInfo callbackInfo) {
         ItemPoseEditor.beginModelTransform((ItemStackRenderState) (Object) this, displayContext);
-        RhongomyniadSpinState.beginModelTransform(displayContext);
         ColoredGlintRenderer.beginSubmit((ItemStackRenderState) (Object) this);
     }
 
@@ -33,8 +31,9 @@ public class ItemStackRenderStateMixin {
                                                        SubmitNodeCollector submitNodeCollector,
                                                        int lightCoords, int overlayCoords, int outlineColor,
                                                        CallbackInfo callbackInfo) {
+        ItemPoseEditor.submitDebugGeometry(
+                (ItemStackRenderState) (Object) this, poseStack, submitNodeCollector);
         ItemPoseEditor.endModelTransform();
-        RhongomyniadSpinState.endModelTransform();
         ColoredGlintRenderer.endSubmit();
     }
 }

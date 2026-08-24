@@ -64,5 +64,17 @@ public final class NoblePhantasmsJeiPlugin implements IModPlugin {
                 Component.translatable("jei.noblephantasms.info.raiko"));
         registration.addIngredientInfo(ModItems.TYRFING.get(),
                 Component.translatable("jei.noblephantasms.info.tyrfing"));
+        registration.addIngredientInfo(ModItems.YASAKANI_NO_MAGATAMA.get(),
+                Component.translatable("jei.noblephantasms.info.yasakani_no_magatama"));
+        registration.addIngredientInfo(ModItems.YATA_NO_KAGAMI.get(),
+                Component.translatable("jei.noblephantasms.info.yata_no_kagami"));
+        registration.addIngredientInfo(ModItems.IWATOSHI.get(),
+                Component.translatable("jei.noblephantasms.info.iwatoshi"));
+        registration.addIngredientInfo(ModItems.APILOLLI.get(),
+                Component.translatable("jei.noblephantasms.info.apilolli"));
+        registration.addIngredientInfo(ModItems.XIUHCOATL.get(),
+                Component.translatable("jei.noblephantasms.info.xiuhcoatl"));
+        registration.addIngredientInfo(ModItems.TECPATL_OF_THE_FIFTH_SUN.get(),
+                Component.translatable("jei.noblephantasms.info.tecpatl_of_the_fifth_sun"));
     }
 }
