@@ -53,6 +53,8 @@ public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
             SynchedEntityData.defineId(GungnirProjectile.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> ID_CHARGED_THROW =
             SynchedEntityData.defineId(GungnirProjectile.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> ID_CHARGED_TICKS =
+            SynchedEntityData.defineId(GungnirProjectile.class, EntityDataSerializers.INT);
     private static final Identifier ARMOR_BYPASS_ID =
             Identifier.parse(NoblePhantasms.MOD_ID + ":gungnir_armor_bypass");
     private static final double HOMING_TURN_RATE = 0.35;
@@ -89,6 +91,7 @@ public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
         entityData.define(ID_FOIL, false);
         entityData.define(ID_HOMING_TARGET, -1);
         entityData.define(ID_CHARGED_THROW, false);
+        entityData.define(ID_CHARGED_TICKS, 0);
     }
 
     @Override
@@ -173,12 +176,17 @@ public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
         entityData.set(ID_HOMING_TARGET, target.getId());
     }
 
-    public void setChargedThrow(boolean chargedThrow) {
-        entityData.set(ID_CHARGED_THROW, chargedThrow);
+    public void setChargedThrow(int chargedTicks) {
+        entityData.set(ID_CHARGED_THROW, true);
+        entityData.set(ID_CHARGED_TICKS, Math.max(0, chargedTicks));
     }
 
-    private boolean isChargedThrow() {
+    public boolean isChargedThrow() {
         return entityData.get(ID_CHARGED_THROW);
+    }
+
+    public int getChargedTicks() {
+        return entityData.get(ID_CHARGED_TICKS);
     }
 
     private boolean isAcceptableReturnOwner() {
@@ -366,6 +374,7 @@ public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
         super.readAdditionalSaveData(input);
         dealtDamage = input.getBooleanOr("DealtDamage", false);
         entityData.set(ID_CHARGED_THROW, input.getBooleanOr("ChargedThrow", false));
+        entityData.set(ID_CHARGED_TICKS, input.getIntOr("ChargedTicks", 0));
         entityData.set(ID_LOYALTY, getLoyaltyFromItem(getPickupItemStackOrigin()));
         entityData.set(ID_FOIL, getPickupItemStackOrigin().hasFoil());
     }
@@ -375,6 +384,7 @@ public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
         super.addAdditionalSaveData(output);
         output.putBoolean("DealtDamage", dealtDamage);
         output.putBoolean("ChargedThrow", isChargedThrow());
+        output.putInt("ChargedTicks", getChargedTicks());
     }
 
     private byte getLoyaltyFromItem(ItemStack gungnirItem) {

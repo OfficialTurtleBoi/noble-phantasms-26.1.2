@@ -11,7 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.turtleboi.noblephantasms.NoblePhantasms;
-import net.turtleboi.noblephantasms.client.model.XiuhcoatlModel;
+import net.turtleboi.noblephantasms.entity.model.XiuhcoatlModel;
 import net.turtleboi.noblephantasms.entity.ModEntities;
 import net.turtleboi.noblephantasms.entity.custom.XiuhcoatlProjectile;
 import net.turtleboi.noblephantasms.entity.renderer.states.XiuhcoatlProjectileRenderState;

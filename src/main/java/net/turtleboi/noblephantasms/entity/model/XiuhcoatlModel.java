@@ -1,4 +1,4 @@
-package net.turtleboi.noblephantasms.client.model;
+package net.turtleboi.noblephantasms.entity.model;
 
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;

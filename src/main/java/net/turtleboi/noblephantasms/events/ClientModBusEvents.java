@@ -19,9 +19,10 @@ import net.turtleboi.noblephantasms.client.GungnirExtensions;
 import net.turtleboi.noblephantasms.client.HulioshjalmrExtensions;
 import net.turtleboi.noblephantasms.client.model.EagleKnightTalonsModel;
 import net.turtleboi.noblephantasms.client.model.HulioshjalmrModel;
-import net.turtleboi.noblephantasms.client.model.XiuhcoatlModel;
+import net.turtleboi.noblephantasms.entity.model.XiuhcoatlModel;
 import net.turtleboi.noblephantasms.client.renderer.ClydnoHalterLayer;
 import net.turtleboi.noblephantasms.client.renderer.LuminousRenderer;
+import net.turtleboi.noblephantasms.client.renderer.ItemOutlineRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TecpatlRebuildingRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadBlockEntityRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadRenderer;
@@ -49,6 +50,7 @@ public final class ClientModBusEvents {
     @SubscribeEvent
     static void registerRenderPipelines(RegisterRenderPipelinesEvent event) {
         LuminousRenderer.registerPipelines(event);
+        ItemOutlineRenderer.registerPipelines(event);
         CovenantLeafParticle.registerPipeline(event);
     }
 

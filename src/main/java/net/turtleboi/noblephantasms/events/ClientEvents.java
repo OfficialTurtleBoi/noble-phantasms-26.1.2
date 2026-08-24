@@ -22,6 +22,7 @@ import net.turtleboi.noblephantasms.client.EyeOfHorusClientState;
 import net.turtleboi.noblephantasms.client.KusanagiDashInput;
 import net.turtleboi.noblephantasms.client.renderer.ColoredGlintRenderer;
 import net.turtleboi.noblephantasms.client.renderer.LuminousRenderer;
+import net.turtleboi.noblephantasms.client.renderer.ItemOutlineRenderer;
 import net.turtleboi.noblephantasms.client.ui.EyeOfHorusHud;
 import net.turtleboi.noblephantasms.client.animation.ItemPoseEditor;
 import net.turtleboi.noblephantasms.item.ModItems;
@@ -48,6 +49,7 @@ public class ClientEvents {
         ColoredGlintRenderer.register(ModItems.KHEPER_SCARAB.get(), 0xFFD700, KheperScarabItem::isActive);
         ColoredGlintRenderer.registerTransitioningFromEnchantment(ModItems.TYRFING.get(), 0xFF0905, stack -> TyrfingItem.getCurseGlintTint(stack, getClientGameTime()));
         ColoredGlintRenderer.initialize();
+        ItemOutlineRenderer.initialize();
     }
 
     private static double getClientGameTime() {
@@ -84,11 +86,18 @@ public class ClientEvents {
     @SubscribeEvent
     static void beginLuminousFrame(RenderLevelStageEvent.AfterOpaqueBlocks event) {
         LuminousRenderer.beginFrame();
+        ItemOutlineRenderer.beginFrame();
+    }
+
+    @SubscribeEvent
+    static void captureItemOutlineOcclusion(RenderLevelStageEvent.AfterOpaqueFeatures event) {
+        ItemOutlineRenderer.captureOcclusionDepth();
     }
 
     @SubscribeEvent
     static void renderLuminousOutlines(RenderLevelStageEvent.AfterLevel event) {
         LuminousRenderer.renderOutlines(event);
+        ItemOutlineRenderer.renderOutlines(event);
     }
 
     @SubscribeEvent

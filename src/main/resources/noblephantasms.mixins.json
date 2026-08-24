@@ -30,6 +30,7 @@
     "client.LivingEntityRendererMixin",
     "client.ModelPartAccessor",
     "client.PlayerModelMixin",
+    "client.ProjectionMatrixBufferMixin",
     "client.SheepWoolLayerMixin",
     "client.SheepWoolUndercoatLayerMixin",
     "client.LuminousLivingEntityRendererMixin",

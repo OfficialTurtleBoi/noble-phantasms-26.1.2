@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.turtleboi.noblephantasms.client.renderer.ColoredGlintRenderer;
+import net.turtleboi.noblephantasms.client.renderer.ItemOutlineRenderer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,6 +27,8 @@ public class SubmitNodeCollectionMixin {
                                            int overlayCoords, int outlineColor, int[] tintLayers,
                                            List<BakedQuad> quads, ItemStackRenderState.FoilType foilType,
                                            CallbackInfo callbackInfo) {
-        ColoredGlintRenderer.capture(itemSubmits.getLast());
+        SubmitNodeStorage.ItemSubmit submit = itemSubmits.getLast();
+        ColoredGlintRenderer.capture(submit);
+        ItemOutlineRenderer.capture(submit);
     }
 }

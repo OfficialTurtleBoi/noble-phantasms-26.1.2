@@ -263,7 +263,7 @@ public final class XiuhcoatlProjectile extends AbstractArrow implements ItemSupp
         if (rotationHistoryHead < 0) {
             return fallback;
         }
-        int recentIndex = Math.max(0, Math.min(delay, ROTATION_HISTORY_LENGTH - 2));
+        int recentIndex = Math.clamp(delay, 0, ROTATION_HISTORY_LENGTH - 2);
         float recent = history[Math.floorMod(rotationHistoryHead - recentIndex, ROTATION_HISTORY_LENGTH)];
         float previous = history[Math.floorMod(rotationHistoryHead - recentIndex - 1, ROTATION_HISTORY_LENGTH)];
         return Mth.rotLerp(partialTick, previous, recent);

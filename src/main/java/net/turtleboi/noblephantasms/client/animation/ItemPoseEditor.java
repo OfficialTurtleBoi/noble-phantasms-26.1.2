@@ -518,7 +518,7 @@ public final class ItemPoseEditor {
             }
         }
         if (stack.getItem() instanceof GungnirItem && pose.equals("throw")) {
-            return GungnirItem.THROW_THRESHOLD_TIME;
+            return GungnirItem.FULL_CHARGE_TICKS;
         }
         if (stack.getItem() instanceof IwatoshiItem && pose.equals("use")) {
             return IwatoshiItem.getMaxChargeTicks();

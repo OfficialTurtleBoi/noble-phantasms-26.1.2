@@ -30,6 +30,7 @@ import net.turtleboi.noblephantasms.entity.custom.GungnirProjectile;
 import net.turtleboi.noblephantasms.item.ModRarities;
 
 public class GungnirItem extends SpearRelicItem {
+    public static final int FULL_CHARGE_TICKS = 60;
     private static final double HOMING_RANGE = 32.0;
     private static final int TARGET_MEMORY_TICKS = 60;
     private static final WeakHashMap<Player, TargetMemory> TARGET_MEMORY = new WeakHashMap<>();
@@ -39,16 +40,25 @@ public class GungnirItem extends SpearRelicItem {
     }
 
     @Override
+    public void onUseTick(Level level, LivingEntity entity, ItemStack itemStack, int ticksRemaining) {
+        int timeHeld = getUseDuration(itemStack, entity) - ticksRemaining;
+        if (!level.isClientSide() && timeHeld == FULL_CHARGE_TICKS) {
+            level.playSound(null, entity.blockPosition(), SoundEvents.RESPAWN_ANCHOR_CHARGE,
+                    SoundSource.PLAYERS, 0.8F, 1.35F);
+            level.playSound(null, entity.blockPosition(), SoundEvents.AMETHYST_BLOCK_RESONATE,
+                    SoundSource.PLAYERS, 1.1F, 0.85F);
+            level.playSound(null, entity.blockPosition(), SoundEvents.TRIDENT_THUNDER.value(),
+                    SoundSource.PLAYERS, 0.35F, 1.45F);
+        }
+    }
+
+    @Override
     public boolean releaseUsing(ItemStack itemStack, Level level, LivingEntity entity, int remainingTime) {
         if (!(entity instanceof Player player)) {
             return false;
         }
 
         int timeHeld = getUseDuration(itemStack, entity) - remainingTime;
-        if (timeHeld < THROW_THRESHOLD_TIME) {
-            return false;
-        }
-
         if (itemStack.nextDamageWillBreak()) {
             return false;
         }
@@ -65,10 +75,12 @@ public class GungnirItem extends SpearRelicItem {
                 projectile.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
             }
 
-            projectile.setChargedThrow(true);
-            LivingEntity target = selectHomingTarget(serverLevel, player);
-            if (target != null) {
-                projectile.setHomingTarget(target);
+            if (timeHeld >= FULL_CHARGE_TICKS) {
+                projectile.setChargedThrow(timeHeld - FULL_CHARGE_TICKS);
+                LivingEntity target = selectHomingTarget(serverLevel, player);
+                if (target != null) {
+                    projectile.setHomingTarget(target);
+                }
             }
 
             level.playSound(null, projectile, sound.value(), SoundSource.PLAYERS, 1.0F, 1.0F);

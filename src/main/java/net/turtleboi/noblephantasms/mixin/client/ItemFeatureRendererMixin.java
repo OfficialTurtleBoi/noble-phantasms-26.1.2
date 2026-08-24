@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.turtleboi.noblephantasms.client.renderer.ColoredGlintRenderer;
+import net.turtleboi.noblephantasms.client.renderer.ItemOutlineRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,6 +21,7 @@ public class ItemFeatureRendererMixin {
     private void beginColoredGlint(MultiBufferSource.BufferSource bufferSource,
                                    OutlineBufferSource outlineBufferSource,
                                    SubmitNodeStorage.ItemSubmit submit, CallbackInfo callbackInfo) {
+        ItemOutlineRenderer.render(bufferSource, submit);
         ColoredGlintRenderer.beginRender(submit);
     }
 
@@ -31,7 +33,10 @@ public class ItemFeatureRendererMixin {
     }
 
     @Inject(
-            method = "getFoilBuffer(Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/rendertype/RenderType;Lcom/mojang/blaze3d/vertex/PoseStack$Pose;)Lcom/mojang/blaze3d/vertex/VertexConsumer;",
+            method = "getFoilBuffer(Lnet/minecraft/client/renderer/MultiBufferSource;"
+                    + "Lnet/minecraft/client/renderer/rendertype/RenderType;"
+                    + "Lcom/mojang/blaze3d/vertex/PoseStack$Pose;)"
+                    + "Lcom/mojang/blaze3d/vertex/VertexConsumer;",
             at = @At("HEAD"), cancellable = true)
     private static void replaceColoredGlintBuffer(MultiBufferSource bufferSource,
                                                   RenderType baseRenderType,
