@@ -30,13 +30,10 @@ void main() {
     float bestAlpha = 0.0;
     float bestDepth = 1.0;
     float bestDistance = float(MaxRadius + 1);
-    float maximumRadius = max(max(LayerRadii.x, LayerRadii.y), max(LayerRadii.z, LayerRadii.w));
+    int maximumRadius = min(MaxRadius, int(ceil(max(max(LayerRadii.x, LayerRadii.y), max(LayerRadii.z, LayerRadii.w)))));
 
-    for (int offset = -MaxRadius; offset <= MaxRadius; offset++) {
+    for (int offset = -maximumRadius; offset <= maximumRadius; offset++) {
         float distance = abs(float(offset));
-        if (distance > maximumRadius) {
-            continue;
-        }
         vec4 sampleValue = texture(InSampler, texCoord + vec2(float(offset) * oneTexel.x, 0.0));
         if (sampleValue.a > bestAlpha || sampleValue.a == bestAlpha && sampleValue.a > 0.0 && distance < bestDistance) {
             bestAlpha = sampleValue.a;

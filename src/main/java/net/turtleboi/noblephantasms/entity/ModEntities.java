@@ -11,7 +11,7 @@ import net.turtleboi.noblephantasms.entity.custom.EyeShardEntity;
 import net.turtleboi.noblephantasms.entity.custom.GungnirProjectile;
 import net.turtleboi.noblephantasms.entity.custom.KazagurumaProjectile;
 import net.turtleboi.noblephantasms.entity.custom.TecpatlShardEntity;
-import net.turtleboi.noblephantasms.entity.custom.WindCutterProjectile;
+import net.turtleboi.noblephantasms.entity.custom.WindslashProjectile;
 import net.turtleboi.noblephantasms.entity.custom.XiuhcoatlProjectile;
 import net.turtleboi.noblephantasms.entity.custom.YasakaniGuardianEntity;
 
@@ -24,9 +24,10 @@ public class ModEntities {
                     builder -> builder.noLootTable().sized(0.5F, 0.5F)
                             .clientTrackingRange(4).updateInterval(20));
 
-    public static final DeferredHolder<EntityType<?>, EntityType<WindCutterProjectile>> WIND_CUTTER =
-            ENTITY_TYPES.registerEntityType("wind_cutter", WindCutterProjectile::new, MobCategory.MISC,
-                    builder -> builder.noLootTable().sized(0.625F, 2.0F)
+    public static final DeferredHolder<EntityType<?>, EntityType<WindslashProjectile>> WINDSLASH =
+            ENTITY_TYPES.registerEntityType("windslash", WindslashProjectile::new, MobCategory.MISC,
+                    builder -> builder.noLootTable()
+                            .sized(WindslashProjectile.INITIAL_COLLISION_WIDTH, WindslashProjectile.INITIAL_COLLISION_HEIGHT)
                             .clientTrackingRange(8).updateInterval(1));
 
     public static final DeferredHolder<EntityType<?>, EntityType<KazagurumaProjectile>> KAZAGURUMA =

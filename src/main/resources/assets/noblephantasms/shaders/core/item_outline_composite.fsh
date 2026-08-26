@@ -24,23 +24,24 @@ float unpackDepth(vec3 encodedDepth) {
 
 void main() {
     float centerAlpha = texture(MaskSampler, texCoord).a;
-    if (centerAlpha > 0.01) {
+    if (centerAlpha > 0.0) {
         discard;
     }
 
     vec2 oneTexel = 1.0 / vec2(textureSize(DilatedSampler, 0));
     vec4 layerAlpha = vec4(0.0);
-    float sceneDepth = texture(SceneDepthSampler, texCoord).r;
-    float maximumRadius = max(max(LayerRadii.x, LayerRadii.y), max(LayerRadii.z, LayerRadii.w));
+    bool visibleThroughObjects = OutlineOptions.x > 0.5;
+    float sceneDepth = visibleThroughObjects ? 1.0 : texture(SceneDepthSampler, texCoord).r;
+    int maximumRadius = min(MaxRadius, int(ceil(max(max(LayerRadii.x, LayerRadii.y), max(LayerRadii.z, LayerRadii.w)))));
 
-    for (int offset = -MaxRadius; offset <= MaxRadius; offset++) {
+    for (int offset = -maximumRadius; offset <= maximumRadius; offset++) {
         float distance = abs(float(offset));
-        if (distance > maximumRadius) {
-            continue;
-        }
         vec4 sampleAlpha = texture(DilatedSampler, texCoord + vec2(0.0, float(offset) * oneTexel.y));
-        vec4 packedDepth = texture(DepthDilatedSampler, texCoord + vec2(0.0, float(offset) * oneTexel.y));
-        bool visible = OutlineOptions.x > 0.5 || unpackDepth(packedDepth.rgb) <= sceneDepth + 0.00001;
+        bool visible = visibleThroughObjects;
+        if (!visibleThroughObjects) {
+            vec4 packedDepth = texture(DepthDilatedSampler, texCoord + vec2(0.0, float(offset) * oneTexel.y));
+            visible = unpackDepth(packedDepth.rgb) <= sceneDepth + 0.00001;
+        }
         if (distance <= LayerRadii.x && visible) {
             layerAlpha.x = max(layerAlpha.x, sampleAlpha.x);
         }

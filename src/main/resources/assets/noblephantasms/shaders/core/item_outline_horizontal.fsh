@@ -18,13 +18,10 @@ const int MaxRadius = 48;
 void main() {
     vec2 oneTexel = 1.0 / vec2(textureSize(InSampler, 0));
     vec4 layerAlpha = vec4(0.0);
-    float maximumRadius = max(max(LayerRadii.x, LayerRadii.y), max(LayerRadii.z, LayerRadii.w));
+    int maximumRadius = min(MaxRadius, int(ceil(max(max(LayerRadii.x, LayerRadii.y), max(LayerRadii.z, LayerRadii.w)))));
 
-    for (int offset = -MaxRadius; offset <= MaxRadius; offset++) {
+    for (int offset = -maximumRadius; offset <= maximumRadius; offset++) {
         float distance = abs(float(offset));
-        if (distance > maximumRadius) {
-            continue;
-        }
         float sampleAlpha = texture(InSampler, texCoord + vec2(float(offset) * oneTexel.x, 0.0)).a;
         if (distance <= LayerRadii.x) {
             layerAlpha.x = max(layerAlpha.x, sampleAlpha);

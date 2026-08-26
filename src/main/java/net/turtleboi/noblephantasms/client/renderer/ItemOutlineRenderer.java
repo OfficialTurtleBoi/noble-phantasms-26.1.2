@@ -12,7 +12,6 @@ import com.mojang.blaze3d.systems.CommandEncoder;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import java.util.ArrayList;
@@ -33,7 +32,6 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.OutputTarget;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
@@ -57,7 +55,8 @@ import org.joml.Vector4f;
 import org.jspecify.annotations.Nullable;
 
 public final class ItemOutlineRenderer {
-    private static final Identifier MASK_VERTEX_SHADER = Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "core/luminous");
+    private static final Identifier MASK_VERTEX_SHADER = Identifier.fromNamespaceAndPath(
+            NoblePhantasms.MOD_ID, "core/item_outline_mask");
     private static final Identifier MASK_FRAGMENT_SHADER = Identifier.fromNamespaceAndPath(
             NoblePhantasms.MOD_ID, "core/item_outline_mask");
     private static final Identifier HORIZONTAL_SHADER = Identifier.fromNamespaceAndPath(
@@ -67,6 +66,7 @@ public final class ItemOutlineRenderer {
     private static final Identifier COMPOSITE_SHADER = Identifier.fromNamespaceAndPath(
             NoblePhantasms.MOD_ID, "core/item_outline_composite");
     private static final int MAX_RADIUS = 48;
+    private static final int MASK_UV_SCALE = 65535;
     private static final int CONFIG_UBO_SIZE = new Std140SizeCalculator()
             .putVec4()
             .putVec4()
@@ -87,7 +87,8 @@ public final class ItemOutlineRenderer {
             .withVertexShader(MASK_VERTEX_SHADER)
             .withFragmentShader(MASK_FRAGMENT_SHADER)
             .withSampler("Sampler0")
-            .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false, 0.0F, 0.0F))
+            .withSampler("MaskSampler")
+            .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true, 0.0F, 0.0F))
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.ENTITY, VertexFormat.Mode.QUADS)
             .build();
@@ -96,7 +97,8 @@ public final class ItemOutlineRenderer {
             .withVertexShader(MASK_VERTEX_SHADER)
             .withFragmentShader(MASK_FRAGMENT_SHADER)
             .withSampler("Sampler0")
-            .withDepthStencilState(Optional.empty())
+            .withSampler("MaskSampler")
+            .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true, 0.0F, 0.0F))
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.ENTITY, VertexFormat.Mode.QUADS)
             .build();
@@ -129,16 +131,14 @@ public final class ItemOutlineRenderer {
             .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
             .withVertexFormat(DefaultVertexFormat.EMPTY, VertexFormat.Mode.TRIANGLES)
             .build();
-    private static final Map<Identifier, RenderType> VISIBLE_MASK_TYPES = new java.util.HashMap<>();
-    private static final Map<Identifier, RenderType> THROUGH_MASK_TYPES = new java.util.HashMap<>();
-    private static final Map<Identifier, Map<BakedQuad, BakedQuad>> MASKED_QUADS = new java.util.HashMap<>();
+    private static final Map<MaskTextures, RenderType> VISIBLE_MASK_TYPES = new java.util.HashMap<>();
+    private static final Map<MaskTextures, RenderType> THROUGH_MASK_TYPES = new java.util.HashMap<>();
     private static final Map<Item, Registration> REGISTRATIONS = new IdentityHashMap<>();
     private static final Map<ItemStackRenderState, Outline> RENDER_STATES = new WeakHashMap<>();
     private static final Map<SubmitNodeStorage.ItemSubmit, Outline> SUBMITS = new IdentityHashMap<>();
     private static final Map<Region, Map<BakedQuad, List<BakedQuad>>> REGION_QUADS = new java.util.HashMap<>();
     private static final List<PendingOutline> PENDING_OUTLINES = new ArrayList<>();
     private static final ThreadLocal<Outline> SUBMITTING = new ThreadLocal<>();
-    private static final QuadInstance QUAD_INSTANCE = new QuadInstance();
     private static final Matrix4f PROJECTION = new Matrix4f();
     private static boolean hasProjection;
     private static boolean hasOcclusionDepth;
@@ -202,7 +202,6 @@ public final class ItemOutlineRenderer {
         REGION_QUADS.clear();
         VISIBLE_MASK_TYPES.clear();
         THROUGH_MASK_TYPES.clear();
-        MASKED_QUADS.clear();
         hasProjection = false;
         hasOcclusionDepth = false;
         SUBMITTING.remove();
@@ -301,14 +300,12 @@ public final class ItemOutlineRenderer {
         List<BakedQuad> outlined = outline.region() == null
                 ? submit.quads()
                 : clipToRegion(submit.quads(), outline.region());
-        if (outline.mask() != null) {
-            outlined = remapToMask(outlined, outline.mask());
-        }
-        renderLayers(bufferSource, submit, outlined, outline.layers(), outline.visibleThroughObjects());
+        TextureAtlasSprite maskSprite = outline.mask() == null ? null : maskSprite(outline.mask());
+        renderLayers(bufferSource, submit, outlined, maskSprite, outline.layers(), outline.visibleThroughObjects());
     }
 
     private static void renderLayers(MultiBufferSource.BufferSource bufferSource, SubmitNodeStorage.ItemSubmit submit,
-                                     List<BakedQuad> outlined, List<GlowLayer> layers,
+                                     List<BakedQuad> outlined, @Nullable TextureAtlasSprite maskSprite, List<GlowLayer> layers,
                                      boolean visibleThroughObjects) {
         if (outlined.isEmpty() || layers.isEmpty()) {
             return;
@@ -317,26 +314,32 @@ public final class ItemOutlineRenderer {
         ensureTargets();
         Minecraft minecraft = Minecraft.getInstance();
         var mainTarget = minecraft.getMainRenderTarget();
+        var sceneDepthTarget = hasOcclusionDepth ? OCCLUSION_DEPTH_TARGET : mainTarget;
         CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
         encoder.clearColorTexture(MASK_TARGET.getColorTexture(), 0);
-        encoder.clearColorTexture(DILATION_TARGET.getColorTexture(), 0);
-        encoder.clearColorTexture(DEPTH_DILATION_TARGET.getColorTexture(), -1);
-        if (!visibleThroughObjects) {
-            MASK_TARGET.copyDepthFrom(hasOcclusionDepth ? OCCLUSION_DEPTH_TARGET : mainTarget);
-        }
-        renderQuads(bufferSource, submit.pose(), outlined, -1, visibleThroughObjects);
+        encoder.clearDepthTexture(MASK_TARGET.getDepthTexture(), 1.0D);
+        renderQuads(bufferSource, submit.pose(), outlined, maskSprite, visibleThroughObjects);
         float[] radii = screenRadii(submit, outlined, layers);
-        float maximumRadius = radii.length == 0 ? 0.0F : radii[0];
-        ScreenBounds bounds = screenBounds(submit, outlined, maximumRadius + 2.0F);
+        float maximumRadius = maximumRadius(radii);
+        ScreenBounds compositeBounds = screenBounds(submit, outlined, maximumRadius + 2.0F);
+        ScreenBounds dilationBounds = screenBounds(submit, outlined, maximumRadius * 2.0F + 2.0F);
         for (int start = 0; start < layers.size(); start += 4) {
             writeConfig(encoder, layers, radii, start, visibleThroughObjects);
-            renderHorizontal(encoder, bounds);
+            renderHorizontal(encoder, dilationBounds);
             if (!visibleThroughObjects) {
-                renderDepthHorizontal(encoder, bounds);
+                renderDepthHorizontal(encoder, dilationBounds);
             }
-            renderComposite(encoder, mainTarget.getColorTextureView(), bounds);
+            renderComposite(encoder, mainTarget.getColorTextureView(), sceneDepthTarget.getDepthTextureView(), compositeBounds);
             configBuffer.rotate();
         }
+    }
+
+    private static float maximumRadius(float[] radii) {
+        float maximum = 0.0F;
+        for (float radius : radii) {
+            maximum = Math.max(maximum, radius);
+        }
+        return maximum;
     }
 
     private static void ensureTargets() {
@@ -369,18 +372,50 @@ public final class ItemOutlineRenderer {
 
     private static void renderQuads(MultiBufferSource.BufferSource bufferSource,
                                     com.mojang.blaze3d.vertex.PoseStack.Pose pose,
-                                    List<BakedQuad> quads, int color, boolean visibleThroughObjects) {
-        QUAD_INSTANCE.setLightCoords(LightCoordsUtil.FULL_BRIGHT);
-        QUAD_INSTANCE.setOverlayCoords(OverlayTexture.NO_OVERLAY);
+                                    List<BakedQuad> quads, @Nullable TextureAtlasSprite maskSprite,
+                                    boolean visibleThroughObjects) {
         Map<RenderType, VertexConsumer> buffers = new IdentityHashMap<>();
         for (BakedQuad quad : quads) {
-            QUAD_INSTANCE.setColor(color);
-            Identifier atlas = quad.materialInfo().sprite().atlasLocation();
-            RenderType renderType = renderType(atlas, visibleThroughObjects);
+            TextureAtlasSprite sourceSprite = quad.materialInfo().sprite();
+            Identifier sourceAtlas = sourceSprite.atlasLocation();
+            Identifier maskAtlas = maskSprite == null ? sourceAtlas : maskSprite.atlasLocation();
+            RenderType renderType = renderType(sourceAtlas, maskAtlas, visibleThroughObjects);
             VertexConsumer vertexConsumer = buffers.computeIfAbsent(renderType, bufferSource::getBuffer);
-            vertexConsumer.putBakedQuad(pose, quad, QUAD_INSTANCE);
+            putMaskedQuad(vertexConsumer, pose, quad, sourceSprite, maskSprite);
         }
         buffers.keySet().forEach(bufferSource::endBatch);
+    }
+
+    private static void putMaskedQuad(VertexConsumer consumer, com.mojang.blaze3d.vertex.PoseStack.Pose pose,
+                                      BakedQuad quad, TextureAtlasSprite sourceSprite,
+                                      @Nullable TextureAtlasSprite maskSprite) {
+        Vector3f normal = pose.transformNormal(quad.direction().getUnitVec3f(), new Vector3f());
+        for (int index = 0; index < 4; index++) {
+            Vector3f position = pose.pose().transformPosition(quad.position(index), new Vector3f());
+            float u = UVPair.unpackU(quad.packedUV(index));
+            float v = UVPair.unpackV(quad.packedUV(index));
+            float maskU = maskSprite == null ? u : moveUv(u, sourceSprite.getU0(), sourceSprite.getU1(),
+                    maskSprite.getU0(), maskSprite.getU1());
+            float maskV = maskSprite == null ? v : moveUv(v, sourceSprite.getV0(), sourceSprite.getV1(),
+                    maskSprite.getV0(), maskSprite.getV1());
+            int color = ARGB.multiply(-1, quad.bakedColors().color(index));
+            consumer.addVertex(position.x, position.y, position.z)
+                    .setColor(color)
+                    .setUv(u, v)
+                    .setUv1(packMaskUv(maskU), packMaskUv(maskV))
+                    .setLight(LightCoordsUtil.FULL_BRIGHT)
+                    .setNormal(normal.x, normal.y, normal.z);
+        }
+    }
+
+    private static float moveUv(float value, float sourceMin, float sourceMax, float targetMin, float targetMax) {
+        float sourceSize = sourceMax - sourceMin;
+        float progress = Math.abs(sourceSize) < 1.0E-7F ? 0.0F : (value - sourceMin) / sourceSize;
+        return Mth.lerp(progress, targetMin, targetMax);
+    }
+
+    private static int packMaskUv(float value) {
+        return Math.round(Mth.clamp(value, 0.0F, 1.0F) * MASK_UV_SCALE);
     }
 
     private static void writeConfig(CommandEncoder encoder, List<GlowLayer> layers, float[] screenRadii, int start,
@@ -439,7 +474,7 @@ public final class ItemOutlineRenderer {
     }
 
     private static void renderComposite(CommandEncoder encoder, com.mojang.blaze3d.textures.GpuTextureView output,
-                                        ScreenBounds bounds) {
+                                        com.mojang.blaze3d.textures.GpuTextureView sceneDepth, ScreenBounds bounds) {
         var sampler = RenderSystem.getSamplerCache().getClampToEdge(com.mojang.blaze3d.textures.FilterMode.NEAREST);
         try (RenderPass renderPass = encoder.createRenderPass(
                 () -> "Noble Phantasms item outline composite", output, OptionalInt.empty())) {
@@ -448,7 +483,7 @@ public final class ItemOutlineRenderer {
             renderPass.bindTexture("DilatedSampler", DILATION_TARGET.getColorTextureView(), sampler);
             renderPass.bindTexture("DepthDilatedSampler", DEPTH_DILATION_TARGET.getColorTextureView(), sampler);
             renderPass.bindTexture("MaskSampler", MASK_TARGET.getColorTextureView(), sampler);
-            renderPass.bindTexture("SceneDepthSampler", MASK_TARGET.getDepthTextureView(), sampler);
+            renderPass.bindTexture("SceneDepthSampler", sceneDepth, sampler);
             renderPass.setUniform("OutlineConfig", configBuffer.currentBuffer());
             bounds.enable(renderPass);
             renderPass.draw(0, 3);
@@ -485,7 +520,8 @@ public final class ItemOutlineRenderer {
             return fallbackTexelRadius(submit, quads);
         }
         Matrix4f modelToClip = modelToClip(submit);
-        float radius = 0.0F;
+        double totalScreenDistance = 0.0;
+        double totalTextureDistance = 0.0;
         for (BakedQuad quad : quads) {
             TextureAtlasSprite sprite = quad.materialInfo().sprite();
             float uScale = sprite.contents().width() / (sprite.getU1() - sprite.getU0());
@@ -506,10 +542,14 @@ public final class ItemOutlineRenderer {
                 }
                 float deltaX = (second.x - first.x) * MASK_TARGET.width * 0.5F;
                 float deltaY = (second.y - first.y) * MASK_TARGET.height * 0.5F;
-                radius = Math.max(radius, Mth.sqrt(deltaX * deltaX + deltaY * deltaY) / textureDistance);
+                totalScreenDistance += Mth.sqrt(deltaX * deltaX + deltaY * deltaY);
+                totalTextureDistance += textureDistance;
             }
         }
-        return radius > 0.0F ? Math.max(1.0F, radius) : fallbackTexelRadius(submit, quads);
+        if (totalTextureDistance <= 1.0E-5) {
+            return fallbackTexelRadius(submit, quads);
+        }
+        return Math.max(1.0F, (float) (totalScreenDistance / totalTextureDistance));
     }
 
     private static float fallbackTexelRadius(SubmitNodeStorage.ItemSubmit submit, List<BakedQuad> quads) {
@@ -629,17 +669,9 @@ public final class ItemOutlineRenderer {
         return clipped;
     }
 
-    private static List<BakedQuad> remapToMask(List<BakedQuad> quads, Identifier mask) {
+    private static TextureAtlasSprite maskSprite(Identifier mask) {
         TextureAtlas atlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.ITEMS);
-        TextureAtlasSprite maskSprite = atlas.getSprite(mask);
-        Map<BakedQuad, BakedQuad> cache = MASKED_QUADS.computeIfAbsent(mask, ignored -> new IdentityHashMap<>());
-        List<BakedQuad> masked = new ArrayList<>(quads.size());
-        for (BakedQuad quad : quads) {
-            masked.add(cache.computeIfAbsent(quad, source -> new MutableQuad().setFrom(source)
-                    .setSpriteAndMoveUv(maskSprite, source.materialInfo().layer(), source.materialInfo().itemRenderType())
-                    .toBakedQuad()));
-        }
-        return masked;
+        return atlas.getSprite(mask);
     }
 
     private static List<BakedQuad> clipQuad(BakedQuad source, Region region) {
@@ -716,13 +748,14 @@ public final class ItemOutlineRenderer {
         quad.setUv(index, vertex.u(), vertex.v());
     }
 
-    private static RenderType renderType(Identifier atlas, boolean visibleThroughObjects) {
-        Map<Identifier, RenderType> types = visibleThroughObjects ? THROUGH_MASK_TYPES : VISIBLE_MASK_TYPES;
+    private static RenderType renderType(Identifier atlas, Identifier maskAtlas, boolean visibleThroughObjects) {
+        Map<MaskTextures, RenderType> types = visibleThroughObjects ? THROUGH_MASK_TYPES : VISIBLE_MASK_TYPES;
         RenderPipeline pipeline = visibleThroughObjects ? THROUGH_MASK_PIPELINE : VISIBLE_MASK_PIPELINE;
-        return types.computeIfAbsent(atlas, texture -> RenderType.create(
+        return types.computeIfAbsent(new MaskTextures(atlas, maskAtlas), textures -> RenderType.create(
                 NoblePhantasms.MOD_ID + "_item_outline_mask_" + (visibleThroughObjects ? "through" : "visible"),
                 RenderSetup.builder(pipeline)
-                        .withTexture("Sampler0", texture)
+                        .withTexture("Sampler0", textures.sourceAtlas())
+                        .withTexture("MaskSampler", textures.maskAtlas())
                         .setOutputTarget(MASK_OUTPUT)
                         .createRenderSetup()));
     }
@@ -766,6 +799,9 @@ public final class ItemOutlineRenderer {
     }
 
     private record PendingOutline(SubmitNodeStorage.ItemSubmit submit, Outline outline) {
+    }
+
+    private record MaskTextures(Identifier sourceAtlas, Identifier maskAtlas) {
     }
 
     private record ScreenBounds(int x, int y, int width, int height) {

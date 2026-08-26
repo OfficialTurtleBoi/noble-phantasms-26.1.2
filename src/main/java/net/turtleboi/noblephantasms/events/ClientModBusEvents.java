@@ -34,7 +34,7 @@ import net.turtleboi.noblephantasms.entity.renderer.GungnirProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.KazagurumaProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.SimpleEntityRenderers;
 import net.turtleboi.noblephantasms.entity.renderer.TecpatlShardRenderer;
-import net.turtleboi.noblephantasms.entity.renderer.WindCutterRenderer;
+import net.turtleboi.noblephantasms.entity.renderer.WindslashRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.XiuhcoatlProjectileRenderer;
 import net.turtleboi.noblephantasms.particle.custom.CovenantLeafParticle;
 import net.turtleboi.noblephantasms.particle.custom.FireFangsParticle;
@@ -93,7 +93,7 @@ public final class ClientModBusEvents {
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         GungnirProjectileRenderer.register(event);
         KazagurumaProjectileRenderer.register(event);
-        WindCutterRenderer.register(event);
+        WindslashRenderer.register(event);
         EyeShardRenderer.register(event);
         TecpatlShardRenderer.register(event);
         XiuhcoatlProjectileRenderer.register(event);

@@ -1,9 +1,11 @@
 #version 330
 
 uniform sampler2D Sampler0;
+uniform sampler2D MaskSampler;
 
 in vec4 vertexColor;
 in vec2 texCoord0;
+in vec2 maskTexCoord;
 
 out vec4 fragColor;
 
@@ -15,9 +17,11 @@ vec3 packDepth(float depth) {
 
 void main() {
     float textureAlpha = texture(Sampler0, texCoord0).a;
-    if (textureAlpha < 0.1) {
+    float maskAlpha = texture(MaskSampler, maskTexCoord).a;
+    float combinedAlpha = min(textureAlpha, maskAlpha);
+    if (combinedAlpha <= 0.0) {
         discard;
     }
 
-    fragColor = vec4(packDepth(gl_FragCoord.z), vertexColor.a * textureAlpha);
+    fragColor = vec4(packDepth(gl_FragCoord.z), vertexColor.a * combinedAlpha);
 }
