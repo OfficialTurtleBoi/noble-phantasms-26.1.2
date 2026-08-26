@@ -19,8 +19,10 @@ import net.turtleboi.noblephantasms.client.GungnirExtensions;
 import net.turtleboi.noblephantasms.client.HulioshjalmrExtensions;
 import net.turtleboi.noblephantasms.client.model.EagleKnightTalonsModel;
 import net.turtleboi.noblephantasms.client.model.HulioshjalmrModel;
+import net.turtleboi.noblephantasms.client.model.YasakaniGuardianModel;
 import net.turtleboi.noblephantasms.entity.model.XiuhcoatlModel;
 import net.turtleboi.noblephantasms.client.renderer.ClydnoHalterLayer;
+import net.turtleboi.noblephantasms.client.renderer.AfterimageRenderer;
 import net.turtleboi.noblephantasms.client.renderer.LuminousRenderer;
 import net.turtleboi.noblephantasms.client.renderer.ItemOutlineRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TecpatlRebuildingRenderer;
@@ -57,6 +59,7 @@ public final class ClientModBusEvents {
     @SubscribeEvent
     static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
         LuminousRenderer.registerRenderStateModifiers(event);
+        AfterimageRenderer.registerRenderStateModifiers(event);
         ClydnoHalterLayer.registerRenderStateModifier(event);
     }
 
@@ -78,6 +81,7 @@ public final class ClientModBusEvents {
         HulioshjalmrModel.registerLayerDefinition(event);
         EagleKnightTalonsModel.registerLayerDefinition(event);
         XiuhcoatlModel.registerLayerDefinition(event);
+        YasakaniGuardianModel.registerLayerDefinition(event);
     }
 
     @SubscribeEvent

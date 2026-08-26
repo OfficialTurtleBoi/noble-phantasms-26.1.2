@@ -79,6 +79,11 @@ public final class ModAttachments {
                     .sync(ByteBufCodecs.FLOAT)
                     .build());
 
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Long>> AFTERIMAGE_EXPIRES_AT =
+            ATTACHMENTS.register("afterimage_expires_at", () -> AttachmentType.builder(() -> 0L)
+                    .sync(ByteBufCodecs.VAR_LONG)
+                    .build());
+
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> BERTILAK_COVENANT_GLOW =
             ATTACHMENTS.register("bertilak_covenant_glow", () -> AttachmentType.builder(() -> false)
                     .sync(ByteBufCodecs.BOOL)

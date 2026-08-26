@@ -65,10 +65,7 @@ public final class YasakaniNoMagatamaItem extends CurioRelicItem {
         YasakaniGuardianEntity interposer = findGuardian(level, player, Spirit.IKUTSUHIKONE);
         if (interposer != null && event.getSource().getDirectEntity() instanceof Projectile projectile) {
             event.setCanceled(true);
-            projectile.discard();
-            interposer.hurtServer(level, level.damageSources().magic(), 3.0F);
-            level.playSound(null, player.blockPosition(), SoundEvents.SHIELD_BLOCK.value(),
-                    SoundSource.PLAYERS, 1.0F, 1.4F);
+            interposer.blockProjectile(level, player, projectile);
             return;
         }
 

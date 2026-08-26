@@ -14,6 +14,7 @@ import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.turtleboi.noblephantasms.entity.custom.WindCutterProjectile;
+import net.turtleboi.noblephantasms.entity.AfterimageEffect;
 import net.turtleboi.noblephantasms.item.ModItems;
 import net.turtleboi.noblephantasms.item.ModRarities;
 
@@ -59,6 +60,7 @@ public class KusanagiNoTsurugiItem extends Item {
 
         player.setDeltaMovement(direction.x * DASH_SPEED, player.getDeltaMovement().y, direction.z * DASH_SPEED);
         player.hurtMarked = true;
+        AfterimageEffect.activate(player, 8);
         NEXT_DASH.put(player.getUUID(), gameTime + DASH_COOLDOWN_TICKS);
     }
 

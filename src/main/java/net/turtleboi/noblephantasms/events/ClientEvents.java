@@ -21,6 +21,7 @@ import net.turtleboi.noblephantasms.client.BertilakClientUtil;
 import net.turtleboi.noblephantasms.client.EyeOfHorusClientState;
 import net.turtleboi.noblephantasms.client.KusanagiDashInput;
 import net.turtleboi.noblephantasms.client.renderer.ColoredGlintRenderer;
+import net.turtleboi.noblephantasms.client.renderer.AfterimageRenderer;
 import net.turtleboi.noblephantasms.client.renderer.LuminousRenderer;
 import net.turtleboi.noblephantasms.client.renderer.ItemOutlineRenderer;
 import net.turtleboi.noblephantasms.client.ui.EyeOfHorusHud;
@@ -85,6 +86,7 @@ public class ClientEvents {
 
     @SubscribeEvent
     static void beginLuminousFrame(RenderLevelStageEvent.AfterOpaqueBlocks event) {
+        AfterimageRenderer.beginFrame();
         LuminousRenderer.beginFrame();
         ItemOutlineRenderer.beginFrame();
     }
@@ -96,6 +98,7 @@ public class ClientEvents {
 
     @SubscribeEvent
     static void renderLuminousOutlines(RenderLevelStageEvent.AfterLevel event) {
+        AfterimageRenderer.render(event);
         LuminousRenderer.renderOutlines(event);
         ItemOutlineRenderer.renderOutlines(event);
     }

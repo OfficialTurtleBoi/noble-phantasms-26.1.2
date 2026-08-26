@@ -58,8 +58,8 @@ public class ModEntities {
 
     public static final DeferredHolder<EntityType<?>, EntityType<YasakaniGuardianEntity>> YASAKANI_GUARDIAN =
             ENTITY_TYPES.registerEntityType("yasakani_guardian", YasakaniGuardianEntity::new, MobCategory.MISC,
-                    builder -> builder.noLootTable().fireImmune().sized(0.55F, 0.85F)
-                            .clientTrackingRange(10).updateInterval(2));
+                    builder -> builder.noLootTable().fireImmune().sized(0.6F, 1.8F)
+                            .clientTrackingRange(10).updateInterval(1));
 
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);
