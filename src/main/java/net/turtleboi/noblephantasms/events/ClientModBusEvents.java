@@ -15,6 +15,7 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.client.BertilakExtensions;
 import net.turtleboi.noblephantasms.client.EagleKnightTalonsExtensions;
+import net.turtleboi.noblephantasms.client.ExcaliburExtensions;
 import net.turtleboi.noblephantasms.client.GungnirExtensions;
 import net.turtleboi.noblephantasms.client.HulioshjalmrExtensions;
 import net.turtleboi.noblephantasms.client.model.EagleKnightTalonsModel;
@@ -72,6 +73,7 @@ public final class ClientModBusEvents {
     static void registerClientExtensions(RegisterClientExtensionsEvent event) {
         BertilakExtensions.register(event);
         EagleKnightTalonsExtensions.register(event);
+        ExcaliburExtensions.register();
         GungnirExtensions.register(event);
         HulioshjalmrExtensions.register(event);
     }

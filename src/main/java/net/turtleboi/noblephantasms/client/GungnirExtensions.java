@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -16,7 +15,6 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.client.animation.RelicTransform;
 import net.turtleboi.noblephantasms.client.renderer.ItemOutlineRenderer;
 import net.turtleboi.noblephantasms.entity.custom.GungnirProjectile;
@@ -44,7 +42,6 @@ public class GungnirExtensions implements IClientItemExtensions {
     private static final int GOLD = 0xEFBF04;
     private static final int LIGHT_GOLD = 0xFFE58A;
     private static final ItemOutlineRenderer.Region TIP_REGION = ItemOutlineRenderer.Region.xy(0.5F, 0.5F, 1.0F, 1.0F);
-    private static final Identifier TIP_MASK = Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/gungnir_glow_mask");
 
     public static void register(RegisterClientExtensionsEvent event) {
         event.registerItem(new GungnirExtensions(), ModItems.GUNGNIR.get());
@@ -156,6 +153,6 @@ public class GungnirExtensions implements IClientItemExtensions {
     private static ItemOutlineRenderer.Outline tipOutline(ItemOutlineRenderer.Outline outline) {
         return outline
                 .region(TIP_REGION)
-                .mask(TIP_MASK);
+                .mask(ModItems.GUNGNIR.get());
     }
 }

@@ -18,6 +18,8 @@ import net.turtleboi.noblephantasms.item.custom.AnkhItem;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
 import net.turtleboi.noblephantasms.item.custom.BiaEnPetItem;
 import net.turtleboi.noblephantasms.item.custom.ClydnoHalterItem;
+import net.turtleboi.noblephantasms.item.custom.ChimalliItem;
+import net.turtleboi.noblephantasms.item.custom.ClawOfTepeyollotlItem;
 import net.turtleboi.noblephantasms.item.custom.MedjuNetjerItem;
 import net.turtleboi.noblephantasms.item.custom.CarnwennanItem;
 import net.turtleboi.noblephantasms.item.custom.DraupnirItem;
@@ -191,8 +193,14 @@ public class ModItems {
     public static final DeferredItem<XiuhcoatlItem> XIUHCOATL =
             registerRelic("xiuhcoatl", XiuhcoatlItem::new);
 
+    public static final DeferredItem<ChimalliItem> CHIMALLI =
+            registerRelic("chimalli", ChimalliItem::new);
+
     public static final DeferredItem<TecpatlOfTheFifthSunItem> TECPATL_OF_THE_FIFTH_SUN =
             registerRelic("tecpatl_of_the_fifth_sun", TecpatlOfTheFifthSunItem::new);
+
+    public static final DeferredItem<ClawOfTepeyollotlItem> CLAW_OF_TEPEYOLLOTL =
+            registerRelic("claw_of_tepeyollotl", ClawOfTepeyollotlItem::new);
 
     private static <T extends Item> DeferredItem<T> registerRelic(
             String name, Function<Item.Properties, ? extends T> factory) {

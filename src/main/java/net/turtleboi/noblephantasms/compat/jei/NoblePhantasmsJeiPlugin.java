@@ -74,7 +74,11 @@ public final class NoblePhantasmsJeiPlugin implements IModPlugin {
                 Component.translatable("jei.noblephantasms.info.apilolli"));
         registration.addIngredientInfo(ModItems.XIUHCOATL.get(),
                 Component.translatable("jei.noblephantasms.info.xiuhcoatl"));
+        registration.addIngredientInfo(ModItems.CHIMALLI.get(),
+                Component.translatable("jei.noblephantasms.info.chimalli"));
         registration.addIngredientInfo(ModItems.TECPATL_OF_THE_FIFTH_SUN.get(),
                 Component.translatable("jei.noblephantasms.info.tecpatl_of_the_fifth_sun"));
+        registration.addIngredientInfo(ModItems.CLAW_OF_TEPEYOLLOTL.get(),
+                Component.translatable("jei.noblephantasms.info.claw_of_tepeyollotl"));
     }
 }

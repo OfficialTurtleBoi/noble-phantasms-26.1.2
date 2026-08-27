@@ -35,6 +35,7 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
@@ -55,6 +56,7 @@ import org.joml.Vector4f;
 import org.jspecify.annotations.Nullable;
 
 public final class ItemOutlineRenderer {
+    private static final String GLOW_TEXTURE_FOLDER = "item/glow/";
     private static final Identifier MASK_VERTEX_SHADER = Identifier.fromNamespaceAndPath(
             NoblePhantasms.MOD_ID, "core/item_outline_mask");
     private static final Identifier MASK_FRAGMENT_SHADER = Identifier.fromNamespaceAndPath(
@@ -173,6 +175,11 @@ public final class ItemOutlineRenderer {
             layers.addAll(glow.layers());
         }
         return new Outline(null, null, layers, false);
+    }
+
+    public static Identifier glowTexture(Item item) {
+        Identifier itemId = BuiltInRegistries.ITEM.getKey(item);
+        return Identifier.fromNamespaceAndPath(itemId.getNamespace(), GLOW_TEXTURE_FOLDER + itemId.getPath());
     }
 
     public static void registerHeld(Item item, int color, float width, Predicate<ItemStack> condition) {
@@ -872,6 +879,10 @@ public final class ItemOutlineRenderer {
 
         public Outline mask(Identifier mask) {
             return new Outline(region, mask, layers, visibleThroughObjects);
+        }
+
+        public Outline mask(Item item) {
+            return mask(glowTexture(item));
         }
 
         public Outline region(Region region) {

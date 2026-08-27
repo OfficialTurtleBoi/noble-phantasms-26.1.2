@@ -18,6 +18,7 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.PistonEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.effect.custom.BleedEffect;
@@ -29,6 +30,7 @@ import net.turtleboi.noblephantasms.item.custom.AndvaranautItem;
 import net.turtleboi.noblephantasms.item.custom.AnkhItem;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
 import net.turtleboi.noblephantasms.item.custom.BiaEnPetItem;
+import net.turtleboi.noblephantasms.item.custom.ClawOfTepeyollotlItem;
 import net.turtleboi.noblephantasms.item.custom.MedjuNetjerItem;
 import net.turtleboi.noblephantasms.item.custom.EagleKnightTalonsItem;
 import net.turtleboi.noblephantasms.item.custom.HekaItem;
@@ -170,6 +172,16 @@ public final class ModEvents {
         MedjuNetjerItem.handleBlockBreak(event);
         UchideNoKozuchiItem.handleBlockBreak(event);
         YamawariItem.handleBlockBreak(event);
+    }
+
+    @SubscribeEvent
+    static void onBreakSpeed(PlayerEvent.BreakSpeed event) {
+        ClawOfTepeyollotlItem.handleBreakSpeed(event);
+    }
+
+    @SubscribeEvent
+    static void onHarvestCheck(PlayerEvent.HarvestCheck event) {
+        ClawOfTepeyollotlItem.handleHarvestCheck(event);
     }
 
     @SubscribeEvent

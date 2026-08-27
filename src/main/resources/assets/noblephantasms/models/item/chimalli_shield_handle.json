@@ -1,0 +1,43 @@
+{
+  "texture_size": [64, 64],
+  "textures": {
+    "0": "noblephantasms:item/chimalli_shield"
+  },
+  "elements": [
+    {
+      "name": "handle",
+      "from": [7, 8, 6],
+      "to": [9, 14, 12],
+      "faces": {
+        "north": { "uv": [11, 1.5, 11.5, 3], "texture": "#0" },
+        "east": { "uv": [9.5, 1.5, 11, 3], "texture": "#0" },
+        "south": { "uv": [13, 1.5, 13.5, 3], "texture": "#0" },
+        "west": { "uv": [11.5, 1.5, 13, 3], "texture": "#0" },
+        "up": { "uv": [11.5, 1.5, 11, 0], "texture": "#0" },
+        "down": { "uv": [12, 0, 11.5, 1.5], "texture": "#0" }
+      }
+    }
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [0, 90, 0],
+      "translation": [10, 6, -4],
+      "scale": [1, 1, 1]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [0, 90, 0],
+      "translation": [10, 6, 12],
+      "scale": [1, 1, 1]
+    },
+    "firstperson_righthand": {
+      "rotation": [0, 180, 5],
+      "translation": [-10, 1.75, -10],
+      "scale": [1.25, 1.25, 1.25]
+    },
+    "firstperson_lefthand": {
+      "rotation": [0, 180, 5],
+      "translation": [10, 0, -10],
+      "scale": [1.25, 1.25, 1.25]
+    }
+  }
+}

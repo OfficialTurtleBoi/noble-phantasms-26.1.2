@@ -40,7 +40,9 @@ public class ModCreativeModeTabs {
                                 output.accept(ModItems.SMOKING_MIRROR);
                                 output.accept(ModItems.APILOLLI);
                                 output.accept(ModItems.XIUHCOATL);
+                                output.accept(ModItems.CHIMALLI);
                                 output.accept(ModItems.TECPATL_OF_THE_FIFTH_SUN);
+                                output.accept(ModItems.CLAW_OF_TEPEYOLLOTL);
 
                                 output.accept(ModItems.EXCALIBUR);
                                 output.accept(ModItems.SCABBARD);

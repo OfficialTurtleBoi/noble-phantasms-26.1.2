@@ -1,6 +1,8 @@
 package net.turtleboi.noblephantasms.datagen.providers;
 
+import com.mojang.math.Transformation;
 import java.util.List;
+import java.util.Optional;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
@@ -10,6 +12,8 @@ import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.client.renderer.item.CuboidItemModelWrapper;
+import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.properties.select.DisplayContext;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.data.PackOutput;
@@ -22,8 +26,19 @@ import net.turtleboi.noblephantasms.client.renderer.TecpatlRebuildingRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadRenderer;
 import net.turtleboi.noblephantasms.component.ModDataComponents;
 import net.turtleboi.noblephantasms.item.ModItems;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class ModModelProvider extends ModelProvider {
+    private static final Transformation CHIMALLI_HANDLE_TRANSFORMATION = new Transformation(
+            new Vector3f(-0.5F, 0.6875F, 0.4375F), null, new Vector3f(1.0F, -1.0F, -1.0F), null);
+    private static final Transformation CHIMALLI_PLATE_NINETY_TRANSFORMATION = new Transformation(
+            new Vector3f(0.6875F, 0.5F, 0.4375F), null, new Vector3f(1.0F, -1.0F, -1.0F),
+            new Quaternionf().rotationZ((float) (Math.PI / 2.0)));
+    private static final Transformation CHIMALLI_PLATE_FLIPPED_TRANSFORMATION = new Transformation(
+            new Vector3f(0.5F, -0.6875F, 0.4375F), null, new Vector3f(1.0F, -1.0F, -1.0F),
+            new Quaternionf().rotationZ((float) Math.PI));
+
     public ModModelProvider(PackOutput output) {
         super(output, NoblePhantasms.MOD_ID);
     }
@@ -64,6 +79,8 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ModItems.YASAKANI_NO_MAGATAMA.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.YATA_NO_KAGAMI.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.APILOLLI.get(), ModelTemplates.FLAT_ITEM);
+        generateChimalliItem(itemModels);
+        itemModels.generateFlatItem(ModItems.CLAW_OF_TEPEYOLLOTL.get(), ModelTemplates.FLAT_ITEM);
         generateTecpatlItem(itemModels);
         generateKazagurumaItem(itemModels, ModItems.KAZAGURUMA.get());
         generateRaikoItem(itemModels);
@@ -141,6 +158,34 @@ public class ModModelProvider extends ModelProvider {
                 ItemModelUtils.when(List.of(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
                         ItemDisplayContext.THIRD_PERSON_LEFT_HAND, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
                         ItemDisplayContext.FIRST_PERSON_LEFT_HAND), ItemModelUtils.plainModel(drumModel))));
+    }
+
+    private static void generateChimalliItem(ItemModelGenerators itemModels) {
+        Item item = ModItems.CHIMALLI.get();
+        Identifier spriteModel = itemModels.createFlatItemModel(item, ModelTemplates.FLAT_ITEM);
+        Identifier plateModel = Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/chimalli_shield");
+        Identifier blockingPlateModel = Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/chimalli_shield_blocking");
+        Identifier handleModel = Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/chimalli_shield_handle");
+        Identifier blockingHandleModel = Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/chimalli_shield_handle_blocking");
+        var handle = ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
+                transformedModel(blockingHandleModel, CHIMALLI_HANDLE_TRANSFORMATION),
+                transformedModel(handleModel, CHIMALLI_HANDLE_TRANSFORMATION));
+        var thirdPersonPlate = ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
+                transformedModel(blockingPlateModel, CHIMALLI_PLATE_FLIPPED_TRANSFORMATION),
+                transformedModel(plateModel, CHIMALLI_PLATE_NINETY_TRANSFORMATION));
+        var firstPersonPlate = ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
+                transformedModel(blockingPlateModel, CHIMALLI_PLATE_FLIPPED_TRANSFORMATION),
+                transformedModel(plateModel, CHIMALLI_PLATE_FLIPPED_TRANSFORMATION));
+        itemModels.itemModelOutput.accept(item, ItemModelUtils.select(new DisplayContext(),
+                ItemModelUtils.plainModel(spriteModel), List.of(
+                        ItemModelUtils.when(List.of(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
+                                ItemDisplayContext.THIRD_PERSON_LEFT_HAND), ItemModelUtils.composite(thirdPersonPlate, handle)),
+                        ItemModelUtils.when(List.of(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
+                                ItemDisplayContext.FIRST_PERSON_LEFT_HAND), ItemModelUtils.composite(firstPersonPlate, handle)))));
+    }
+
+    private static ItemModel.Unbaked transformedModel(Identifier model, Transformation transformation) {
+        return new CuboidItemModelWrapper.Unbaked(model, Optional.of(transformation), List.of());
     }
 
     private static void generateTecpatlItem(ItemModelGenerators itemModels) {
