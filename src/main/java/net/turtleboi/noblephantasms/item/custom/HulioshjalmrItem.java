@@ -10,6 +10,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.equipment.ArmorType;
@@ -96,6 +97,9 @@ public class HulioshjalmrItem extends Item {
         LivingEntity target = mob.getTarget();
         if (target instanceof Player player && isConcealed(player)) {
             mob.setTarget(null);
+        }
+        if (!mob.getBrain().checkMemory(MemoryModuleType.ATTACK_TARGET, MemoryStatus.REGISTERED)) {
+            return;
         }
         mob.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).ifPresent(brainTarget -> {
             if (brainTarget instanceof Player player && isConcealed(player)) {

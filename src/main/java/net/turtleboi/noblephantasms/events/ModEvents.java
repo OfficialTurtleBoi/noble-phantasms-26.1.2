@@ -183,7 +183,32 @@ public final class ModEvents {
     }
 
     @SubscribeEvent
-    static void onPlayerInteract(PlayerInteractEvent event) {
+    static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
+        HulioshjalmrItem.handleInteraction(event.getEntity());
+    }
+
+    @SubscribeEvent
+    static void onLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
+        HulioshjalmrItem.handleInteraction(event.getEntity());
+    }
+
+    @SubscribeEvent
+    static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
+        HulioshjalmrItem.handleInteraction(event.getEntity());
+    }
+
+    @SubscribeEvent
+    static void onEntityInteractSpecific(PlayerInteractEvent.EntityInteractSpecific event) {
+        HulioshjalmrItem.handleInteraction(event.getEntity());
+    }
+
+    @SubscribeEvent
+    static void onRightClickEmpty(PlayerInteractEvent.RightClickEmpty event) {
+        HulioshjalmrItem.handleInteraction(event.getEntity());
+    }
+
+    @SubscribeEvent
+    static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
         HulioshjalmrItem.handleInteraction(event.getEntity());
     }
 
@@ -206,6 +231,7 @@ public final class ModEvents {
 
     @SubscribeEvent
     static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        HulioshjalmrItem.handleInteraction(event.getEntity());
         MedjuNetjerItem.handleTableInteraction(event);
         UchideNoKozuchiItem.handleRightClickBlock(event);
     }

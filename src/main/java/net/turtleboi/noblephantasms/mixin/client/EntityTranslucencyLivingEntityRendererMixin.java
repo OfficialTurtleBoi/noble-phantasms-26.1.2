@@ -5,7 +5,6 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.resources.Identifier;
 import net.turtleboi.noblephantasms.client.renderer.HulioshjalmrRenderer;
@@ -40,7 +39,11 @@ public abstract class EntityTranslucencyLivingEntityRendererMixin<S extends Livi
                                        boolean translucent, boolean glowing,
                                        CallbackInfoReturnable<RenderType> callbackInfo) {
         if (HulioshjalmrRenderer.getProgress(state) > 0.0F) {
-            callbackInfo.setReturnValue(RenderTypes.entityTranslucent(this.getTextureLocation(state)));
+            if (HulioshjalmrRenderer.getVisibilityAlpha(state) <= 0.0F) {
+                callbackInfo.setReturnValue(null);
+            } else {
+                callbackInfo.setReturnValue(HulioshjalmrRenderer.entityRenderType(this.getTextureLocation(state)));
+            }
         }
     }
 
@@ -48,7 +51,8 @@ public abstract class EntityTranslucencyLivingEntityRendererMixin<S extends Livi
     private void fadeEntityBody(S state, CallbackInfoReturnable<Integer> callbackInfo) {
         float progress = HulioshjalmrRenderer.getProgress(state);
         if (progress > 0.0F) {
-            callbackInfo.setReturnValue(HulioshjalmrRenderer.applyFade(callbackInfo.getReturnValue(), progress));
+            callbackInfo.setReturnValue(HulioshjalmrRenderer.applyAlpha(
+                    callbackInfo.getReturnValue(), HulioshjalmrRenderer.getVisibilityAlpha(state)));
         }
     }
 }

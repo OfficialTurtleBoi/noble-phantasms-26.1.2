@@ -16,7 +16,8 @@ public abstract class EntityTranslucencyItemInHandLayerMixin {
     private void hideFullyConcealedHeldItems(PoseStack poseStack, SubmitNodeCollector submitNodeCollector,
                                              int light, ArmedEntityRenderState state, float yRot, float xRot,
                                              CallbackInfo callbackInfo) {
-        if (HulioshjalmrRenderer.getActiveProgress() >= 1.0F) {
+        if (HulioshjalmrRenderer.getActiveProgress() > 0.0F
+                && HulioshjalmrRenderer.getActiveAlpha() <= 0.0F) {
             callbackInfo.cancel();
         }
     }

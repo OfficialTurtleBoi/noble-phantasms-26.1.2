@@ -56,6 +56,7 @@ public final class ClientModBusEvents {
     static void registerRenderPipelines(RegisterRenderPipelinesEvent event) {
         LuminousRenderer.registerPipelines(event);
         ItemOutlineRenderer.registerPipelines(event);
+        HulioshjalmrRenderer.registerPipelines(event);
         ExcaliburProjectileRenderer.registerPipelines(event);
         CovenantLeafParticle.registerPipeline(event);
     }
