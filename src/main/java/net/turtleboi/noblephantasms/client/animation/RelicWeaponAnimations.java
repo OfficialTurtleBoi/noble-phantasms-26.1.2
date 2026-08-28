@@ -19,6 +19,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.KineticWeapon;
 import net.turtleboi.noblephantasms.NoblePhantasms;
+import net.turtleboi.noblephantasms.client.BertilakExtensions;
 import net.turtleboi.noblephantasms.item.custom.IwatoshiAttackState;
 import net.turtleboi.noblephantasms.item.custom.IwatoshiItem;
 import net.turtleboi.noblephantasms.item.custom.RhongomyniadItem;
@@ -28,12 +29,15 @@ public final class RelicWeaponAnimations {
             NoblePhantasms.MOD_ID, "rhongomyniad");
     private static final Identifier IWATOSHI = Identifier.fromNamespaceAndPath(
             NoblePhantasms.MOD_ID, "iwatoshi");
+    private static final Identifier BERTILAK = Identifier.fromNamespaceAndPath(
+            NoblePhantasms.MOD_ID, "bertilak");
     private static final String LANCE_FIRST_PERSON = "lance_lower_first_person";
     private static final String LANCE_THIRD_PERSON = "lance_lower_third_person";
     private static final String IWATOSHI_CHARGE_FIRST_PERSON = "iwatoshi_charge_first_person";
     private static final String IWATOSHI_CHARGE_THIRD_PERSON = "iwatoshi_charge_third_person";
     private static final String IWATOSHI_SPIN_FIRST_PERSON = "iwatoshi_spin_first_person";
     private static final String IWATOSHI_SPIN_THIRD_PERSON = "iwatoshi_spin_third_person";
+    private static final String BERTILAK_COVENANT_THIRD_PERSON = "bertilak_covenant_third_person";
 
     static {
         registerAnimations();
@@ -212,6 +216,11 @@ public final class RelicWeaponAnimations {
         return RelicAnimator.getEditorAnimationId(itemStack, cameraType, pose);
     }
 
+    public static RelicTransform sampleThirdPersonBertilakCovenant(ItemStack itemStack, float tick) {
+        return RelicAnimator.sample(itemStack, BERTILAK_COVENANT_THIRD_PERSON,
+                Math.min(tick, BertilakExtensions.TARGETING_TRANSITION_TICKS));
+    }
+
     private static void animateFirstPersonLanceUse(float hitFeedbackTime, PoseStack poseStack, float timeHeld,
                                                    HumanoidArm arm, ItemStack itemStack) {
         LivingEntity entity = RelicWeaponAnimationContext.getEntity();
@@ -367,6 +376,16 @@ public final class RelicWeaponAnimations {
         }
         RelicAnimator.register(IWATOSHI, IWATOSHI_SPIN_FIRST_PERSON, createSpinAnimation(true));
         RelicAnimator.register(IWATOSHI, IWATOSHI_SPIN_THIRD_PERSON, createThirdPersonSpinAnimation());
+        RelicAnimator.register(BERTILAK, BERTILAK_COVENANT_THIRD_PERSON,
+                new RelicAnimationClip(BertilakExtensions.TARGETING_TRANSITION_TICKS)
+                        .keyframe(BertilakExtensions.TARGETING_TRANSITION_TICKS,
+                                RelicTransform.poseStack(
+                                        BertilakExtensions.THIRD_PERSON_TRANSLATION_X,
+                                        BertilakExtensions.THIRD_PERSON_TRANSLATION_Y,
+                                        BertilakExtensions.THIRD_PERSON_TRANSLATION_Z,
+                                        BertilakExtensions.THIRD_PERSON_ROTATION_X,
+                                        BertilakExtensions.THIRD_PERSON_ROTATION_Y,
+                                        BertilakExtensions.THIRD_PERSON_ROTATION_Z)));
 
         RelicAnimator.registerEditorPose(
                 RHONGOMYNIAD, "joust_raised", LANCE_FIRST_PERSON, LANCE_THIRD_PERSON);
@@ -380,6 +399,8 @@ public final class RelicWeaponAnimations {
         }
         RelicAnimator.registerEditorPose(IWATOSHI, "spin",
                 IWATOSHI_SPIN_FIRST_PERSON, IWATOSHI_SPIN_THIRD_PERSON);
+        RelicAnimator.registerEditorPose(BERTILAK, "covenant",
+                null, BERTILAK_COVENANT_THIRD_PERSON);
     }
 
     private static RelicAnimationClip createSlashAnimation(int chargeLevel, boolean firstPerson) {

@@ -8,6 +8,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.entity.custom.ApilolliCloudEntity;
 import net.turtleboi.noblephantasms.entity.custom.EyeShardEntity;
+import net.turtleboi.noblephantasms.entity.custom.ExcaliburProjectile;
 import net.turtleboi.noblephantasms.entity.custom.GungnirProjectile;
 import net.turtleboi.noblephantasms.entity.custom.KazagurumaProjectile;
 import net.turtleboi.noblephantasms.entity.custom.TecpatlShardEntity;
@@ -23,6 +24,11 @@ public class ModEntities {
             ENTITY_TYPES.registerEntityType("gungnir", GungnirProjectile::new, MobCategory.MISC,
                     builder -> builder.noLootTable().sized(0.5F, 0.5F)
                             .clientTrackingRange(4).updateInterval(20));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<ExcaliburProjectile>> EXCALIBUR_PROJECTILE =
+            ENTITY_TYPES.registerEntityType("excalibur_projectile", ExcaliburProjectile::new, MobCategory.MISC,
+                    builder -> builder.noLootTable().sized(0.5F, 0.5F)
+                            .clientTrackingRange(10).updateInterval(1));
 
     public static final DeferredHolder<EntityType<?>, EntityType<WindslashProjectile>> WINDSLASH =
             ENTITY_TYPES.registerEntityType("windslash", WindslashProjectile::new, MobCategory.MISC,

@@ -523,8 +523,8 @@ public final class ItemPoseEditor {
         if (stack.getItem() instanceof IwatoshiItem && pose.equals("use")) {
             return IwatoshiItem.getMaxChargeTicks();
         }
-        if (stack.getItem() instanceof BertilakItem) {
-            return 40.0F;
+        if (stack.getItem() instanceof BertilakItem && pose.equals("covenant")) {
+            return BertilakExtensions.TARGETING_TRANSITION_TICKS;
         }
         return 20.0F;
     }

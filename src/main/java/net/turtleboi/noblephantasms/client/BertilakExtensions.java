@@ -13,11 +13,11 @@ import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.turtleboi.noblephantasms.item.ModItems;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
-import net.turtleboi.noblephantasms.client.animation.ItemPoseEditor;
 import net.turtleboi.noblephantasms.client.animation.RelicTransform;
+import net.turtleboi.noblephantasms.client.animation.RelicWeaponAnimations;
 
 public class BertilakExtensions implements IClientItemExtensions {
-    private static final float TARGETING_TRANSITION_TICKS = 12.0F;
+    public static final float TARGETING_TRANSITION_TICKS = 10.0F;
     private static final float RECOVERY_TRANSITION_TICKS = 8.0F;
     public static final float TARGETING_TRANSLATION_X = -0.08206835F;
     public static final float TARGETING_TRANSLATION_Y = 0.15765251F;
@@ -47,7 +47,8 @@ public class BertilakExtensions implements IClientItemExtensions {
     public static void applyThirdPersonCovenantTransform(ArmedEntityRenderState state,
                                                          PoseStack poseStack, HumanoidArm arm,
                                                          ItemStack itemStack, float timeHeld) {
-        RelicTransform transform = ItemPoseEditor.getThirdPersonTransform(state, itemStack, "covenant");
+        RelicTransform transform = RelicWeaponAnimations.sampleThirdPersonBertilakCovenant(
+                itemStack, timeHeld);
         float progress = Ease.inOutSine(Mth.clamp(timeHeld / TARGETING_TRANSITION_TICKS, 0.0F, 1.0F));
         if (transform != null) {
             applyTransform(poseStack, arm, transform, progress);

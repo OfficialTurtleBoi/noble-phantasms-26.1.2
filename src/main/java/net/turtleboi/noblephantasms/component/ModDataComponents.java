@@ -54,6 +54,34 @@ public class ModDataComponents {
                     .persistent(Codec.INT)
                     .networkSynchronized(ByteBufCodecs.VAR_INT));
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> EXCALIBUR_CHARGE =
+            DATA_COMPONENTS.registerComponentType("excalibur_charge", builder -> builder
+                    .persistent(Codec.INT)
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.VAR_INT));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> EXCALIBUR_ENERGY =
+            DATA_COMPONENTS.registerComponentType("excalibur_energy", builder -> builder
+                    .persistent(Codec.INT)
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.VAR_INT));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Long>> EXCALIBUR_NEXT_RECHARGE_TICK =
+            DATA_COMPONENTS.registerComponentType("excalibur_next_recharge_tick", builder -> builder
+                    .persistent(Codec.LONG)
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.VAR_LONG));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Long>> EXCALIBUR_RECHARGE_TICK =
+            DATA_COMPONENTS.registerComponentType("excalibur_recharge_tick", builder -> builder
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.VAR_LONG));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Long>> EXCALIBUR_RELEASE_TICK =
+            DATA_COMPONENTS.registerComponentType("excalibur_release_tick", builder -> builder
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.VAR_LONG));
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> TYRFING_CURSE_ACTIVE =
             DATA_COMPONENTS.registerComponentType("tyrfing_curse_active", builder -> builder
                     .persistent(Codec.BOOL)

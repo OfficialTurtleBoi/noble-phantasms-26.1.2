@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -31,6 +32,7 @@ import net.turtleboi.noblephantasms.item.ModRarities;
 
 public class GungnirItem extends SpearRelicItem {
     public static final int FULL_CHARGE_TICKS = 60;
+    private static final float MIN_THROW_SPEED = 0.75F;
     private static final double HOMING_RANGE = 32.0;
     private static final int TARGET_MEMORY_TICKS = 60;
     private static final WeakHashMap<Player, TargetMemory> TARGET_MEMORY = new WeakHashMap<>();
@@ -69,8 +71,11 @@ public class GungnirItem extends SpearRelicItem {
         if (level instanceof ServerLevel serverLevel) {
             itemStack.hurtWithoutBreaking(1, player);
             ItemStack thrownItemStack = itemStack.consumeAndReturn(1, player);
+            float charge = Mth.clamp(timeHeld / (float) FULL_CHARGE_TICKS, 0.0F, 1.0F);
+            float throwSpeed = Mth.lerp(charge, MIN_THROW_SPEED, PROJECTILE_SHOOT_POWER);
             GungnirProjectile projectile = Projectile.spawnProjectileFromRotation(GungnirProjectile::new,
-                    serverLevel, thrownItemStack, player, 0.0F, PROJECTILE_SHOOT_POWER, 1.0F);
+                    serverLevel, thrownItemStack, player, 0.0F, throwSpeed, 1.0F);
+            projectile.setThrowCharge(charge);
             if (player.hasInfiniteMaterials()) {
                 projectile.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
             }

@@ -35,6 +35,7 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.Identifier;
@@ -61,13 +62,10 @@ public final class ItemOutlineRenderer {
             NoblePhantasms.MOD_ID, "core/item_outline_mask");
     private static final Identifier MASK_FRAGMENT_SHADER = Identifier.fromNamespaceAndPath(
             NoblePhantasms.MOD_ID, "core/item_outline_mask");
-    private static final Identifier HORIZONTAL_SHADER = Identifier.fromNamespaceAndPath(
-            NoblePhantasms.MOD_ID, "core/item_outline_horizontal");
-    private static final Identifier DEPTH_HORIZONTAL_SHADER = Identifier.fromNamespaceAndPath(
-            NoblePhantasms.MOD_ID, "core/item_outline_depth_horizontal");
-    private static final Identifier COMPOSITE_SHADER = Identifier.fromNamespaceAndPath(
-            NoblePhantasms.MOD_ID, "core/item_outline_composite");
-    private static final int MAX_RADIUS = 48;
+    private static final Identifier GEOMETRY_MASK_SHADER = Identifier.fromNamespaceAndPath(
+            NoblePhantasms.MOD_ID, "core/item_outline_geometry_mask");
+    private static final Identifier MODEL_COMPOSITE_SHADER = Identifier.fromNamespaceAndPath(
+            NoblePhantasms.MOD_ID, "core/item_outline_model_composite");
     private static final int MASK_UV_SCALE = 65535;
     private static final int CONFIG_UBO_SIZE = new Std140SizeCalculator()
             .putVec4()
@@ -79,11 +77,12 @@ public final class ItemOutlineRenderer {
             .putVec4()
             .get();
     private static TextureTarget MASK_TARGET;
-    private static TextureTarget DILATION_TARGET;
-    private static TextureTarget DEPTH_DILATION_TARGET;
     private static TextureTarget OCCLUSION_DEPTH_TARGET;
+    private static TextureTarget EXPANDED_MASK_TARGET;
     private static final OutputTarget MASK_OUTPUT = new OutputTarget(
             NoblePhantasms.MOD_ID + "_item_outline_mask", () -> MASK_TARGET);
+    private static final OutputTarget EXPANDED_MASK_OUTPUT = new OutputTarget(
+            NoblePhantasms.MOD_ID + "_item_outline_expanded_mask", () -> EXPANDED_MASK_TARGET);
     private static final RenderPipeline VISIBLE_MASK_PIPELINE = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "pipeline/item_outline_visible_mask"))
             .withVertexShader(MASK_VERTEX_SHADER)
@@ -104,28 +103,19 @@ public final class ItemOutlineRenderer {
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.ENTITY, VertexFormat.Mode.QUADS)
             .build();
-    private static final RenderPipeline HORIZONTAL_PIPELINE = RenderPipeline.builder()
-            .withLocation(Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "pipeline/item_outline_horizontal"))
-            .withVertexShader("core/screenquad")
-            .withFragmentShader(HORIZONTAL_SHADER)
-            .withSampler("InSampler")
-            .withUniform("OutlineConfig", com.mojang.blaze3d.shaders.UniformType.UNIFORM_BUFFER)
-            .withVertexFormat(DefaultVertexFormat.EMPTY, VertexFormat.Mode.TRIANGLES)
+    private static final RenderPipeline GEOMETRY_MASK_PIPELINE = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
+            .withLocation(Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "pipeline/item_outline_geometry_mask"))
+            .withVertexShader(MASK_VERTEX_SHADER)
+            .withFragmentShader(GEOMETRY_MASK_SHADER)
+            .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true, 0.0F, 0.0F))
+            .withCull(false)
+            .withVertexFormat(DefaultVertexFormat.ENTITY, VertexFormat.Mode.QUADS)
             .build();
-    private static final RenderPipeline DEPTH_HORIZONTAL_PIPELINE = RenderPipeline.builder()
-            .withLocation(Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "pipeline/item_outline_depth_horizontal"))
+    private static final RenderPipeline MODEL_COMPOSITE_PIPELINE = RenderPipeline.builder()
+            .withLocation(Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "pipeline/item_outline_model_composite"))
             .withVertexShader("core/screenquad")
-            .withFragmentShader(DEPTH_HORIZONTAL_SHADER)
-            .withSampler("InSampler")
-            .withUniform("OutlineConfig", com.mojang.blaze3d.shaders.UniformType.UNIFORM_BUFFER)
-            .withVertexFormat(DefaultVertexFormat.EMPTY, VertexFormat.Mode.TRIANGLES)
-            .build();
-    private static final RenderPipeline COMPOSITE_PIPELINE = RenderPipeline.builder()
-            .withLocation(Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "pipeline/item_outline_composite"))
-            .withVertexShader("core/screenquad")
-            .withFragmentShader(COMPOSITE_SHADER)
-            .withSampler("DilatedSampler")
-            .withSampler("DepthDilatedSampler")
+            .withFragmentShader(MODEL_COMPOSITE_SHADER)
+            .withSampler("ExpandedSampler")
             .withSampler("MaskSampler")
             .withSampler("SceneDepthSampler")
             .withUniform("OutlineConfig", com.mojang.blaze3d.shaders.UniformType.UNIFORM_BUFFER)
@@ -133,8 +123,20 @@ public final class ItemOutlineRenderer {
             .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
             .withVertexFormat(DefaultVertexFormat.EMPTY, VertexFormat.Mode.TRIANGLES)
             .build();
+    private static final RenderType EXPANDED_GEOMETRY_MASK_TYPE = RenderType.create(
+            NoblePhantasms.MOD_ID + "_item_outline_expanded_texel_geometry_mask",
+            RenderSetup.builder(GEOMETRY_MASK_PIPELINE)
+                    .setOutputTarget(EXPANDED_MASK_OUTPUT)
+                    .createRenderSetup());
+    private static final RenderType INNER_GEOMETRY_MASK_TYPE = RenderType.create(
+            NoblePhantasms.MOD_ID + "_item_outline_inner_texel_geometry_mask",
+            RenderSetup.builder(GEOMETRY_MASK_PIPELINE)
+                    .setOutputTarget(MASK_OUTPUT)
+                    .createRenderSetup());
     private static final Map<MaskTextures, RenderType> VISIBLE_MASK_TYPES = new java.util.HashMap<>();
     private static final Map<MaskTextures, RenderType> THROUGH_MASK_TYPES = new java.util.HashMap<>();
+    private static final Map<MaskTextures, RenderType> EXPANDED_MASK_TYPES = new java.util.HashMap<>();
+    private static final Map<TexelModel, TexelShape> TEXEL_SHAPES = new java.util.HashMap<>();
     private static final Map<Item, Registration> REGISTRATIONS = new IdentityHashMap<>();
     private static final Map<ItemStackRenderState, Outline> RENDER_STATES = new WeakHashMap<>();
     private static final Map<SubmitNodeStorage.ItemSubmit, Outline> SUBMITS = new IdentityHashMap<>();
@@ -209,6 +211,8 @@ public final class ItemOutlineRenderer {
         REGION_QUADS.clear();
         VISIBLE_MASK_TYPES.clear();
         THROUGH_MASK_TYPES.clear();
+        EXPANDED_MASK_TYPES.clear();
+        TEXEL_SHAPES.clear();
         hasProjection = false;
         hasOcclusionDepth = false;
         SUBMITTING.remove();
@@ -217,9 +221,8 @@ public final class ItemOutlineRenderer {
     public static void registerPipelines(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(VISIBLE_MASK_PIPELINE);
         event.registerPipeline(THROUGH_MASK_PIPELINE);
-        event.registerPipeline(HORIZONTAL_PIPELINE);
-        event.registerPipeline(DEPTH_HORIZONTAL_PIPELINE);
-        event.registerPipeline(COMPOSITE_PIPELINE);
+        event.registerPipeline(GEOMETRY_MASK_PIPELINE);
+        event.registerPipeline(MODEL_COMPOSITE_PIPELINE);
     }
 
     public static void setProjection(Matrix4fc projection) {
@@ -307,15 +310,68 @@ public final class ItemOutlineRenderer {
         List<BakedQuad> outlined = outline.region() == null
                 ? submit.quads()
                 : clipToRegion(submit.quads(), outline.region());
-        TextureAtlasSprite maskSprite = outline.mask() == null ? null : maskSprite(outline.mask());
-        renderLayers(bufferSource, submit, outlined, maskSprite, outline.layers(), outline.visibleThroughObjects());
+        LocalBounds modelBounds = localBounds(submit.quads());
+        if (outline.previousMask() != null && outline.maskProgress() < 1.0F) {
+            renderMask(bufferSource, submit, outline, outlined, modelBounds,
+                    outline.previousMask(), 1.0F - outline.maskProgress());
+        }
+        if (outline.previousMask() == null || outline.maskProgress() > 0.0F) {
+            renderMask(bufferSource, submit, outline, outlined, modelBounds,
+                    outline.mask(), outline.previousMask() == null ? 1.0F : outline.maskProgress());
+        }
+    }
+
+    private static void renderMask(MultiBufferSource.BufferSource bufferSource,
+                                   SubmitNodeStorage.ItemSubmit submit, Outline outline,
+                                   List<BakedQuad> outlined, LocalBounds modelBounds,
+                                   @Nullable Identifier mask, float alphaScale) {
+        if (alphaScale <= 0.0F) {
+            return;
+        }
+        TextureAtlasSprite maskSprite = mask == null ? null : maskSprite(mask);
+        TexelModel texelModel = maskSprite == null
+                ? null
+                : new TexelModel(maskSprite, spritePlane(submit.quads(), modelBounds), modelBounds, outline.region());
+        renderLayers(bufferSource, submit, submit.quads(), outlined, maskSprite, texelModel,
+                scaleAlpha(outline.layers(), alphaScale), outline.visibleThroughObjects());
+    }
+
+    private static List<GlowLayer> scaleAlpha(List<GlowLayer> layers, float alphaScale) {
+        return layers.stream()
+                .map(layer -> new GlowLayer(layer.color(), layer.alpha() * alphaScale, layer.thickness()))
+                .toList();
     }
 
     private static void renderLayers(MultiBufferSource.BufferSource bufferSource, SubmitNodeStorage.ItemSubmit submit,
-                                     List<BakedQuad> outlined, @Nullable TextureAtlasSprite maskSprite, List<GlowLayer> layers,
+                                     List<BakedQuad> modelQuads, List<BakedQuad> outlined,
+                                     @Nullable TextureAtlasSprite maskSprite,
+                                     @Nullable TexelModel texelModel, List<GlowLayer> layers,
                                      boolean visibleThroughObjects) {
         if (outlined.isEmpty() || layers.isEmpty()) {
             return;
+        }
+        float[] innerBoundaries = new float[layers.size()];
+        float[] outerBoundaries = new float[layers.size()];
+        float maximumThickness = 0.0F;
+        for (int layerIndex = layers.size() - 1; layerIndex >= 0; layerIndex--) {
+            innerBoundaries[layerIndex] = maximumThickness;
+            maximumThickness += layers.get(layerIndex).thickness();
+            outerBoundaries[layerIndex] = maximumThickness;
+        }
+        TexelShape texelShape = texelModel == null
+                ? null
+                : texelShape(texelModel);
+        if (texelShape != null && texelShape.texels().isEmpty()) {
+            return;
+        }
+        TexelGeometry[] layerGeometries = texelShape == null
+                ? null
+                : new TexelGeometry[layers.size()];
+        if (layerGeometries != null) {
+            for (int layerIndex = 0; layerIndex < layers.size(); layerIndex++) {
+                layerGeometries[layerIndex] = createTexelGeometry(
+                        texelShape, outerBoundaries[layerIndex]);
+            }
         }
         bufferSource.endBatch();
         ensureTargets();
@@ -323,30 +379,46 @@ public final class ItemOutlineRenderer {
         var mainTarget = minecraft.getMainRenderTarget();
         var sceneDepthTarget = hasOcclusionDepth ? OCCLUSION_DEPTH_TARGET : mainTarget;
         CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
-        encoder.clearColorTexture(MASK_TARGET.getColorTexture(), 0);
-        encoder.clearDepthTexture(MASK_TARGET.getDepthTexture(), 1.0D);
-        renderQuads(bufferSource, submit.pose(), outlined, maskSprite, visibleThroughObjects);
-        float[] radii = screenRadii(submit, outlined, layers);
-        float maximumRadius = maximumRadius(radii);
-        ScreenBounds compositeBounds = screenBounds(submit, outlined, maximumRadius + 2.0F);
-        ScreenBounds dilationBounds = screenBounds(submit, outlined, maximumRadius * 2.0F + 2.0F);
-        for (int start = 0; start < layers.size(); start += 4) {
-            writeConfig(encoder, layers, radii, start, visibleThroughObjects);
-            renderHorizontal(encoder, dilationBounds);
-            if (!visibleThroughObjects) {
-                renderDepthHorizontal(encoder, dilationBounds);
+        LocalBounds localBounds = localBounds(outlined);
+        Vector3f center = localBounds.center();
+        float texelSize = modelTexelSize(outlined, localBounds);
+        float maximumExpansion = texelSize * maximumThickness;
+        ScreenBounds compositeBounds = submit.displayContext().firstPerson()
+                ? ScreenBounds.full()
+                : layerGeometries == null
+                ? expandedScreenBounds(submit, outlined, center, maximumExpansion, 2.0F)
+                : expandedLocalBoundsScreenBounds(
+                        submit, layerGeometries[0].bounds(), new Vector3f(), 2.0F);
+        for (int layerIndex = 0; layerIndex < layers.size(); layerIndex++) {
+            GlowLayer layer = layers.get(layerIndex);
+            encoder.clearColorTexture(MASK_TARGET.getColorTexture(), 0);
+            encoder.clearDepthTexture(MASK_TARGET.getDepthTexture(), 1.0D);
+            renderQuads(bufferSource, submit.pose(), modelQuads, null, visibleThroughObjects);
+            float innerThickness = innerBoundaries[layerIndex];
+            if (innerThickness > 0.0F) {
+                if (layerGeometries == null) {
+                    renderExpandedQuads(bufferSource, submit.pose(), outlined, maskSprite, center,
+                            texelSize * innerThickness, true);
+                } else {
+                    renderTexelGeometry(bufferSource, submit.pose(), layerGeometries[layerIndex + 1],
+                            INNER_GEOMETRY_MASK_TYPE);
+                }
             }
-            renderComposite(encoder, mainTarget.getColorTextureView(), sceneDepthTarget.getDepthTextureView(), compositeBounds);
+            encoder.clearColorTexture(EXPANDED_MASK_TARGET.getColorTexture(), 0);
+            encoder.clearDepthTexture(EXPANDED_MASK_TARGET.getDepthTexture(), 1.0D);
+            float outerThickness = outerBoundaries[layerIndex];
+            if (layerGeometries == null) {
+                renderExpandedQuads(bufferSource, submit.pose(), outlined, maskSprite, center,
+                        texelSize * outerThickness, false);
+            } else {
+                renderTexelGeometry(bufferSource, submit.pose(), layerGeometries[layerIndex],
+                        EXPANDED_GEOMETRY_MASK_TYPE);
+            }
+            writeModelConfig(encoder, layer, visibleThroughObjects);
+            renderModelComposite(encoder, mainTarget.getColorTextureView(),
+                    sceneDepthTarget.getDepthTextureView(), compositeBounds);
             configBuffer.rotate();
         }
-    }
-
-    private static float maximumRadius(float[] radii) {
-        float maximum = 0.0F;
-        for (float radius : radii) {
-            maximum = Math.max(maximum, radius);
-        }
-        return maximum;
     }
 
     private static void ensureTargets() {
@@ -357,12 +429,10 @@ public final class ItemOutlineRenderer {
         if (MASK_TARGET == null) {
             MASK_TARGET = new TextureTarget(
                     "Noble Phantasms item outline mask", mainTarget.width, mainTarget.height, true, mainTarget.useStencil);
-            DILATION_TARGET = new TextureTarget(
-                    "Noble Phantasms item outline dilation", mainTarget.width, mainTarget.height, false);
-            DEPTH_DILATION_TARGET = new TextureTarget(
-                    "Noble Phantasms item outline depth dilation", mainTarget.width, mainTarget.height, false);
             OCCLUSION_DEPTH_TARGET = new TextureTarget(
                     "Noble Phantasms item outline occlusion depth", mainTarget.width, mainTarget.height, true, mainTarget.useStencil);
+            EXPANDED_MASK_TARGET = new TextureTarget(
+                    "Noble Phantasms item expanded outline mask", mainTarget.width, mainTarget.height, true, mainTarget.useStencil);
             configBuffer = new MappableRingBuffer(
                     () -> "Noble Phantasms item outline config",
                     com.mojang.blaze3d.buffers.GpuBuffer.USAGE_MAP_WRITE | com.mojang.blaze3d.buffers.GpuBuffer.USAGE_UNIFORM,
@@ -371,9 +441,8 @@ public final class ItemOutlineRenderer {
         }
         if (MASK_TARGET.width != mainTarget.width || MASK_TARGET.height != mainTarget.height) {
             MASK_TARGET.resize(mainTarget.width, mainTarget.height);
-            DILATION_TARGET.resize(mainTarget.width, mainTarget.height);
-            DEPTH_DILATION_TARGET.resize(mainTarget.width, mainTarget.height);
             OCCLUSION_DEPTH_TARGET.resize(mainTarget.width, mainTarget.height);
+            EXPANDED_MASK_TARGET.resize(mainTarget.width, mainTarget.height);
         }
     }
 
@@ -391,6 +460,132 @@ public final class ItemOutlineRenderer {
             putMaskedQuad(vertexConsumer, pose, quad, sourceSprite, maskSprite);
         }
         buffers.keySet().forEach(bufferSource::endBatch);
+    }
+
+    private static void renderExpandedQuads(MultiBufferSource.BufferSource bufferSource,
+                                            com.mojang.blaze3d.vertex.PoseStack.Pose pose,
+                                            List<BakedQuad> quads,
+                                            @Nullable TextureAtlasSprite maskSprite,
+                                            Vector3f center,
+                                            float expansion,
+                                            boolean innerMask) {
+        Map<RenderType, VertexConsumer> buffers = new IdentityHashMap<>();
+        for (BakedQuad quad : quads) {
+            TextureAtlasSprite sourceSprite = quad.materialInfo().sprite();
+            Identifier sourceAtlas = sourceSprite.atlasLocation();
+            Identifier maskAtlas = maskSprite == null ? sourceAtlas : maskSprite.atlasLocation();
+            RenderType renderType = innerMask
+                    ? renderType(sourceAtlas, maskAtlas, false)
+                    : expandedRenderType(sourceAtlas, maskAtlas);
+            VertexConsumer vertexConsumer = buffers.computeIfAbsent(renderType, bufferSource::getBuffer);
+            putExpandedMaskedQuad(vertexConsumer, pose, quad, sourceSprite, maskSprite, center, expansion);
+        }
+        buffers.keySet().forEach(bufferSource::endBatch);
+    }
+
+    private static void renderTexelGeometry(MultiBufferSource.BufferSource bufferSource,
+                                            com.mojang.blaze3d.vertex.PoseStack.Pose pose,
+                                            TexelGeometry geometry,
+                                            RenderType renderType) {
+        VertexConsumer consumer = bufferSource.getBuffer(renderType);
+        for (TexelCuboid cuboid : geometry.cuboids()) {
+            putTexelCuboid(consumer, pose, cuboid);
+        }
+        bufferSource.endBatch(renderType);
+    }
+
+    private static void putTexelCuboid(VertexConsumer consumer,
+                                       com.mojang.blaze3d.vertex.PoseStack.Pose pose,
+                                       TexelCuboid cuboid) {
+        int color = ARGB.color(cuboid.alpha(), 0xFFFFFF);
+        float minX = cuboid.minX();
+        float minY = cuboid.minY();
+        float minZ = cuboid.minZ();
+        float maxX = cuboid.maxX();
+        float maxY = cuboid.maxY();
+        float maxZ = cuboid.maxZ();
+        putGeometryFace(consumer, pose,
+                minX, minY, maxZ, maxX, minY, maxZ,
+                maxX, maxY, maxZ, minX, maxY, maxZ, 0.0F, 0.0F, 1.0F, color);
+        putGeometryFace(consumer, pose,
+                maxX, minY, minZ, minX, minY, minZ,
+                minX, maxY, minZ, maxX, maxY, minZ, 0.0F, 0.0F, -1.0F, color);
+        if (cuboid.minXFace()) {
+            putGeometryFace(consumer, pose,
+                    minX, minY, minZ, minX, minY, maxZ, minX, maxY, maxZ, minX, maxY, minZ, -1.0F, 0.0F, 0.0F, color);
+        }
+        if (cuboid.maxXFace()) {
+            putGeometryFace(consumer, pose,
+                    maxX, minY, maxZ, maxX, minY, minZ, maxX, maxY, minZ, maxX, maxY, maxZ, 1.0F, 0.0F, 0.0F, color);
+        }
+        if (cuboid.minYFace()) {
+            putGeometryFace(consumer, pose,
+                    minX, minY, minZ, maxX, minY, minZ, maxX, minY, maxZ, minX, minY, maxZ, 0.0F, -1.0F, 0.0F, color);
+        }
+        if (cuboid.maxYFace()) {
+            putGeometryFace(consumer, pose,
+                    minX, maxY, maxZ, maxX, maxY, maxZ, maxX, maxY, minZ, minX, maxY, minZ, 0.0F, 1.0F, 0.0F, color);
+        }
+    }
+
+    private static void putGeometryFace(VertexConsumer consumer,
+                                        com.mojang.blaze3d.vertex.PoseStack.Pose pose,
+                                        float x0, float y0, float z0,
+                                        float x1, float y1, float z1,
+                                        float x2, float y2, float z2,
+                                        float x3, float y3, float z3,
+                                        float normalX, float normalY, float normalZ,
+                                        int color) {
+        Vector3f normal = pose.transformNormal(new Vector3f(normalX, normalY, normalZ), new Vector3f());
+        putGeometryVertex(consumer, pose, x0, y0, z0, normal, color);
+        putGeometryVertex(consumer, pose, x1, y1, z1, normal, color);
+        putGeometryVertex(consumer, pose, x2, y2, z2, normal, color);
+        putGeometryVertex(consumer, pose, x3, y3, z3, normal, color);
+    }
+
+    private static void putGeometryVertex(VertexConsumer consumer,
+                                          com.mojang.blaze3d.vertex.PoseStack.Pose pose,
+                                          float x, float y, float z,
+                                          Vector3f normal,
+                                          int color) {
+        Vector3f position = pose.pose().transformPosition(x, y, z, new Vector3f());
+        consumer.addVertex(position.x(), position.y(), position.z())
+                .setColor(color)
+                .setUv(0.0F, 0.0F)
+                .setUv1(0, 0)
+                .setLight(LightCoordsUtil.FULL_BRIGHT)
+                .setNormal(normal.x(), normal.y(), normal.z());
+    }
+
+    private static void putExpandedMaskedQuad(VertexConsumer consumer,
+                                              com.mojang.blaze3d.vertex.PoseStack.Pose pose,
+                                              BakedQuad quad,
+                                              TextureAtlasSprite sourceSprite,
+                                              @Nullable TextureAtlasSprite maskSprite,
+                                              Vector3f center,
+                                              float expansion) {
+        Vector3f normal = pose.transformNormal(quad.direction().getUnitVec3f(), new Vector3f());
+        for (int index = 0; index < 4; index++) {
+            var localPosition = quad.position(index);
+            Vector3f expandedPosition = new Vector3f(
+                    localPosition.x() + directionFromCenter(localPosition.x(), center.x()) * expansion,
+                    localPosition.y() + directionFromCenter(localPosition.y(), center.y()) * expansion,
+                    localPosition.z() + directionFromCenter(localPosition.z(), center.z()) * expansion);
+            Vector3f position = pose.pose().transformPosition(expandedPosition, new Vector3f());
+            float u = UVPair.unpackU(quad.packedUV(index));
+            float v = UVPair.unpackV(quad.packedUV(index));
+            float maskU = maskSprite == null ? u : moveUv(u, sourceSprite.getU0(), sourceSprite.getU1(),
+                    maskSprite.getU0(), maskSprite.getU1());
+            float maskV = maskSprite == null ? v : moveUv(v, sourceSprite.getV0(), sourceSprite.getV1(),
+                    maskSprite.getV0(), maskSprite.getV1());
+            int color = ARGB.multiply(-1, quad.bakedColors().color(index));
+            consumer.addVertex(position.x, position.y, position.z)
+                    .setColor(color)
+                    .setUv(u, v)
+                    .setUv1(packMaskUv(maskU), packMaskUv(maskV))
+                    .setLight(LightCoordsUtil.FULL_BRIGHT)
+                    .setNormal(normal.x, normal.y, normal.z);
+        }
     }
 
     private static void putMaskedQuad(VertexConsumer consumer, com.mojang.blaze3d.vertex.PoseStack.Pose pose,
@@ -421,74 +616,41 @@ public final class ItemOutlineRenderer {
         return Mth.lerp(progress, targetMin, targetMax);
     }
 
+    private static float directionFromCenter(float coordinate, float center) {
+        return coordinate < center ? -1.0F : coordinate > center ? 1.0F : 0.0F;
+    }
+
     private static int packMaskUv(float value) {
         return Math.round(Mth.clamp(value, 0.0F, 1.0F) * MASK_UV_SCALE);
     }
 
-    private static void writeConfig(CommandEncoder encoder, List<GlowLayer> layers, float[] screenRadii, int start,
-                                    boolean visibleThroughObjects) {
-        float[] radii = new float[4];
-        float[] alphas = new float[4];
+    private static void writeModelConfig(CommandEncoder encoder, GlowLayer layer, boolean visibleThroughObjects) {
         try (var mapped = encoder.mapBuffer(configBuffer.currentBuffer(), false, true)) {
             Std140Builder builder = Std140Builder.intoBuffer(mapped.data());
-            for (int index = 0; index < 4; index++) {
-                int layerIndex = start + index;
-                if (layerIndex >= layers.size()) {
-                    builder.putVec4(0.0F, 0.0F, 0.0F, 0.0F);
-                    continue;
-                }
-                GlowLayer layer = layers.get(layerIndex);
-                builder.putVec4(
-                        ARGB.redFloat(layer.color()),
-                        ARGB.greenFloat(layer.color()),
-                        ARGB.blueFloat(layer.color()),
-                        1.0F);
-                radii[index] = screenRadii[layerIndex];
-                alphas[index] = layer.alpha();
-            }
-            builder.putVec4(radii[0], radii[1], radii[2], radii[3]);
-            builder.putVec4(alphas[0], alphas[1], alphas[2], alphas[3]);
+            builder.putVec4(
+                    ARGB.redFloat(layer.color()),
+                    ARGB.greenFloat(layer.color()),
+                    ARGB.blueFloat(layer.color()),
+                    1.0F);
+            builder.putVec4(0.0F, 0.0F, 0.0F, 0.0F);
+            builder.putVec4(0.0F, 0.0F, 0.0F, 0.0F);
+            builder.putVec4(0.0F, 0.0F, 0.0F, 0.0F);
+            builder.putVec4(0.0F, 0.0F, 0.0F, 0.0F);
+            builder.putVec4(layer.alpha(), 0.0F, 0.0F, 0.0F);
             builder.putVec4(visibleThroughObjects ? 1.0F : 0.0F, 0.0F, 0.0F, 0.0F);
         }
     }
 
-    private static void renderHorizontal(CommandEncoder encoder, ScreenBounds bounds) {
-        try (RenderPass renderPass = encoder.createRenderPass(
-                () -> "Noble Phantasms item outline horizontal dilation",
-                DILATION_TARGET.getColorTextureView(), OptionalInt.empty())) {
-            renderPass.setPipeline(HORIZONTAL_PIPELINE);
-            RenderSystem.bindDefaultUniforms(renderPass);
-            renderPass.bindTexture("InSampler", MASK_TARGET.getColorTextureView(),
-                    RenderSystem.getSamplerCache().getClampToEdge(com.mojang.blaze3d.textures.FilterMode.NEAREST));
-            renderPass.setUniform("OutlineConfig", configBuffer.currentBuffer());
-            bounds.enable(renderPass);
-            renderPass.draw(0, 3);
-        }
-    }
-
-    private static void renderDepthHorizontal(CommandEncoder encoder, ScreenBounds bounds) {
-        try (RenderPass renderPass = encoder.createRenderPass(
-                () -> "Noble Phantasms item outline horizontal depth dilation",
-                DEPTH_DILATION_TARGET.getColorTextureView(), OptionalInt.empty())) {
-            renderPass.setPipeline(DEPTH_HORIZONTAL_PIPELINE);
-            RenderSystem.bindDefaultUniforms(renderPass);
-            renderPass.bindTexture("InSampler", MASK_TARGET.getColorTextureView(),
-                    RenderSystem.getSamplerCache().getClampToEdge(com.mojang.blaze3d.textures.FilterMode.NEAREST));
-            renderPass.setUniform("OutlineConfig", configBuffer.currentBuffer());
-            bounds.enable(renderPass);
-            renderPass.draw(0, 3);
-        }
-    }
-
-    private static void renderComposite(CommandEncoder encoder, com.mojang.blaze3d.textures.GpuTextureView output,
-                                        com.mojang.blaze3d.textures.GpuTextureView sceneDepth, ScreenBounds bounds) {
+    private static void renderModelComposite(CommandEncoder encoder,
+                                             com.mojang.blaze3d.textures.GpuTextureView output,
+                                             com.mojang.blaze3d.textures.GpuTextureView sceneDepth,
+                                             ScreenBounds bounds) {
         var sampler = RenderSystem.getSamplerCache().getClampToEdge(com.mojang.blaze3d.textures.FilterMode.NEAREST);
         try (RenderPass renderPass = encoder.createRenderPass(
-                () -> "Noble Phantasms item outline composite", output, OptionalInt.empty())) {
-            renderPass.setPipeline(COMPOSITE_PIPELINE);
+                () -> "Noble Phantasms item model outline composite", output, OptionalInt.empty())) {
+            renderPass.setPipeline(MODEL_COMPOSITE_PIPELINE);
             RenderSystem.bindDefaultUniforms(renderPass);
-            renderPass.bindTexture("DilatedSampler", DILATION_TARGET.getColorTextureView(), sampler);
-            renderPass.bindTexture("DepthDilatedSampler", DEPTH_DILATION_TARGET.getColorTextureView(), sampler);
+            renderPass.bindTexture("ExpandedSampler", EXPANDED_MASK_TARGET.getColorTextureView(), sampler);
             renderPass.bindTexture("MaskSampler", MASK_TARGET.getColorTextureView(), sampler);
             renderPass.bindTexture("SceneDepthSampler", sceneDepth, sampler);
             renderPass.setUniform("OutlineConfig", configBuffer.currentBuffer());
@@ -497,107 +659,266 @@ public final class ItemOutlineRenderer {
         }
     }
 
-    private static Vector3f axisCompensation(com.mojang.blaze3d.vertex.PoseStack.Pose pose) {
-        Vector3f scale = pose.pose().getScale(new Vector3f());
-        float target = Math.max(scale.x, Math.max(scale.y, scale.z));
-        scale.x = scale.x > 1.0E-5F ? target / scale.x : 1.0F;
-        scale.y = scale.y > 1.0E-5F ? target / scale.y : 1.0F;
-        scale.z = scale.z > 1.0E-5F ? target / scale.z : 1.0F;
-        return scale;
-    }
-
-    private static float[] screenRadii(SubmitNodeStorage.ItemSubmit submit, List<BakedQuad> quads,
-                                       List<GlowLayer> layers) {
-        float[] radii = new float[layers.size()];
-        float maximumRadius = 0.0F;
-        float texelRadius = screenTexelRadius(submit, quads);
-        for (int index = 0; index < layers.size(); index++) {
-            radii[index] = texelRadius * layers.get(index).thickness();
-            maximumRadius = Math.max(maximumRadius, radii[index]);
-        }
-        float scale = maximumRadius > MAX_RADIUS ? MAX_RADIUS / maximumRadius : 1.0F;
-        for (int index = 0; index < radii.length; index++) {
-            radii[index] = Math.max(1.0F, radii[index] * scale);
-        }
-        return radii;
-    }
-
-    private static float screenTexelRadius(SubmitNodeStorage.ItemSubmit submit, List<BakedQuad> quads) {
-        if (!hasProjection) {
-            return fallbackTexelRadius(submit, quads);
-        }
-        Matrix4f modelToClip = modelToClip(submit);
-        double totalScreenDistance = 0.0;
-        double totalTextureDistance = 0.0;
+    private static float modelTexelSize(List<BakedQuad> quads, LocalBounds bounds) {
+        List<Float> candidates = new ArrayList<>();
+        int maximumResolution = 1;
         for (BakedQuad quad : quads) {
             TextureAtlasSprite sprite = quad.materialInfo().sprite();
-            float uScale = sprite.contents().width() / (sprite.getU1() - sprite.getU0());
-            float vScale = sprite.contents().height() / (sprite.getV1() - sprite.getV0());
+            maximumResolution = Math.max(maximumResolution,
+                    Math.max(sprite.contents().width(), sprite.contents().height()));
+            float uSpan = Math.abs(sprite.getU1() - sprite.getU0());
+            float vSpan = Math.abs(sprite.getV1() - sprite.getV0());
+            if (uSpan <= 1.0E-7F || vSpan <= 1.0E-7F) {
+                continue;
+            }
+            float uScale = sprite.contents().width() / uSpan;
+            float vScale = sprite.contents().height() / vSpan;
             for (int index = 0; index < 4; index++) {
                 int nextIndex = (index + 1) % 4;
-                Vector4f first = project(modelToClip, quad.position(index).x(), quad.position(index).y(), quad.position(index).z());
-                Vector4f second = project(
-                        modelToClip, quad.position(nextIndex).x(), quad.position(nextIndex).y(), quad.position(nextIndex).z());
-                if (first == null || second == null) {
-                    continue;
-                }
-                float deltaU = (UVPair.unpackU(quad.packedUV(nextIndex)) - UVPair.unpackU(quad.packedUV(index))) * uScale;
-                float deltaV = (UVPair.unpackV(quad.packedUV(nextIndex)) - UVPair.unpackV(quad.packedUV(index))) * vScale;
+                var first = quad.position(index);
+                var second = quad.position(nextIndex);
+                float modelDistance = first.distance(second);
+                float deltaU = (UVPair.unpackU(quad.packedUV(nextIndex))
+                        - UVPair.unpackU(quad.packedUV(index))) * uScale;
+                float deltaV = (UVPair.unpackV(quad.packedUV(nextIndex))
+                        - UVPair.unpackV(quad.packedUV(index))) * vScale;
                 float textureDistance = Mth.sqrt(deltaU * deltaU + deltaV * deltaV);
-                if (textureDistance <= 1.0E-5F) {
-                    continue;
+                if (modelDistance > 1.0E-5F && textureDistance >= 0.5F) {
+                    candidates.add(modelDistance / textureDistance);
                 }
-                float deltaX = (second.x - first.x) * MASK_TARGET.width * 0.5F;
-                float deltaY = (second.y - first.y) * MASK_TARGET.height * 0.5F;
-                totalScreenDistance += Mth.sqrt(deltaX * deltaX + deltaY * deltaY);
-                totalTextureDistance += textureDistance;
             }
         }
-        if (totalTextureDistance <= 1.0E-5) {
-            return fallbackTexelRadius(submit, quads);
+        if (!candidates.isEmpty()) {
+            candidates.sort(Float::compare);
+            return candidates.get(candidates.size() / 4);
         }
-        return Math.max(1.0F, (float) (totalScreenDistance / totalTextureDistance));
+        float maximumSpan = Math.max(bounds.maxX() - bounds.minX(),
+                Math.max(bounds.maxY() - bounds.minY(), bounds.maxZ() - bounds.minZ()));
+        return maximumSpan / maximumResolution;
     }
 
-    private static float fallbackTexelRadius(SubmitNodeStorage.ItemSubmit submit, List<BakedQuad> quads) {
-        int resolution = 1;
+    private static SpritePlane spritePlane(List<BakedQuad> quads, LocalBounds bounds) {
+        BakedQuad selected = null;
+        float selectedArea = 0.0F;
         for (BakedQuad quad : quads) {
-            var contents = quad.materialInfo().sprite().contents();
-            resolution = Math.max(resolution, Math.max(contents.width(), contents.height()));
+            if (quad.direction() != Direction.SOUTH) {
+                continue;
+            }
+            TextureAtlasSprite sprite = quad.materialInfo().sprite();
+            float minU = Float.POSITIVE_INFINITY;
+            float minV = Float.POSITIVE_INFINITY;
+            float maxU = Float.NEGATIVE_INFINITY;
+            float maxV = Float.NEGATIVE_INFINITY;
+            for (int index = 0; index < 4; index++) {
+                float u = normalizedU(sprite, UVPair.unpackU(quad.packedUV(index)));
+                float v = normalizedV(sprite, UVPair.unpackV(quad.packedUV(index)));
+                minU = Math.min(minU, u);
+                minV = Math.min(minV, v);
+                maxU = Math.max(maxU, u);
+                maxV = Math.max(maxV, v);
+            }
+            float area = (maxU - minU) * (maxV - minV);
+            if (area > selectedArea) {
+                selected = quad;
+                selectedArea = area;
+            }
         }
-        return screenModelRadius(submit, quads, 1.0F / resolution);
+        if (selected == null) {
+            return new SpritePlane(
+                    new Vector3f(bounds.minX(), bounds.maxY(), (bounds.minZ() + bounds.maxZ()) * 0.5F),
+                    new Vector3f(bounds.maxX() - bounds.minX(), 0.0F, 0.0F),
+                    new Vector3f(0.0F, bounds.minY() - bounds.maxY(), 0.0F));
+        }
+        TextureAtlasSprite sprite = selected.materialInfo().sprite();
+        for (int firstIndex = 0; firstIndex < 4; firstIndex++) {
+            int secondIndex = (firstIndex + 1) % 4;
+            int thirdIndex = (firstIndex + 2) % 4;
+            float firstU = normalizedU(sprite, UVPair.unpackU(selected.packedUV(firstIndex)));
+            float firstV = normalizedV(sprite, UVPair.unpackV(selected.packedUV(firstIndex)));
+            float secondU = normalizedU(sprite, UVPair.unpackU(selected.packedUV(secondIndex)));
+            float secondV = normalizedV(sprite, UVPair.unpackV(selected.packedUV(secondIndex)));
+            float thirdU = normalizedU(sprite, UVPair.unpackU(selected.packedUV(thirdIndex)));
+            float thirdV = normalizedV(sprite, UVPair.unpackV(selected.packedUV(thirdIndex)));
+            float deltaU1 = secondU - firstU;
+            float deltaV1 = secondV - firstV;
+            float deltaU2 = thirdU - firstU;
+            float deltaV2 = thirdV - firstV;
+            float determinant = deltaU1 * deltaV2 - deltaU2 * deltaV1;
+            if (Math.abs(determinant) <= 1.0E-6F) {
+                continue;
+            }
+            Vector3f firstPosition = new Vector3f(selected.position(firstIndex));
+            Vector3f firstDelta = new Vector3f(selected.position(secondIndex)).sub(firstPosition);
+            Vector3f secondDelta = new Vector3f(selected.position(thirdIndex)).sub(firstPosition);
+            Vector3f uAxis = new Vector3f(firstDelta).mul(deltaV2)
+                    .sub(new Vector3f(secondDelta).mul(deltaV1))
+                    .div(determinant);
+            Vector3f vAxis = new Vector3f(secondDelta).mul(deltaU1)
+                    .sub(new Vector3f(firstDelta).mul(deltaU2))
+                    .div(determinant);
+            Vector3f origin = new Vector3f(firstPosition)
+                    .sub(new Vector3f(uAxis).mul(firstU))
+                    .sub(new Vector3f(vAxis).mul(firstV));
+            return new SpritePlane(origin, uAxis, vAxis);
+        }
+        return new SpritePlane(
+                new Vector3f(bounds.minX(), bounds.maxY(), (bounds.minZ() + bounds.maxZ()) * 0.5F),
+                new Vector3f(bounds.maxX() - bounds.minX(), 0.0F, 0.0F),
+                new Vector3f(0.0F, bounds.minY() - bounds.maxY(), 0.0F));
     }
 
-    private static float screenModelRadius(SubmitNodeStorage.ItemSubmit submit, List<BakedQuad> quads, float width) {
-        if (!hasProjection) {
-            return Math.max(1.0F, width * MASK_TARGET.height * 0.4F);
-        }
-        LocalBounds bounds = localBounds(quads);
-        Vector3f center = bounds.center();
-        Matrix4f modelToClip = modelToClip(submit);
-        Vector4f projectedCenter = project(modelToClip, center.x, center.y, center.z);
-        if (projectedCenter == null) {
-            return Math.max(1.0F, width * MASK_TARGET.height * 0.4F);
-        }
-        Vector3f compensation = axisCompensation(submit.pose());
-        float radius = 0.0F;
-        radius = Math.max(radius, projectedDistance(modelToClip, projectedCenter, center.x + width * compensation.x, center.y, center.z));
-        radius = Math.max(radius, projectedDistance(modelToClip, projectedCenter, center.x, center.y + width * compensation.y, center.z));
-        radius = Math.max(radius, projectedDistance(modelToClip, projectedCenter, center.x, center.y, center.z + width * compensation.z));
-        return Math.max(1.0F, radius);
+    private static float normalizedU(TextureAtlasSprite sprite, float u) {
+        return (u - sprite.getU0()) / (sprite.getU1() - sprite.getU0());
     }
 
-    private static float projectedDistance(Matrix4f modelToClip, Vector4f center, float x, float y, float z) {
-        Vector4f projected = project(modelToClip, x, y, z);
-        if (projected == null) {
-            return 0.0F;
-        }
-        float deltaX = (projected.x - center.x) * MASK_TARGET.width * 0.5F;
-        float deltaY = (projected.y - center.y) * MASK_TARGET.height * 0.5F;
-        return Mth.sqrt(deltaX * deltaX + deltaY * deltaY);
+    private static float normalizedV(TextureAtlasSprite sprite, float v) {
+        return (v - sprite.getV0()) / (sprite.getV1() - sprite.getV0());
     }
 
-    private static ScreenBounds screenBounds(SubmitNodeStorage.ItemSubmit submit, List<BakedQuad> quads, float margin) {
+    private static TexelShape texelShape(TexelModel model) {
+        return TEXEL_SHAPES.computeIfAbsent(model, ItemOutlineRenderer::createTexelShape);
+    }
+
+    private static TexelShape createTexelShape(TexelModel model) {
+        TextureAtlasSprite sprite = model.sprite();
+        SpritePlane spritePlane = model.spritePlane();
+        var contents = sprite.contents();
+        int width = contents.width();
+        int height = contents.height();
+        List<SourceTexel> texels = new ArrayList<>();
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                Vector3f center = spritePlane.position((x + 0.5F) / width, (y + 0.5F) / height);
+                if (model.region() == null || model.region().contains(center.x(), center.y(), center.z())) {
+                    float alpha = texelAlpha(sprite, x, y);
+                    if (alpha > 0.0F) {
+                        texels.add(new SourceTexel(x, y, alpha));
+                    }
+                }
+            }
+        }
+        float texelZ = Math.min(spritePlane.uAxis().length() / width,
+                spritePlane.vAxis().length() / height);
+        return new TexelShape(List.copyOf(texels), width, height, spritePlane, model.modelBounds(), texelZ);
+    }
+
+    private static TexelGeometry createTexelGeometry(TexelShape shape, float thickness) {
+        float[] xCoordinates = geometryCoordinates(shape.texels(), thickness, true);
+        float[] yCoordinates = geometryCoordinates(shape.texels(), thickness, false);
+        int gridWidth = Math.max(0, xCoordinates.length - 1);
+        int gridHeight = Math.max(0, yCoordinates.length - 1);
+        float[] alpha = new float[gridWidth * gridHeight];
+        for (SourceTexel texel : shape.texels()) {
+            int minX = coordinateIndex(xCoordinates, texel.x() - thickness);
+            int maxX = coordinateIndex(xCoordinates, texel.x() + 1.0F + thickness);
+            int minY = coordinateIndex(yCoordinates, texel.y() - thickness);
+            int maxY = coordinateIndex(yCoordinates, texel.y() + 1.0F + thickness);
+            for (int y = minY; y < maxY; y++) {
+                for (int x = minX; x < maxX; x++) {
+                    int index = y * gridWidth + x;
+                    alpha[index] = Math.max(alpha[index], texel.alpha());
+                }
+            }
+        }
+
+        List<TexelCuboid> cuboids = new ArrayList<>();
+        float minX = Float.POSITIVE_INFINITY;
+        float minY = Float.POSITIVE_INFINITY;
+        float minZ = Float.POSITIVE_INFINITY;
+        float maxX = Float.NEGATIVE_INFINITY;
+        float maxY = Float.NEGATIVE_INFINITY;
+        float maxZ = Float.NEGATIVE_INFINITY;
+        boolean uIncreasesX = shape.spritePlane().uAxis().x() >= 0.0F;
+        boolean vIncreasesY = shape.spritePlane().vAxis().y() >= 0.0F;
+        float cuboidMinZ = shape.modelBounds().minZ() - shape.texelZ() * thickness;
+        float cuboidMaxZ = shape.modelBounds().maxZ() + shape.texelZ() * thickness;
+        for (int y = 0; y < gridHeight; y++) {
+            for (int x = 0; x < gridWidth; x++) {
+                int index = y * gridWidth + x;
+                float cellAlpha = alpha[index];
+                if (cellAlpha <= 0.0F) {
+                    continue;
+                }
+                boolean uMinusFace = x == 0 || alpha[index - 1] <= 0.0F;
+                boolean uPlusFace = x == gridWidth - 1 || alpha[index + 1] <= 0.0F;
+                boolean vMinusFace = y == 0 || alpha[index - gridWidth] <= 0.0F;
+                boolean vPlusFace = y == gridHeight - 1 || alpha[index + gridWidth] <= 0.0F;
+                Vector3f firstCorner = shape.spritePlane().position(
+                        xCoordinates[x] / shape.width(), yCoordinates[y] / shape.height());
+                Vector3f secondCorner = shape.spritePlane().position(
+                        xCoordinates[x + 1] / shape.width(), yCoordinates[y + 1] / shape.height());
+                float cellMinX = Math.min(firstCorner.x(), secondCorner.x());
+                float cellMinY = Math.min(firstCorner.y(), secondCorner.y());
+                float cellMaxX = Math.max(firstCorner.x(), secondCorner.x());
+                float cellMaxY = Math.max(firstCorner.y(), secondCorner.y());
+                if (cellMaxX - cellMinX <= 1.0E-6F
+                        || cellMaxY - cellMinY <= 1.0E-6F
+                        || cuboidMaxZ - cuboidMinZ <= 1.0E-6F) {
+                    continue;
+                }
+                cuboids.add(new TexelCuboid(
+                        cellMinX, cellMinY, cuboidMinZ,
+                        cellMaxX, cellMaxY, cuboidMaxZ, cellAlpha,
+                        uIncreasesX ? uMinusFace : uPlusFace,
+                        uIncreasesX ? uPlusFace : uMinusFace,
+                        vIncreasesY ? vMinusFace : vPlusFace,
+                        vIncreasesY ? vPlusFace : vMinusFace));
+                minX = Math.min(minX, cellMinX);
+                minY = Math.min(minY, cellMinY);
+                minZ = Math.min(minZ, cuboidMinZ);
+                maxX = Math.max(maxX, cellMaxX);
+                maxY = Math.max(maxY, cellMaxY);
+                maxZ = Math.max(maxZ, cuboidMaxZ);
+            }
+        }
+        cuboids.sort((first, second) -> Float.compare(first.alpha(), second.alpha()));
+        LocalBounds bounds = cuboids.isEmpty()
+                ? shape.modelBounds()
+                : new LocalBounds(minX, minY, minZ, maxX, maxY, maxZ);
+        return new TexelGeometry(List.copyOf(cuboids), bounds);
+    }
+
+    private static float[] geometryCoordinates(List<SourceTexel> texels, float thickness, boolean horizontal) {
+        float[] coordinates = new float[texels.size() * 2];
+        int coordinateIndex = 0;
+        for (SourceTexel texel : texels) {
+            float coordinate = horizontal ? texel.x() : texel.y();
+            coordinates[coordinateIndex++] = coordinate - thickness;
+            coordinates[coordinateIndex++] = coordinate + 1.0F + thickness;
+        }
+        java.util.Arrays.sort(coordinates);
+        int uniqueCount = 0;
+        for (float coordinate : coordinates) {
+            if (uniqueCount == 0 || Math.abs(coordinate - coordinates[uniqueCount - 1]) > 1.0E-5F) {
+                coordinates[uniqueCount++] = coordinate;
+            }
+        }
+        return java.util.Arrays.copyOf(coordinates, uniqueCount);
+    }
+
+    private static int coordinateIndex(float[] coordinates, float coordinate) {
+        int index = java.util.Arrays.binarySearch(coordinates, coordinate);
+        if (index >= 0) {
+            return index;
+        }
+        int insertion = -index - 1;
+        if (insertion < coordinates.length
+                && Math.abs(coordinates[insertion] - coordinate) <= 1.0E-5F) {
+            return insertion;
+        }
+        return Math.max(0, insertion - 1);
+    }
+
+    private static float texelAlpha(TextureAtlasSprite sprite, int x, int y) {
+        int alpha = 0;
+        for (int frame : sprite.contents().getUniqueFrames()) {
+            alpha = Math.max(alpha, ARGB.alpha(sprite.getPixelRGBA(frame, x, y)));
+        }
+        return alpha / 255.0F;
+    }
+
+    private static ScreenBounds expandedScreenBounds(SubmitNodeStorage.ItemSubmit submit, List<BakedQuad> quads,
+                                                     Vector3f center, float expansion, float margin) {
         if (!hasProjection) {
             return ScreenBounds.full();
         }
@@ -609,16 +930,60 @@ public final class ItemOutlineRenderer {
         for (BakedQuad quad : quads) {
             for (int index = 0; index < 4; index++) {
                 var position = quad.position(index);
-                Vector4f projected = project(modelToClip, position.x(), position.y(), position.z());
+                float x = position.x() + directionFromCenter(position.x(), center.x()) * expansion;
+                float y = position.y() + directionFromCenter(position.y(), center.y()) * expansion;
+                float z = position.z() + directionFromCenter(position.z(), center.z()) * expansion;
+                Vector4f projected = project(modelToClip, x, y, z);
                 if (projected == null) {
                     continue;
                 }
-                float x = (projected.x * 0.5F + 0.5F) * MASK_TARGET.width;
-                float y = (projected.y * 0.5F + 0.5F) * MASK_TARGET.height;
-                minX = Math.min(minX, x);
-                minY = Math.min(minY, y);
-                maxX = Math.max(maxX, x);
-                maxY = Math.max(maxY, y);
+                float screenX = (projected.x * 0.5F + 0.5F) * MASK_TARGET.width;
+                float screenY = (projected.y * 0.5F + 0.5F) * MASK_TARGET.height;
+                minX = Math.min(minX, screenX);
+                minY = Math.min(minY, screenY);
+                maxX = Math.max(maxX, screenX);
+                maxY = Math.max(maxY, screenY);
+            }
+        }
+        if (!Float.isFinite(minX)) {
+            return ScreenBounds.full();
+        }
+        int left = Mth.clamp(Mth.floor(minX - margin), 0, MASK_TARGET.width);
+        int bottom = Mth.clamp(Mth.floor(minY - margin), 0, MASK_TARGET.height);
+        int right = Mth.clamp(Mth.ceil(maxX + margin), 0, MASK_TARGET.width);
+        int top = Mth.clamp(Mth.ceil(maxY + margin), 0, MASK_TARGET.height);
+        return new ScreenBounds(left, bottom, Math.max(1, right - left), Math.max(1, top - bottom));
+    }
+
+    private static ScreenBounds expandedLocalBoundsScreenBounds(SubmitNodeStorage.ItemSubmit submit,
+                                                                LocalBounds bounds,
+                                                                Vector3f expansion,
+                                                                float margin) {
+        if (!hasProjection) {
+            return ScreenBounds.full();
+        }
+        Matrix4f modelToClip = modelToClip(submit);
+        float minX = Float.POSITIVE_INFINITY;
+        float minY = Float.POSITIVE_INFINITY;
+        float maxX = Float.NEGATIVE_INFINITY;
+        float maxY = Float.NEGATIVE_INFINITY;
+        float[] xCoordinates = {bounds.minX() - expansion.x(), bounds.maxX() + expansion.x()};
+        float[] yCoordinates = {bounds.minY() - expansion.y(), bounds.maxY() + expansion.y()};
+        float[] zCoordinates = {bounds.minZ() - expansion.z(), bounds.maxZ() + expansion.z()};
+        for (float x : xCoordinates) {
+            for (float y : yCoordinates) {
+                for (float z : zCoordinates) {
+                    Vector4f projected = project(modelToClip, x, y, z);
+                    if (projected == null) {
+                        continue;
+                    }
+                    float screenX = (projected.x * 0.5F + 0.5F) * MASK_TARGET.width;
+                    float screenY = (projected.y * 0.5F + 0.5F) * MASK_TARGET.height;
+                    minX = Math.min(minX, screenX);
+                    minY = Math.min(minY, screenY);
+                    maxX = Math.max(maxX, screenX);
+                    maxY = Math.max(maxY, screenY);
+                }
             }
         }
         if (!Float.isFinite(minX)) {
@@ -767,22 +1132,28 @@ public final class ItemOutlineRenderer {
                         .createRenderSetup()));
     }
 
+    private static RenderType expandedRenderType(Identifier atlas, Identifier maskAtlas) {
+        return EXPANDED_MASK_TYPES.computeIfAbsent(new MaskTextures(atlas, maskAtlas), textures -> RenderType.create(
+                NoblePhantasms.MOD_ID + "_item_outline_expanded_mask",
+                RenderSetup.builder(VISIBLE_MASK_PIPELINE)
+                        .withTexture("Sampler0", textures.sourceAtlas())
+                        .withTexture("MaskSampler", textures.maskAtlas())
+                        .setOutputTarget(EXPANDED_MASK_OUTPUT)
+                        .createRenderSetup()));
+    }
+
     private static void destroyTargets() {
         if (MASK_TARGET != null) {
             MASK_TARGET.destroyBuffers();
             MASK_TARGET = null;
         }
-        if (DILATION_TARGET != null) {
-            DILATION_TARGET.destroyBuffers();
-            DILATION_TARGET = null;
-        }
-        if (DEPTH_DILATION_TARGET != null) {
-            DEPTH_DILATION_TARGET.destroyBuffers();
-            DEPTH_DILATION_TARGET = null;
-        }
         if (OCCLUSION_DEPTH_TARGET != null) {
             OCCLUSION_DEPTH_TARGET.destroyBuffers();
             OCCLUSION_DEPTH_TARGET = null;
+        }
+        if (EXPANDED_MASK_TARGET != null) {
+            EXPANDED_MASK_TARGET.destroyBuffers();
+            EXPANDED_MASK_TARGET = null;
         }
         hasOcclusionDepth = false;
         if (configBuffer != null) {
@@ -809,6 +1180,34 @@ public final class ItemOutlineRenderer {
     }
 
     private record MaskTextures(Identifier sourceAtlas, Identifier maskAtlas) {
+    }
+
+    private record TexelModel(TextureAtlasSprite sprite, SpritePlane spritePlane,
+                              LocalBounds modelBounds, @Nullable Region region) {
+    }
+
+    private record SourceTexel(int x, int y, float alpha) {
+    }
+
+    private record TexelShape(List<SourceTexel> texels, int width, int height,
+                              SpritePlane spritePlane, LocalBounds modelBounds, float texelZ) {
+    }
+
+    private record TexelGeometry(List<TexelCuboid> cuboids, LocalBounds bounds) {
+    }
+
+    private record SpritePlane(Vector3f origin, Vector3f uAxis, Vector3f vAxis) {
+        private Vector3f position(float u, float v) {
+            return new Vector3f(origin)
+                    .fma(u, uAxis)
+                    .fma(v, vAxis);
+        }
+    }
+
+    private record TexelCuboid(float minX, float minY, float minZ,
+                               float maxX, float maxY, float maxZ, float alpha,
+                               boolean minXFace, boolean maxXFace,
+                               boolean minYFace, boolean maxYFace) {
     }
 
     private record ScreenBounds(int x, int y, int width, int height) {
@@ -855,9 +1254,13 @@ public final class ItemOutlineRenderer {
         }
 
         private boolean contains(Vertex vertex) {
-            return vertex.x() >= minX && vertex.x() <= maxX
-                    && vertex.y() >= minY && vertex.y() <= maxY
-                    && vertex.z() >= minZ && vertex.z() <= maxZ;
+            return contains(vertex.x(), vertex.y(), vertex.z());
+        }
+
+        private boolean contains(float x, float y, float z) {
+            return x >= minX && x <= maxX
+                    && y >= minY && y <= maxY
+                    && z >= minZ && z <= maxZ;
         }
     }
 
@@ -872,13 +1275,20 @@ public final class ItemOutlineRenderer {
     }
 
     public record Outline(@Nullable Region region, @Nullable Identifier mask, List<GlowLayer> layers,
-                          boolean visibleThroughObjects) {
+                          boolean visibleThroughObjects, @Nullable Identifier previousMask,
+                          float maskProgress) {
+        public Outline(@Nullable Region region, @Nullable Identifier mask, List<GlowLayer> layers,
+                       boolean visibleThroughObjects) {
+            this(region, mask, layers, visibleThroughObjects, null, 1.0F);
+        }
+
         public Outline {
             layers = List.copyOf(layers);
+            maskProgress = Mth.clamp(maskProgress, 0.0F, 1.0F);
         }
 
         public Outline mask(Identifier mask) {
-            return new Outline(region, mask, layers, visibleThroughObjects);
+            return new Outline(region, mask, layers, visibleThroughObjects, previousMask, maskProgress);
         }
 
         public Outline mask(Item item) {
@@ -886,11 +1296,18 @@ public final class ItemOutlineRenderer {
         }
 
         public Outline region(Region region) {
-            return new Outline(region, mask, layers, visibleThroughObjects);
+            return new Outline(region, mask, layers, visibleThroughObjects, previousMask, maskProgress);
         }
 
         public Outline visibleThroughObjects(boolean visibleThroughObjects) {
-            return new Outline(region, mask, layers, visibleThroughObjects);
+            return new Outline(region, mask, layers, visibleThroughObjects, previousMask, maskProgress);
+        }
+
+        public Outline transitionFrom(Identifier previousMask, float progress) {
+            if (previousMask.equals(mask)) {
+                return this;
+            }
+            return new Outline(region, mask, layers, visibleThroughObjects, previousMask, progress);
         }
 
         private boolean hasVisibleLayers() {
@@ -901,8 +1318,7 @@ public final class ItemOutlineRenderer {
             return new Outline(region, mask, layers.stream()
                     .map(GlowLayer::normalized)
                     .filter(GlowLayer::visible)
-                    .sorted((first, second) -> Float.compare(second.thickness(), first.thickness()))
-                    .toList(), visibleThroughObjects);
+                    .toList(), visibleThroughObjects, previousMask, maskProgress);
         }
     }
 }

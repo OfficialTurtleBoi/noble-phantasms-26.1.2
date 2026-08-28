@@ -5,6 +5,7 @@ import java.util.function.Function;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.component.ItemLore;
@@ -19,7 +20,7 @@ import net.turtleboi.noblephantasms.item.custom.BertilakItem;
 import net.turtleboi.noblephantasms.item.custom.BiaEnPetItem;
 import net.turtleboi.noblephantasms.item.custom.ClydnoHalterItem;
 import net.turtleboi.noblephantasms.item.custom.ChimalliItem;
-import net.turtleboi.noblephantasms.item.custom.ClawOfTepeyollotlItem;
+import net.turtleboi.noblephantasms.item.custom.ClawsOfTepeyollotlItem;
 import net.turtleboi.noblephantasms.item.custom.MedjuNetjerItem;
 import net.turtleboi.noblephantasms.item.custom.CarnwennanItem;
 import net.turtleboi.noblephantasms.item.custom.DraupnirItem;
@@ -199,8 +200,14 @@ public class ModItems {
     public static final DeferredItem<TecpatlOfTheFifthSunItem> TECPATL_OF_THE_FIFTH_SUN =
             registerRelic("tecpatl_of_the_fifth_sun", TecpatlOfTheFifthSunItem::new);
 
-    public static final DeferredItem<ClawOfTepeyollotlItem> CLAW_OF_TEPEYOLLOTL =
-            registerRelic("claw_of_tepeyollotl", ClawOfTepeyollotlItem::new);
+    public static final DeferredItem<ClawsOfTepeyollotlItem> CLAWS_OF_TEPEYOLLOTL =
+            registerRelic("claws_of_tepeyollotl", ClawsOfTepeyollotlItem::new);
+
+    static {
+        ITEMS.addAlias(
+                Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "claw_of_tepeyollotl"),
+                Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "claws_of_tepeyollotl"));
+    }
 
     private static <T extends Item> DeferredItem<T> registerRelic(
             String name, Function<Item.Properties, ? extends T> factory) {

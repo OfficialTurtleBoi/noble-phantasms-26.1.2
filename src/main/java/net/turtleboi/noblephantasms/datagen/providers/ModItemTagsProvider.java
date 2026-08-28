@@ -84,7 +84,7 @@ public class ModItemTagsProvider extends IntrinsicHolderTagsProvider<Item> {
                 .add(ModItems.ANKH.get())
                 .add(ModItems.KHEPER_SCARAB.get())
                 .add(ModItems.HOFSKOR.get())
-                .add(ModItems.CLAW_OF_TEPEYOLLOTL.get());
+                .add(ModItems.CLAWS_OF_TEPEYOLLOTL.get());
         tag(ModTags.Items.CURIOS_TOTEM)
                 .add(ModItems.ANKH.get());
     }

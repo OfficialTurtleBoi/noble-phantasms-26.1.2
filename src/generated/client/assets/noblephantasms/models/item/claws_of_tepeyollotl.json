@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "noblephantasms:item/claw_of_tepeyollotl"
+    "layer0": "noblephantasms:item/claws_of_tepeyollotl"
   }
 }

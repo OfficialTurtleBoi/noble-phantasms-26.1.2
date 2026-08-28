@@ -30,7 +30,7 @@ import net.turtleboi.noblephantasms.item.custom.AndvaranautItem;
 import net.turtleboi.noblephantasms.item.custom.AnkhItem;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
 import net.turtleboi.noblephantasms.item.custom.BiaEnPetItem;
-import net.turtleboi.noblephantasms.item.custom.ClawOfTepeyollotlItem;
+import net.turtleboi.noblephantasms.item.custom.ClawsOfTepeyollotlItem;
 import net.turtleboi.noblephantasms.item.custom.MedjuNetjerItem;
 import net.turtleboi.noblephantasms.item.custom.EagleKnightTalonsItem;
 import net.turtleboi.noblephantasms.item.custom.HekaItem;
@@ -176,12 +176,12 @@ public final class ModEvents {
 
     @SubscribeEvent
     static void onBreakSpeed(PlayerEvent.BreakSpeed event) {
-        ClawOfTepeyollotlItem.handleBreakSpeed(event);
+        ClawsOfTepeyollotlItem.handleBreakSpeed(event);
     }
 
     @SubscribeEvent
     static void onHarvestCheck(PlayerEvent.HarvestCheck event) {
-        ClawOfTepeyollotlItem.handleHarvestCheck(event);
+        ClawsOfTepeyollotlItem.handleHarvestCheck(event);
     }
 
     @SubscribeEvent

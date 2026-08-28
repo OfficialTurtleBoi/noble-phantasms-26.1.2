@@ -92,7 +92,7 @@ public class ClientEvents {
     }
 
     @SubscribeEvent
-    static void captureItemOutlineOcclusion(RenderLevelStageEvent.AfterOpaqueFeatures event) {
+    static void captureItemOutlineOcclusion(RenderLevelStageEvent.AfterTranslucentFeatures event) {
         ItemOutlineRenderer.captureOcclusionDepth();
     }
 

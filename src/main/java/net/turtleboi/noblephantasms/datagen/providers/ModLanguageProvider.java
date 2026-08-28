@@ -63,7 +63,7 @@ public class ModLanguageProvider extends LanguageProvider {
         addSimpleItem(ModItems.XIUHCOATL);
         addSimpleItem(ModItems.CHIMALLI);
         addSimpleItem(ModItems.TECPATL_OF_THE_FIFTH_SUN, "Técpatl of the Fifth Sun");
-        addSimpleItem(ModItems.CLAW_OF_TEPEYOLLOTL, "Claw of Tepeyollotl");
+        addSimpleItem(ModItems.CLAWS_OF_TEPEYOLLOTL, "Claws of Tepeyollotl");
         addSimpleItem(ModItems.RELIC_FRAGMENT, "Relic Fragment");
         add("item.noblephantasms.relic_fragment.named", "%s Fragment");
         add("menu.noblephantasms.reliquary_station", "Reliquary Station");
@@ -152,7 +152,7 @@ public class ModLanguageProvider extends LanguageProvider {
                 "Feathered chimalli bore brilliant mosaics of rank, carrying a warrior's colors forward with every advance.");
         add("tooltip.noblephantasms.tecpatl_of_the_fifth_sun.flavor",
                 "A celestial flint knife fell from heaven and shattered, birthing the countless Mimixcoa from its pieces.");
-        add("tooltip.noblephantasms.claw_of_tepeyollotl.flavor",
+        add("tooltip.noblephantasms.claws_of_tepeyollotl.flavor",
                 "Tepeyollotl, the jaguar Heart of the Mountain, ruled caves, echoes, and the sheer stone where his claws found purchase.");
         add("jei.noblephantasms.info.ankh",
                 "Equip in a Curios charm or compatible totem slot. Fatal damage restores full health, "
@@ -236,7 +236,7 @@ public class ModLanguageProvider extends LanguageProvider {
                         + "Speed I to III for up to 8 seconds, reaching maximum charge after 3 seconds of blocking.");
         add("jei.noblephantasms.info.tecpatl_of_the_fifth_sun",
                 "Hold right-click to fire the knife's ten shards in sequence, or Shift-right-click to release every attached shard in a shotgun blast. Once firing ends, the shards return in reverse order and visibly rebuild the knife in your hand.");
-        add("jei.noblephantasms.info.claw_of_tepeyollotl",
+        add("jei.noblephantasms.info.claws_of_tepeyollotl",
                 "Equip in a Curios charm slot. Grants +1.5 attack damage. Crouch against a wall to cling and crawl, "
                         + "with a 45-degree neutral climbing window. Mining without a tool is twice as fast and can "
                         + "harvest anything a stone pickaxe can, even while holding an ordinary item.");

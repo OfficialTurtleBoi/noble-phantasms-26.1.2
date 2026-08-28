@@ -18,10 +18,10 @@ import net.turtleboi.noblephantasms.item.ModItems;
 import top.theillusivec4.curios.api.CurioAttributeModifiers;
 import top.theillusivec4.curios.api.SlotContext;
 
-public final class ClawOfTepeyollotlItem extends CurioRelicItem {
+public final class ClawsOfTepeyollotlItem extends CurioRelicItem {
     private static final CurioAttributeModifiers MODIFIERS = CurioAttributeModifiers.builder()
             .addModifier(Attributes.ATTACK_DAMAGE, new AttributeModifier(
-                    Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "claw_of_tepeyollotl_attack_damage"),
+                    Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "claws_of_tepeyollotl_attack_damage"),
                     1.5, AttributeModifier.Operation.ADD_VALUE))
             .build();
     private static final Direction[] WALL_DIRECTIONS = {
@@ -35,7 +35,7 @@ public final class ClawOfTepeyollotlItem extends CurioRelicItem {
     private static final float FULL_CLIMB_PITCH = 45.0F;
     private static final float BARE_HAND_SPEED_MULTIPLIER = 2.0F;
 
-    public ClawOfTepeyollotlItem(Properties properties) {
+    public ClawsOfTepeyollotlItem(Properties properties) {
         super(properties.rarity(Rarity.RARE));
     }
 
@@ -123,7 +123,7 @@ public final class ClawOfTepeyollotlItem extends CurioRelicItem {
 
     public static void handleBreakSpeed(PlayerEvent.BreakSpeed event) {
         Player player = event.getEntity();
-        if (!canMineWithClaw(player)) {
+        if (!canMineWithClaws(player)) {
             return;
         }
 
@@ -136,14 +136,14 @@ public final class ClawOfTepeyollotlItem extends CurioRelicItem {
     }
 
     public static void handleHarvestCheck(PlayerEvent.HarvestCheck event) {
-        if (canMineWithClaw(event.getEntity())
+        if (canMineWithClaws(event.getEntity())
                 && Items.STONE_PICKAXE.getDefaultInstance().isCorrectToolForDrops(event.getTargetBlock())) {
             event.setCanHarvest(true);
         }
     }
 
-    private static boolean canMineWithClaw(Player player) {
+    private static boolean canMineWithClaws(Player player) {
         return !player.getMainHandItem().has(DataComponents.TOOL)
-                && isEquipped(player, ModItems.CLAW_OF_TEPEYOLLOTL.get());
+                && isEquipped(player, ModItems.CLAWS_OF_TEPEYOLLOTL.get());
     }
 }

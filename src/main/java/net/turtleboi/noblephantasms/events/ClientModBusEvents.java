@@ -31,6 +31,7 @@ import net.turtleboi.noblephantasms.client.renderer.TrophyHeadBlockEntityRendere
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadRenderer;
 import net.turtleboi.noblephantasms.datagen.ModDatagen;
 import net.turtleboi.noblephantasms.entity.renderer.EyeShardRenderer;
+import net.turtleboi.noblephantasms.entity.renderer.ExcaliburProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.GungnirProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.KazagurumaProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.SimpleEntityRenderers;
@@ -54,6 +55,7 @@ public final class ClientModBusEvents {
     static void registerRenderPipelines(RegisterRenderPipelinesEvent event) {
         LuminousRenderer.registerPipelines(event);
         ItemOutlineRenderer.registerPipelines(event);
+        ExcaliburProjectileRenderer.registerPipelines(event);
         CovenantLeafParticle.registerPipeline(event);
     }
 
@@ -73,7 +75,7 @@ public final class ClientModBusEvents {
     static void registerClientExtensions(RegisterClientExtensionsEvent event) {
         BertilakExtensions.register(event);
         EagleKnightTalonsExtensions.register(event);
-        ExcaliburExtensions.register();
+        ExcaliburExtensions.register(event);
         GungnirExtensions.register(event);
         HulioshjalmrExtensions.register(event);
     }
@@ -93,6 +95,7 @@ public final class ClientModBusEvents {
 
     @SubscribeEvent
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        ExcaliburProjectileRenderer.register(event);
         GungnirProjectileRenderer.register(event);
         KazagurumaProjectileRenderer.register(event);
         WindslashRenderer.register(event);

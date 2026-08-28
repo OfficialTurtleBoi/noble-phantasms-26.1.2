@@ -27,7 +27,7 @@ public final class RelicFragmentDefinitions {
             weapon(ModItems.XIUHCOATL, 8).withStationTexture(TextureVariant.DISPLAY),
             standard(ModItems.CHIMALLI, 6),
             standard(ModItems.TECPATL_OF_THE_FIFTH_SUN, 8, 12),
-            standard(ModItems.CLAW_OF_TEPEYOLLOTL, 4),
+            standard(ModItems.CLAWS_OF_TEPEYOLLOTL, 4),
             standard(ModItems.SCABBARD, 6),
             standard(ModItems.CARNWENNAN, 6),
             weapon(ModItems.BERTILAK, 8),

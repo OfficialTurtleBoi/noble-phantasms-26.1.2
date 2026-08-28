@@ -80,7 +80,7 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ModItems.YATA_NO_KAGAMI.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.APILOLLI.get(), ModelTemplates.FLAT_ITEM);
         generateChimalliItem(itemModels);
-        itemModels.generateFlatItem(ModItems.CLAW_OF_TEPEYOLLOTL.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.CLAWS_OF_TEPEYOLLOTL.get(), ModelTemplates.FLAT_ITEM);
         generateTecpatlItem(itemModels);
         generateKazagurumaItem(itemModels, ModItems.KAZAGURUMA.get());
         generateRaikoItem(itemModels);

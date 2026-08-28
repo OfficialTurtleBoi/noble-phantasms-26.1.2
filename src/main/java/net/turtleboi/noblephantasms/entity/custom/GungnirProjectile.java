@@ -55,12 +55,16 @@ public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
             SynchedEntityData.defineId(GungnirProjectile.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> ID_CHARGED_TICKS =
             SynchedEntityData.defineId(GungnirProjectile.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> ID_THROW_CHARGE =
+            SynchedEntityData.defineId(GungnirProjectile.class, EntityDataSerializers.FLOAT);
     private static final Identifier ARMOR_BYPASS_ID =
             Identifier.parse(NoblePhantasms.MOD_ID + ":gungnir_armor_bypass");
     private static final double HOMING_TURN_RATE = 0.35;
     private static final double ARMOR_BYPASS_FRACTION = 0.25;
     private static final float WOUNDED_HEALTH_THRESHOLD = 0.25F;
     private static final float WOUNDED_DAMAGE_MULTIPLIER = 1.5F;
+    private static final float MIN_THROW_DAMAGE = 3.0F;
+    private static final float MAX_THROW_DAMAGE = 12.0F;
     private static final int SHIELD_DURABILITY_DAMAGE = 100;
     private static final float SHIELD_DISABLE_SECONDS = 10.0F;
     private static final int RUNE_PARTICLES_PER_TICK = 1;
@@ -92,6 +96,7 @@ public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
         entityData.define(ID_HOMING_TARGET, -1);
         entityData.define(ID_CHARGED_THROW, false);
         entityData.define(ID_CHARGED_TICKS, 0);
+        entityData.define(ID_THROW_CHARGE, 1.0F);
     }
 
     @Override
@@ -189,6 +194,14 @@ public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
         return entityData.get(ID_CHARGED_TICKS);
     }
 
+    public void setThrowCharge(float charge) {
+        entityData.set(ID_THROW_CHARGE, Mth.clamp(charge, 0.0F, 1.0F));
+    }
+
+    public float getThrowCharge() {
+        return entityData.get(ID_THROW_CHARGE);
+    }
+
     private boolean isAcceptableReturnOwner() {
         Entity currentOwner = getOwner();
         return currentOwner != null
@@ -237,7 +250,7 @@ public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
         }
 
         Entity target = hitResult.getEntity();
-        float damage = 8.0F;
+        float damage = Mth.lerp(getThrowCharge(), MIN_THROW_DAMAGE, MAX_THROW_DAMAGE);
         Entity currentOwner = getOwner();
         DamageSource damageSource = damageSources().trident(this, currentOwner == null ? this : currentOwner);
         if (level() instanceof ServerLevel serverLevel) {
@@ -375,6 +388,7 @@ public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
         dealtDamage = input.getBooleanOr("DealtDamage", false);
         entityData.set(ID_CHARGED_THROW, input.getBooleanOr("ChargedThrow", false));
         entityData.set(ID_CHARGED_TICKS, input.getIntOr("ChargedTicks", 0));
+        entityData.set(ID_THROW_CHARGE, Mth.clamp(input.getFloatOr("ThrowCharge", 1.0F), 0.0F, 1.0F));
         entityData.set(ID_LOYALTY, getLoyaltyFromItem(getPickupItemStackOrigin()));
         entityData.set(ID_FOIL, getPickupItemStackOrigin().hasFoil());
     }
@@ -385,6 +399,7 @@ public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
         output.putBoolean("DealtDamage", dealtDamage);
         output.putBoolean("ChargedThrow", isChargedThrow());
         output.putInt("ChargedTicks", getChargedTicks());
+        output.putFloat("ThrowCharge", getThrowCharge());
     }
 
     private byte getLoyaltyFromItem(ItemStack gungnirItem) {
