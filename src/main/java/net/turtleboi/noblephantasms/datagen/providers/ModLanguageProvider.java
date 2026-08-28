@@ -182,6 +182,10 @@ public class ModLanguageProvider extends LanguageProvider {
         add("jei.noblephantasms.info.scabbard",
                 "Equip in a Curios belt slot. Constantly regenerates health faster as your health falls and "
                         + "prevents poison, wither, and bleed effects.");
+        add("jei.noblephantasms.info.carnwennan",
+                "Look directly at a mob within 16 blocks and right-click to shadow-step behind it in a burst of "
+                        + "black smoke. Carnwennan deals 50% more damage when striking a target from behind. "
+                        + "5 second cooldown.");
         add("jei.noblephantasms.info.medju_netjer",
                 "Use Medju Netjer on an enchanting table to install it. "
                         + "Sneak-right-click the table with an empty hand to remove it. "
@@ -214,6 +218,15 @@ public class ModLanguageProvider extends LanguageProvider {
                         + "Sneak-use the bell on that horse to recover the halter.");
         add("jei.noblephantasms.info.hofskor",
                 "Equip in a Curios charm slot. Your horse gains 40% speed, two-block step height, and immunity to fall damage while ridden.");
+        add("jei.noblephantasms.info.hulioshjalmr",
+                "Wear the helmet and crouch for 1 second to fade from sight. Fully concealed players move 25% "
+                        + "slower, cannot be detected or targeted by mobs, and remain concealed while moving. "
+                        + "Attacking, taking damage, or interacting breaks concealment for 5 seconds.");
+        add("jei.noblephantasms.info.gjallarhorn",
+                "Sound Gjallarhorn to inflict Fear on non-allied creatures and players within 24 blocks for "
+                        + "4 seconds. Feared creatures abandon combat and flee from the horn's wielder, while "
+                        + "feared players lose control of their movement. The wielder and all allies have Fear "
+                        + "removed and gain Strength for 8 seconds. 30 second cooldown.");
         add("jei.noblephantasms.info.pridwen",
                 "Raise the shield to project a wide barrier that protects allies behind you. Melee attackers recoil and suffer Weakness.");
         add("jei.noblephantasms.info.raiko",

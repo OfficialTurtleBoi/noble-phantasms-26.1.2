@@ -36,6 +36,8 @@ public final class NoblePhantasmsJeiPlugin implements IModPlugin {
                 Component.translatable("jei.noblephantasms.info.meginjord"));
         registration.addIngredientInfo(ModItems.SCABBARD.get(),
                 Component.translatable("jei.noblephantasms.info.scabbard"));
+        registration.addIngredientInfo(ModItems.CARNWENNAN.get(),
+                Component.translatable("jei.noblephantasms.info.carnwennan"));
         registration.addIngredientInfo(ModItems.MEDJU_NETJER.get(),
                 Component.translatable("jei.noblephantasms.info.medju_netjer"));
         registration.addIngredientInfo(ModItems.HOLY_GRAIL.get(),
@@ -58,6 +60,10 @@ public final class NoblePhantasmsJeiPlugin implements IModPlugin {
                 Component.translatable("jei.noblephantasms.info.clydno_halter"));
         registration.addIngredientInfo(ModItems.HOFSKOR.get(),
                 Component.translatable("jei.noblephantasms.info.hofskor"));
+        registration.addIngredientInfo(ModItems.HULIOSHJALMR.get(),
+                Component.translatable("jei.noblephantasms.info.hulioshjalmr"));
+        registration.addIngredientInfo(ModItems.GJALLARHORN.get(),
+                Component.translatable("jei.noblephantasms.info.gjallarhorn"));
         registration.addIngredientInfo(ModItems.PRIDWEN.get(),
                 Component.translatable("jei.noblephantasms.info.pridwen"));
         registration.addIngredientInfo(ModItems.RAIKO.get(),

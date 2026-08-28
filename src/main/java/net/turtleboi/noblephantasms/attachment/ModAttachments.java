@@ -11,6 +11,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.turtleboi.noblephantasms.NoblePhantasms;
+import net.turtleboi.noblephantasms.effect.custom.FearedEffect;
 
 public final class ModAttachments {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
@@ -84,6 +85,16 @@ public final class ModAttachments {
                     .sync(ByteBufCodecs.VAR_LONG)
                     .build());
 
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Float>> HULIOSHJALMR_CONCEALMENT =
+            ATTACHMENTS.register("hulioshjalmr_concealment", () -> AttachmentType.builder(() -> 0.0F)
+                    .sync(ByteBufCodecs.FLOAT)
+                    .build());
+
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Long>> HULIOSHJALMR_LOCKED_UNTIL =
+            ATTACHMENTS.register("hulioshjalmr_locked_until", () -> AttachmentType.builder(() -> 0L)
+                    .serialize(Codec.LONG.fieldOf("locked_until"))
+                    .build());
+
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> BERTILAK_COVENANT_GLOW =
             ATTACHMENTS.register("bertilak_covenant_glow", () -> AttachmentType.builder(() -> false)
                     .sync(ByteBufCodecs.BOOL)
@@ -97,6 +108,12 @@ public final class ModAttachments {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<UUID>>> BLEED_SOURCE =
             ATTACHMENTS.register("bleed_source", () -> AttachmentType.builder(Optional::<UUID>empty)
                     .serialize(UUIDUtil.CODEC.optionalFieldOf("source"))
+                    .build());
+
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<FearedEffect.FearSourceState>> FEAR_SOURCE =
+            ATTACHMENTS.register("fear_source", () -> AttachmentType.builder(() -> FearedEffect.FearSourceState.EMPTY)
+                    .serialize(FearedEffect.FearSourceState.CODEC)
+                    .sync(FearedEffect.FearSourceState.STREAM_CODEC)
                     .build());
 
     public static void register(IEventBus eventBus) {

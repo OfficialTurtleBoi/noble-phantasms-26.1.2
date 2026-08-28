@@ -9,7 +9,8 @@
     "EnchantmentMenuMixin",
     "FishingHookMixin",
     "MobAccessor",
-    "NoteBlockMixin"
+    "NoteBlockMixin",
+    "PlayerMixin"
   ],
   "client": [
     "client.AvatarRendererMixin",
@@ -19,6 +20,9 @@
     "client.CustomHeadLayerMixin",
     "client.CuboidItemModelWrapperMixin",
     "client.HumanoidMobRendererMixin",
+    "client.EntityTranslucencyEquipmentLayerMixin",
+    "client.EntityTranslucencyItemInHandLayerMixin",
+    "client.EntityTranslucencyLivingEntityRendererMixin",
     "client.IsUsingItemMixin",
     "client.ItemInHandRendererMixin",
     "client.ItemInHandLayerMixin",

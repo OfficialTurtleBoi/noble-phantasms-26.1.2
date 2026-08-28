@@ -4,6 +4,7 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
@@ -23,6 +24,7 @@ import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.effect.custom.BleedEffect;
 import net.turtleboi.noblephantasms.effect.custom.CovenantEffect;
+import net.turtleboi.noblephantasms.effect.custom.FearedEffect;
 import net.turtleboi.noblephantasms.effect.custom.JudgementEffect;
 import net.turtleboi.noblephantasms.effect.custom.LuminousEffect;
 import net.turtleboi.noblephantasms.effect.custom.UndyingEffect;
@@ -30,11 +32,13 @@ import net.turtleboi.noblephantasms.item.custom.AndvaranautItem;
 import net.turtleboi.noblephantasms.item.custom.AnkhItem;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
 import net.turtleboi.noblephantasms.item.custom.BiaEnPetItem;
+import net.turtleboi.noblephantasms.item.custom.CarnwennanItem;
 import net.turtleboi.noblephantasms.item.custom.ClawsOfTepeyollotlItem;
 import net.turtleboi.noblephantasms.item.custom.MedjuNetjerItem;
 import net.turtleboi.noblephantasms.item.custom.EagleKnightTalonsItem;
 import net.turtleboi.noblephantasms.item.custom.HekaItem;
 import net.turtleboi.noblephantasms.item.custom.HofskorItem;
+import net.turtleboi.noblephantasms.item.custom.HulioshjalmrItem;
 import net.turtleboi.noblephantasms.item.custom.GramItem;
 import net.turtleboi.noblephantasms.item.custom.MegingjordItem;
 import net.turtleboi.noblephantasms.item.custom.NekhakhaItem;
@@ -71,10 +75,12 @@ public final class ModEvents {
         AndvaranautItem.handleDamage(event);
         BertilakItem.handleDamageFinalized(event);
         AnkhItem.handleDamageFinalized(event);
+        HulioshjalmrItem.handleDamage(event);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     static void onDamageFinalizedLowest(LivingDamageEvent.Pre event) {
+        CarnwennanItem.handleDamage(event);
         GramItem.handleDamage(event);
     }
 
@@ -113,6 +119,7 @@ public final class ModEvents {
         CovenantEffect.handleRemoval(event);
         JudgementEffect.handleRemoval(event);
         LuminousEffect.handleRemoval(event);
+        FearedEffect.handleRemoval(event);
     }
 
     @SubscribeEvent
@@ -121,6 +128,7 @@ public final class ModEvents {
         CovenantEffect.handleExpiration(event);
         JudgementEffect.handleExpiration(event);
         LuminousEffect.handleExpiration(event);
+        FearedEffect.handleExpiration(event);
     }
 
     @SubscribeEvent
@@ -138,6 +146,7 @@ public final class ModEvents {
         EagleKnightTalonsItem.handlePlayerTick(event.getEntity());
         BertilakItem.handlePlayerTick(event.getEntity());
         HekaItem.handlePlayerTick(event.getEntity());
+        HulioshjalmrItem.handlePlayerTick(event.getEntity());
         NekhakhaItem.handlePlayerTick(event.getEntity());
         TyrfingItem.handlePlayerTick(event.getEntity());
         YasakaniNoMagatamaItem.handlePlayerTick(event.getEntity());
@@ -162,9 +171,20 @@ public final class ModEvents {
     @SubscribeEvent
     static void onEntityTick(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof Mob mob) {
-            NekhakhaItem.handleMobTick(mob);
             SmokingMirrorItem.handleMobTick(mob);
+            HulioshjalmrItem.handleMobTick(mob);
         }
+    }
+
+    @SubscribeEvent
+    static void onLivingChangeTarget(LivingChangeTargetEvent event) {
+        FearedEffect.handleTargetChange(event);
+        HulioshjalmrItem.handleTargetChange(event);
+    }
+
+    @SubscribeEvent
+    static void onPlayerInteract(PlayerInteractEvent event) {
+        HulioshjalmrItem.handleInteraction(event.getEntity());
     }
 
     @SubscribeEvent

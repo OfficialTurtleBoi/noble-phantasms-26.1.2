@@ -26,6 +26,7 @@ import net.turtleboi.noblephantasms.client.renderer.ClydnoHalterLayer;
 import net.turtleboi.noblephantasms.client.renderer.AfterimageRenderer;
 import net.turtleboi.noblephantasms.client.renderer.LuminousRenderer;
 import net.turtleboi.noblephantasms.client.renderer.ItemOutlineRenderer;
+import net.turtleboi.noblephantasms.client.renderer.HulioshjalmrRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TecpatlRebuildingRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadBlockEntityRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadRenderer;
@@ -64,6 +65,7 @@ public final class ClientModBusEvents {
         LuminousRenderer.registerRenderStateModifiers(event);
         AfterimageRenderer.registerRenderStateModifiers(event);
         ClydnoHalterLayer.registerRenderStateModifier(event);
+        HulioshjalmrRenderer.registerRenderStateModifiers(event);
     }
 
     @SubscribeEvent

@@ -1,6 +1,5 @@
 package net.turtleboi.noblephantasms.item.custom;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.resources.Identifier;
@@ -28,10 +27,9 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.turtleboi.noblephantasms.NoblePhantasms;
+import net.turtleboi.noblephantasms.effect.custom.FearedEffect;
 import net.turtleboi.noblephantasms.item.ModItems;
-import net.turtleboi.noblephantasms.effect.ModEffects;
 
 public class NekhakhaItem extends Item {
     private static final double FEAR_RANGE = 8.0;
@@ -48,8 +46,7 @@ public class NekhakhaItem extends Item {
             new AttributeModifier(SET_DAMAGE_ID, 2.0, AttributeModifier.Operation.ADD_VALUE);
     private static final AttributeModifier SET_KNOCKBACK =
             new AttributeModifier(SET_KNOCKBACK_ID, 0.5, AttributeModifier.Operation.ADD_VALUE);
-    private static final Map<UUID, FearState> FEARED_MOBS = new HashMap<>();
-    private static final Map<UUID, Long> ACTIVE_DECREES = new HashMap<>();
+    private static final Map<UUID, Long> ACTIVE_DECREES = new java.util.HashMap<>();
 
     public NekhakhaItem(Properties properties) {
         super(properties
@@ -113,27 +110,6 @@ public class NekhakhaItem extends Item {
         applyPharaohsDecree(level, player);
     }
 
-    public static void handleMobTick(Mob mob) {
-        FearState fear = FEARED_MOBS.get(mob.getUUID());
-        if (fear == null) {
-            return;
-        }
-        if (mob.level().getGameTime() >= fear.endTick() || !mob.hasEffect(ModEffects.FEARED)) {
-            FEARED_MOBS.remove(mob.getUUID());
-            return;
-        }
-
-        mob.setTarget(null);
-        if (mob.tickCount % 5 == 0) {
-            Vec3 away = mob.position().subtract(fear.origin());
-            if (away.horizontalDistanceSqr() < 0.01) {
-                away = new Vec3(1.0, 0.0, 0.0);
-            }
-            Vec3 destination = mob.position().add(away.normalize().scale(8.0));
-            mob.getNavigation().moveTo(destination.x, destination.y, destination.z, 1.35);
-        }
-    }
-
     private static boolean activateFearPulse(Level level, Player player, ItemStack nekhakha) {
         if (player.getCooldowns().isOnCooldown(nekhakha)) {
             return false;
@@ -142,12 +118,9 @@ public class NekhakhaItem extends Item {
             return true;
         }
 
-        long endTick = level.getGameTime() + FEAR_DURATION;
         AABB area = player.getBoundingBox().inflate(FEAR_RANGE);
         for (Mob mob : level.getEntitiesOfClass(Mob.class, area, NekhakhaItem::isFearTarget)) {
-            FEARED_MOBS.put(mob.getUUID(), new FearState(player.position(), endTick));
-            mob.setTarget(null);
-            mob.addEffect(new MobEffectInstance(ModEffects.FEARED, FEAR_DURATION, 0, false, true, true), player);
+            FearedEffect.apply(mob, player, FEAR_DURATION, 0);
         }
 
         player.getCooldowns().addCooldown(nekhakha, FEAR_COOLDOWN);
@@ -198,8 +171,5 @@ public class NekhakhaItem extends Item {
                 && !(mob instanceof WitherBoss)
                 && !(mob instanceof Warden)
                 && !(mob instanceof EnderDragon);
-    }
-
-    private record FearState(Vec3 origin, long endTick) {
     }
 }
