@@ -16,7 +16,7 @@ public class ModParticles {
             PARTICLE_TYPES.register("gungnir_rune", GungnirRuneType::new);
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> COVENANT_LEAF =
             PARTICLE_TYPES.register("covenant_leaf", CovenantLeafType::new);
-    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> FIRE_FANGS =
+    public static final DeferredHolder<ParticleType<?>, ParticleType<FireFangsParticleOptions>> FIRE_FANGS =
             PARTICLE_TYPES.register("fire_fangs", FireFangsType::new);
 
     public static void register(IEventBus eventBus) {
@@ -35,9 +35,20 @@ public class ModParticles {
         }
     }
 
-    private static final class FireFangsType extends SimpleParticleType {
+    private static final class FireFangsType extends ParticleType<FireFangsParticleOptions> {
         private FireFangsType() {
             super(false);
+        }
+
+        @Override
+        public com.mojang.serialization.MapCodec<FireFangsParticleOptions> codec() {
+            return FireFangsParticleOptions.CODEC;
+        }
+
+        @Override
+        public net.minecraft.network.codec.StreamCodec<? super net.minecraft.network.RegistryFriendlyByteBuf,
+                FireFangsParticleOptions> streamCodec() {
+            return FireFangsParticleOptions.STREAM_CODEC;
         }
     }
 }

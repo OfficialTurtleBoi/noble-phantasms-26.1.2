@@ -19,6 +19,7 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.PistonEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
 import net.turtleboi.noblephantasms.NoblePhantasms;
@@ -27,7 +28,7 @@ import net.turtleboi.noblephantasms.effect.custom.CovenantEffect;
 import net.turtleboi.noblephantasms.effect.custom.FearedEffect;
 import net.turtleboi.noblephantasms.effect.custom.JudgementEffect;
 import net.turtleboi.noblephantasms.effect.custom.LuminousEffect;
-import net.turtleboi.noblephantasms.effect.custom.UndyingEffect;
+import net.turtleboi.noblephantasms.effect.custom.ThreatEffect;
 import net.turtleboi.noblephantasms.item.custom.AndvaranautItem;
 import net.turtleboi.noblephantasms.item.custom.AnkhItem;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
@@ -47,7 +48,6 @@ import net.turtleboi.noblephantasms.item.custom.ScabbardItem;
 import net.turtleboi.noblephantasms.item.custom.UchideNoKozuchiItem;
 import net.turtleboi.noblephantasms.item.custom.YamawariItem;
 import net.turtleboi.noblephantasms.item.custom.EyeOfHorusItem;
-import net.turtleboi.noblephantasms.item.custom.SmokingMirrorItem;
 import net.turtleboi.noblephantasms.item.custom.TyrfingItem;
 import net.turtleboi.noblephantasms.item.custom.TecpatlOfTheFifthSunItem;
 import net.turtleboi.noblephantasms.item.custom.YasakaniNoMagatamaItem;
@@ -57,8 +57,14 @@ import net.minecraft.world.entity.Mob;
 
 @EventBusSubscriber(modid = NoblePhantasms.MOD_ID)
 public final class ModEvents {
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    static void onAttackEntity(AttackEntityEvent event) {
+        GramItem.handleAttack(event);
+    }
+
     @SubscribeEvent
     static void onIncomingDamage(LivingIncomingDamageEvent event) {
+        ThreatEffect.handleIncomingDamage(event);
         AnkhItem.handleIncomingDamage(event);
         BertilakItem.handleIncomingDamage(event);
         BiaEnPetItem.handleIncomingDamage(event);
@@ -70,7 +76,6 @@ public final class ModEvents {
     @SubscribeEvent
     static void onDamageFinalized(LivingDamageEvent.Pre event) {
         JudgementEffect.handleDamage(event);
-        UndyingEffect.handleDamage(event);
         EyeOfHorusItem.handleDamage(event);
         AndvaranautItem.handleDamage(event);
         BertilakItem.handleDamageFinalized(event);
@@ -171,7 +176,7 @@ public final class ModEvents {
     @SubscribeEvent
     static void onEntityTick(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof Mob mob) {
-            SmokingMirrorItem.handleMobTick(mob);
+            ThreatEffect.handleMobTick(mob);
             HulioshjalmrItem.handleMobTick(mob);
         }
     }

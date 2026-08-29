@@ -1,5 +1,7 @@
 package net.turtleboi.noblephantasms.client;
 
+import net.turtleboi.noblephantasms.client.renderer.outline.ExcaliburOutline;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.player.LocalPlayer;

@@ -194,10 +194,13 @@ public class ModLanguageProvider extends LanguageProvider {
                 "Charges for 10 seconds while carried in direct sunlight. A fully charged strike releases a fiery "
                         + "flare for bonus damage and ignites the target.");
         add("jei.noblephantasms.info.holy_grail",
-                "Drink to gain Undying for 5 seconds. Damage cannot reduce you below half a heart while it lasts. "
-                        + "3 minute cooldown.");
+                "The Grail stores 20 charges. Drinking spends one charge every half-second to restore 1 health, "
+                        + "1 hunger, and 1 saturation. Releasing grants Health Boost and Regeneration based on "
+                        + "the amount consumed; drinking at least half a Grail grants Health Boost II. One charge "
+                        + "returns every 9 seconds, refilling an empty Grail in 3 minutes.");
         add("jei.noblephantasms.info.smoking_mirror",
-                "Use on a living target to make every mob within 10 blocks hunt it for 8 seconds.");
+                "Use on a living target to apply Threat III for 8 seconds. Nearby hostile mobs prioritize the "
+                        + "highest-level Threat, and players deal 10% more damage to threatened targets.");
         add("jei.noblephantasms.info.eagle_knight_talons",
                 "Crouch while airborne to dive rapidly. Landing creates a 4-block shockwave that deals more damage "
                         + "the farther you fell, while negating the slam's fall damage.");
@@ -255,7 +258,7 @@ public class ModLanguageProvider extends LanguageProvider {
                         + "harvest anything a stone pickaxe can, even while holding an ordinary item.");
 
         add("creativetab.noblephantasms.title", "Noble Phantasms");
-        add("creativetab.noblephantasms.trophy_heads", "Trophy Heads");
+        add("creativetab.noblephantasms.trophy_heads", "Noble Phantasms - Trophy Heads");
         add("item.noblephantasms.trophy_head.named", "%s Head");
         add("item.noblephantasms.trophy_head.baby_named", "Baby %s Head");
         add("item.noblephantasms.trophy_head.variant_named", "%2$s %1$s Head");
@@ -276,7 +279,7 @@ public class ModLanguageProvider extends LanguageProvider {
         add("effect.noblephantasms.reborn", "Reborn");
         add("effect.noblephantasms.bleeding", "Bleeding");
         add("effect.noblephantasms.feared", "Feared");
-        add("effect.noblephantasms.undying", "Undying");
+        add("effect.noblephantasms.threat", "Threat");
         add("death.attack.bleed", "%1$s bled out");
         add("death.attack.bleed.player", "%1$s bled out due to %2$s");
         add("noblephantasms.configuration.title", "Noble Phantasms Configs");

@@ -46,11 +46,14 @@ public final class HulioshjalmrRenderer {
             .withVertexShader("core/screenquad")
             .withFragmentShader(COMPOSITE_SHADER)
             .withSampler("ConcealmentSampler")
+            .withSampler("ConcealmentDepthSampler")
+            .withSampler("SceneDepthSampler")
             .withDepthStencilState(Optional.empty())
             .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT_PREMULTIPLIED_ALPHA))
             .withVertexFormat(DefaultVertexFormat.EMPTY, VertexFormat.Mode.TRIANGLES)
             .build();
     private static TextureTarget CONCEALMENT_TARGET;
+    private static TextureTarget OCCLUSION_DEPTH_TARGET;
     private static final OutputTarget CONCEALMENT_OUTPUT = new OutputTarget(
             NoblePhantasms.MOD_ID + "_hulioshjalmr_concealment", () -> CONCEALMENT_TARGET);
     private static final Function<Identifier, RenderType> ENTITY_TYPES = Util.memoize(texture -> RenderType.create(
@@ -95,11 +98,13 @@ public final class HulioshjalmrRenderer {
     private static final ThreadLocal<Float> ACTIVE_ITEM_ALPHA = new ThreadLocal<>();
     private static final Map<SubmitNodeStorage.ItemSubmit, Float> ITEM_ALPHAS = new IdentityHashMap<>();
     private static boolean hasContent;
+    private static boolean hasOcclusionDepth;
 
     public static void initialize() {
         destroyTarget();
         ITEM_ALPHAS.clear();
         hasContent = false;
+        hasOcclusionDepth = false;
     }
 
     public static void registerPipelines(RegisterRenderPipelinesEvent event) {
@@ -108,9 +113,16 @@ public final class HulioshjalmrRenderer {
 
     public static void beginFrame() {
         ensureTarget();
+        hasOcclusionDepth = false;
         CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
         encoder.clearColorTexture(CONCEALMENT_TARGET.getColorTexture(), 0);
         CONCEALMENT_TARGET.copyDepthFrom(Minecraft.getInstance().getMainRenderTarget());
+    }
+
+    public static void captureOcclusionDepth() {
+        ensureTarget();
+        OCCLUSION_DEPTH_TARGET.copyDepthFrom(Minecraft.getInstance().getMainRenderTarget());
+        hasOcclusionDepth = true;
     }
 
     public static void composite(RenderLevelStageEvent.AfterTranslucentBlocks event) {
@@ -119,6 +131,7 @@ public final class HulioshjalmrRenderer {
             return;
         }
         var mainTarget = Minecraft.getInstance().getMainRenderTarget();
+        var sceneDepthTarget = hasOcclusionDepth ? OCCLUSION_DEPTH_TARGET : mainTarget;
         CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
         var sampler = RenderSystem.getSamplerCache().getClampToEdge(com.mojang.blaze3d.textures.FilterMode.NEAREST);
         try (RenderPass renderPass = encoder.createRenderPass(
@@ -127,9 +140,12 @@ public final class HulioshjalmrRenderer {
             renderPass.setPipeline(COMPOSITE_PIPELINE);
             RenderSystem.bindDefaultUniforms(renderPass);
             renderPass.bindTexture("ConcealmentSampler", CONCEALMENT_TARGET.getColorTextureView(), sampler);
+            renderPass.bindTexture("ConcealmentDepthSampler", CONCEALMENT_TARGET.getDepthTextureView(), sampler);
+            renderPass.bindTexture("SceneDepthSampler", sceneDepthTarget.getDepthTextureView(), sampler);
             renderPass.draw(0, 3);
         }
         hasContent = false;
+        hasOcclusionDepth = false;
     }
 
     public static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
@@ -230,10 +246,19 @@ public final class HulioshjalmrRenderer {
             CONCEALMENT_TARGET = new TextureTarget(
                     "Noble Phantasms Hulioshjalmr concealment",
                     mainTarget.width, mainTarget.height, true, mainTarget.useStencil);
-            return;
         }
-        if (CONCEALMENT_TARGET.width != mainTarget.width || CONCEALMENT_TARGET.height != mainTarget.height) {
+        if (OCCLUSION_DEPTH_TARGET == null) {
+            OCCLUSION_DEPTH_TARGET = new TextureTarget(
+                    "Noble Phantasms Hulioshjalmr entity occlusion depth",
+                    mainTarget.width, mainTarget.height, true, mainTarget.useStencil);
+        }
+        if (CONCEALMENT_TARGET.width != mainTarget.width
+                || CONCEALMENT_TARGET.height != mainTarget.height) {
             CONCEALMENT_TARGET.resize(mainTarget.width, mainTarget.height);
+        }
+        if (OCCLUSION_DEPTH_TARGET.width != mainTarget.width
+                || OCCLUSION_DEPTH_TARGET.height != mainTarget.height) {
+            OCCLUSION_DEPTH_TARGET.resize(mainTarget.width, mainTarget.height);
         }
     }
 
@@ -242,6 +267,11 @@ public final class HulioshjalmrRenderer {
             CONCEALMENT_TARGET.destroyBuffers();
             CONCEALMENT_TARGET = null;
         }
+        if (OCCLUSION_DEPTH_TARGET != null) {
+            OCCLUSION_DEPTH_TARGET.destroyBuffers();
+            OCCLUSION_DEPTH_TARGET = null;
+        }
+        hasOcclusionDepth = false;
     }
 
     private static void extractState(LivingEntity entity, LivingEntityRenderState state) {

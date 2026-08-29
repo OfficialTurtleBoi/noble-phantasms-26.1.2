@@ -1,6 +1,47 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "noblephantasms:item/holy_grail"
+    "type": "minecraft:range_dispatch",
+    "property": "noblephantasms:holy_grail_charge",
+    "entries": [
+      {
+        "threshold": 0.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "noblephantasms:item/holy_grail_empty"
+        }
+      },
+      {
+        "threshold": 0.0001,
+        "model": {
+          "type": "minecraft:model",
+          "model": "noblephantasms:item/holy_grail_4"
+        }
+      },
+      {
+        "threshold": 0.25,
+        "model": {
+          "type": "minecraft:model",
+          "model": "noblephantasms:item/holy_grail_3"
+        }
+      },
+      {
+        "threshold": 0.5,
+        "model": {
+          "type": "minecraft:model",
+          "model": "noblephantasms:item/holy_grail_2"
+        }
+      },
+      {
+        "threshold": 0.75,
+        "model": {
+          "type": "minecraft:model",
+          "model": "noblephantasms:item/holy_grail"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "noblephantasms:item/holy_grail"
+    }
   }
 }

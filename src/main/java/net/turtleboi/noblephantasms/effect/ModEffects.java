@@ -12,7 +12,7 @@ import net.turtleboi.noblephantasms.effect.custom.JudgementEffect;
 import net.turtleboi.noblephantasms.effect.custom.LuminousEffect;
 import net.turtleboi.noblephantasms.effect.custom.RebornEffect;
 import net.turtleboi.noblephantasms.effect.custom.FearedEffect;
-import net.turtleboi.noblephantasms.effect.custom.UndyingEffect;
+import net.turtleboi.noblephantasms.effect.custom.ThreatEffect;
 
 public final class ModEffects {
     public static final DeferredRegister<MobEffect> EFFECTS =
@@ -36,8 +36,8 @@ public final class ModEffects {
     public static final DeferredHolder<MobEffect, FearedEffect> FEARED =
             EFFECTS.register("feared", FearedEffect::new);
 
-    public static final DeferredHolder<MobEffect, UndyingEffect> UNDYING =
-            EFFECTS.register("undying", UndyingEffect::new);
+    public static final DeferredHolder<MobEffect, ThreatEffect> THREAT =
+            EFFECTS.register("threat", ThreatEffect::new);
 
     public static void register(IEventBus eventBus) {
         EFFECTS.register(eventBus);

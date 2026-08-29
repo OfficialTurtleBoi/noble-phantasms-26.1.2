@@ -38,6 +38,7 @@ import net.minecraft.world.phys.Vec3;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.entity.AfterimageEffect;
 import net.turtleboi.noblephantasms.entity.ModEntities;
+import net.turtleboi.noblephantasms.effect.ModEffects;
 import net.turtleboi.noblephantasms.item.custom.YasakaniNoMagatamaItem;
 import org.jspecify.annotations.Nullable;
 
@@ -273,9 +274,9 @@ public final class YasakaniGuardianEntity extends PathfinderMob {
             return;
         }
         for (Mob enemy : enemies) {
-            enemy.setTarget(this);
             enemy.knockback(1.35, getX() - enemy.getX(), getZ() - enemy.getZ());
         }
+        addEffect(new MobEffectInstance(ModEffects.THREAT, 160, 0, false, true, true));
         shoutCooldown = 140;
         level.playSound(null, blockPosition(), SoundEvents.POLAR_BEAR_WARNING,
                 SoundSource.NEUTRAL, 1.5F, 0.7F);
@@ -333,10 +334,6 @@ public final class YasakaniGuardianEntity extends PathfinderMob {
                 retreatTicks = 16;
             } else {
                 Vec3 combatFlankPoint = getCombatFlankPoint(owner, flankTarget);
-                if (getSpirit() == YasakaniNoMagatamaItem.Spirit.HOHI
-                        && flankTarget instanceof Mob mob) {
-                    mob.setTarget(this);
-                }
                 double horizontalX = getX() - flankTarget.getX();
                 double horizontalZ = getZ() - flankTarget.getZ();
                 double targetDistanceSquared = horizontalX * horizontalX + horizontalZ * horizontalZ;

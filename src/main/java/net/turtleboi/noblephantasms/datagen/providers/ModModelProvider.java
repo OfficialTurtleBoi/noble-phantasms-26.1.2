@@ -24,6 +24,7 @@ import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.block.ModBlocks;
 import net.turtleboi.noblephantasms.client.renderer.TecpatlRebuildingRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadRenderer;
+import net.turtleboi.noblephantasms.client.HolyGrailChargeProperty;
 import net.turtleboi.noblephantasms.component.ModDataComponents;
 import net.turtleboi.noblephantasms.item.ModItems;
 import org.joml.Quaternionf;
@@ -74,7 +75,7 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ModItems.MEDJU_NETJER.get(), ModelTemplates.FLAT_ITEM);
         generateMappedFlatItem(itemModels, ModItems.RELIC_FRAGMENT.get(),
                 Identifier.withDefaultNamespace("item/gold_nugget"));
-        itemModels.generateFlatItem(ModItems.HOLY_GRAIL.get(), ModelTemplates.FLAT_ITEM);
+        generateHolyGrailItem(itemModels);
         itemModels.generateFlatItem(ModItems.SMOKING_MIRROR.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.YASAKANI_NO_MAGATAMA.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.YATA_NO_KAGAMI.get(), ModelTemplates.FLAT_ITEM);
@@ -129,6 +130,30 @@ public class ModModelProvider extends ModelProvider {
                 ModelLocationUtils.getModelLocation(item),
                 TextureMapping.layer0(new Material(texture)), itemModels.modelOutput);
         itemModels.itemModelOutput.accept(item, ItemModelUtils.plainModel(model));
+    }
+
+    private static void generateHolyGrailItem(ItemModelGenerators itemModels) {
+        Item item = ModItems.HOLY_GRAIL.get();
+        Identifier full = createFlatItemModel(itemModels, item, "", "holy_grail");
+        Identifier fillTwo = createFlatItemModel(itemModels, item, "_2", "holy_grail2");
+        Identifier fillThree = createFlatItemModel(itemModels, item, "_3", "holy_grail3");
+        Identifier fillFour = createFlatItemModel(itemModels, item, "_4", "holy_grail4");
+        Identifier empty = createFlatItemModel(itemModels, item, "_empty", "holy_grail_empty");
+        itemModels.itemModelOutput.accept(item, ItemModelUtils.rangeSelect(
+                new HolyGrailChargeProperty(), ItemModelUtils.plainModel(full), List.of(
+                        ItemModelUtils.override(ItemModelUtils.plainModel(empty), 0.0F),
+                        ItemModelUtils.override(ItemModelUtils.plainModel(fillFour), 0.0001F),
+                        ItemModelUtils.override(ItemModelUtils.plainModel(fillThree), 0.25F),
+                        ItemModelUtils.override(ItemModelUtils.plainModel(fillTwo), 0.5F),
+                        ItemModelUtils.override(ItemModelUtils.plainModel(full), 0.75F))));
+    }
+
+    private static Identifier createFlatItemModel(
+            ItemModelGenerators itemModels, Item item, String suffix, String textureName) {
+        return ModelTemplates.FLAT_ITEM.create(
+                ModelLocationUtils.getModelLocation(item, suffix),
+                TextureMapping.layer0(new Material(Identifier.fromNamespaceAndPath(
+                        NoblePhantasms.MOD_ID, "item/" + textureName))), itemModels.modelOutput);
     }
 
     private static void generateKazagurumaItem(ItemModelGenerators itemModels, Item item) {
