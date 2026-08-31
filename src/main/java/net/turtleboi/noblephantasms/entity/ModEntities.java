@@ -7,10 +7,15 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.entity.custom.ApilolliCloudEntity;
+import net.turtleboi.noblephantasms.entity.custom.AnubiteEntity;
+import net.turtleboi.noblephantasms.entity.custom.EcclesiasticEntity;
+import net.turtleboi.noblephantasms.entity.custom.DraugrEntity;
 import net.turtleboi.noblephantasms.entity.custom.EyeShardEntity;
 import net.turtleboi.noblephantasms.entity.custom.ExcaliburProjectile;
 import net.turtleboi.noblephantasms.entity.custom.GungnirProjectile;
 import net.turtleboi.noblephantasms.entity.custom.KazagurumaProjectile;
+import net.turtleboi.noblephantasms.entity.custom.OniEntity;
+import net.turtleboi.noblephantasms.entity.custom.PridwenBarrierEntity;
 import net.turtleboi.noblephantasms.entity.custom.TecpatlShardEntity;
 import net.turtleboi.noblephantasms.entity.custom.WindslashProjectile;
 import net.turtleboi.noblephantasms.entity.custom.XiuhcoatlProjectile;
@@ -28,6 +33,12 @@ public class ModEntities {
     public static final DeferredHolder<EntityType<?>, EntityType<ExcaliburProjectile>> EXCALIBUR_PROJECTILE =
             ENTITY_TYPES.registerEntityType("excalibur_projectile", ExcaliburProjectile::new, MobCategory.MISC,
                     builder -> builder.noLootTable().sized(0.5F, 0.5F)
+                            .clientTrackingRange(10).updateInterval(1));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<PridwenBarrierEntity>> PRIDWEN_BARRIER =
+            ENTITY_TYPES.registerEntityType("pridwen_barrier", PridwenBarrierEntity::new, MobCategory.MISC,
+                    builder -> builder.noLootTable()
+                            .sized(0.01F, 0.01F)
                             .clientTrackingRange(10).updateInterval(1));
 
     public static final DeferredHolder<EntityType<?>, EntityType<WindslashProjectile>> WINDSLASH =
@@ -48,8 +59,8 @@ public class ModEntities {
 
     public static final DeferredHolder<EntityType<?>, EntityType<ApilolliCloudEntity>> APILOLLI_CLOUD =
             ENTITY_TYPES.registerEntityType("apilolli_cloud", ApilolliCloudEntity::new, MobCategory.MISC,
-                    builder -> builder.noLootTable().sized(4.0F, 1.0F)
-                            .clientTrackingRange(10).updateInterval(10));
+                    builder -> builder.noLootTable().sized(2.5F, 2.0F)
+                            .clientTrackingRange(10).updateInterval(1));
 
     public static final DeferredHolder<EntityType<?>, EntityType<XiuhcoatlProjectile>> XIUHCOATL =
             ENTITY_TYPES.registerEntityType("xiuhcoatl", XiuhcoatlProjectile::new, MobCategory.MISC,
@@ -67,6 +78,26 @@ public class ModEntities {
             ENTITY_TYPES.registerEntityType("yasakani_guardian", YasakaniGuardianEntity::new, MobCategory.MISC,
                     builder -> builder.noLootTable().fireImmune().sized(0.6F, 1.8F)
                             .clientTrackingRange(10).updateInterval(1));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<AnubiteEntity>> ANUBITE =
+            ENTITY_TYPES.registerEntityType("anubite", AnubiteEntity::new, MobCategory.MONSTER,
+                    builder -> builder.noLootTable().sized(0.6F, 1.95F)
+                            .clientTrackingRange(8).updateInterval(3));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<EcclesiasticEntity>> ECCLESIASTIC =
+            ENTITY_TYPES.registerEntityType("ecclesiastic", EcclesiasticEntity::new, MobCategory.MONSTER,
+                    builder -> builder.noLootTable().sized(0.6F, 1.95F)
+                            .clientTrackingRange(8).updateInterval(3));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<DraugrEntity>> DRAUGR =
+            ENTITY_TYPES.registerEntityType("draugr", DraugrEntity::new, MobCategory.MONSTER,
+                    builder -> builder.noLootTable().sized(0.6F, 1.95F)
+                            .clientTrackingRange(8).updateInterval(1));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<OniEntity>> ONI =
+            ENTITY_TYPES.registerEntityType("oni", OniEntity::new, MobCategory.MONSTER,
+                    builder -> builder.noLootTable().sized(1.125F, 2.5F)
+                            .clientTrackingRange(8).updateInterval(3));
 
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);

@@ -13,6 +13,9 @@ import net.turtleboi.noblephantasms.effect.custom.LuminousEffect;
 import net.turtleboi.noblephantasms.effect.custom.RebornEffect;
 import net.turtleboi.noblephantasms.effect.custom.FearedEffect;
 import net.turtleboi.noblephantasms.effect.custom.UndyingEffect;
+import net.turtleboi.noblephantasms.effect.custom.WardEffect;
+import net.turtleboi.noblephantasms.effect.custom.ChilledEffect;
+import net.turtleboi.noblephantasms.effect.custom.FrozenEffect;
 
 public final class ModEffects {
     public static final DeferredRegister<MobEffect> EFFECTS =
@@ -38,6 +41,15 @@ public final class ModEffects {
 
     public static final DeferredHolder<MobEffect, UndyingEffect> UNDYING =
             EFFECTS.register("undying", UndyingEffect::new);
+
+    public static final DeferredHolder<MobEffect, WardEffect> WARD =
+            EFFECTS.register("ward", WardEffect::new);
+
+    public static final DeferredHolder<MobEffect, ChilledEffect> CHILLED =
+            EFFECTS.register("chilled", ChilledEffect::new);
+
+    public static final DeferredHolder<MobEffect, FrozenEffect> FROZEN =
+            EFFECTS.register("frozen", FrozenEffect::new);
 
     public static void register(IEventBus eventBus) {
         EFFECTS.register(eventBus);

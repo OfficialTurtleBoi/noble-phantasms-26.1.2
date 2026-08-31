@@ -4,6 +4,7 @@ import java.util.UUID;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
@@ -74,11 +75,31 @@ public class ModDataComponents {
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Long>> EXCALIBUR_RECHARGE_TICK =
             DATA_COMPONENTS.registerComponentType("excalibur_recharge_tick", builder -> builder
+                    .persistent(Codec.LONG)
                     .ignoreSwapAnimation()
                     .networkSynchronized(ByteBufCodecs.VAR_LONG));
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Long>> EXCALIBUR_RELEASE_TICK =
             DATA_COMPONENTS.registerComponentType("excalibur_release_tick", builder -> builder
+                    .persistent(Codec.LONG)
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.VAR_LONG));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Float>> PRIDWEN_ENERGY =
+            DATA_COMPONENTS.registerComponentType("pridwen_energy", builder -> builder
+                    .persistent(Codec.FLOAT)
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.FLOAT));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> PRIDWEN_BROKEN =
+            DATA_COMPONENTS.registerComponentType("pridwen_broken", builder -> builder
+                    .persistent(Codec.BOOL)
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.BOOL));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Long>> PRIDWEN_NEXT_RECHARGE_TICK =
+            DATA_COMPONENTS.registerComponentType("pridwen_next_recharge_tick", builder -> builder
+                    .persistent(Codec.LONG)
                     .ignoreSwapAnimation()
                     .networkSynchronized(ByteBufCodecs.VAR_LONG));
 
@@ -98,6 +119,11 @@ public class ModDataComponents {
             DATA_COMPONENTS.registerComponentType("relic_fragment", builder -> builder
                     .persistent(RelicFragmentData.CODEC)
                     .networkSynchronized(RelicFragmentData.STREAM_CODEC));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Identifier>> MYTHICAL_RELIQUARY_FOCUS =
+            DATA_COMPONENTS.registerComponentType("mythical_reliquary_focus", builder -> builder
+                    .persistent(Identifier.CODEC)
+                    .networkSynchronized(Identifier.STREAM_CODEC));
 
     public static void register(IEventBus eventBus) {
         DATA_COMPONENTS.register(eventBus);

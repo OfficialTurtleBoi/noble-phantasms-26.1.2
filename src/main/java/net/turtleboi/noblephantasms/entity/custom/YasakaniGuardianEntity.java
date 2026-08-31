@@ -43,6 +43,13 @@ import org.jspecify.annotations.Nullable;
 
 public final class YasakaniGuardianEntity extends PathfinderMob {
     private static final int LIFETIME = 20 * 30;
+    private static final int[] SPIRIT_COLORS = {
+            0x4E8FF1,
+            0xED2146,
+            0xE8C92E,
+            0x42D654,
+            0xDFD8B3
+    };
     private static final Identifier GREEN_SPEED_ID = Identifier.fromNamespaceAndPath(
             NoblePhantasms.MOD_ID, "ikutsuhikone_speed");
     private static final Identifier GREEN_ATTACK_SPEED_ID = Identifier.fromNamespaceAndPath(
@@ -678,9 +685,27 @@ public final class YasakaniGuardianEntity extends PathfinderMob {
         if (tickCount % 2 != 0) {
             return;
         }
-        int[] colors = {0x4E8FF1, 0xED2146, 0xE8C92E, 0x42D654, 0xDFD8B3};
-        level().addParticle(new DustParticleOptions(colors[getSpirit().ordinal()], 0.75F),
+        level().addParticle(new DustParticleOptions(SPIRIT_COLORS[getSpirit().ordinal()], 0.75F),
                 getX(), getY() + getBbHeight() * 0.5, getZ(), 0.0, 0.01, 0.0);
+    }
+
+    @Override
+    protected void tickDeath() {
+        if (level() instanceof ServerLevel serverLevel && !isRemoved()) {
+            double centerY = getY() + getBbHeight() * 0.5;
+            double horizontalSpread = Math.max(0.35, getBbWidth() * 0.6);
+            double verticalSpread = Math.max(0.55, getBbHeight() * 0.45);
+            serverLevel.sendParticles(
+                    new DustParticleOptions(SPIRIT_COLORS[getSpirit().ordinal()], 1.25F),
+                    getX(), centerY, getZ(), 42,
+                    horizontalSpread, verticalSpread, horizontalSpread, 0.12);
+            serverLevel.sendParticles(
+                    ParticleTypes.POOF,
+                    getX(), centerY, getZ(), 14,
+                    horizontalSpread * 0.7, verticalSpread * 0.7,
+                    horizontalSpread * 0.7, 0.08);
+            remove(RemovalReason.KILLED);
+        }
     }
 
     public YasakaniNoMagatamaItem.Spirit getSpirit() {

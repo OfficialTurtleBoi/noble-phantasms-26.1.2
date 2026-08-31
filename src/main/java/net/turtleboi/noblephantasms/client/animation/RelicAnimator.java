@@ -13,6 +13,8 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
 
 public final class RelicAnimator {
+    private static final String GENERIC_FIRST_PERSON_PREFIX = "item_pose_first_person_";
+    private static final String GENERIC_THIRD_PERSON_PREFIX = "item_pose_third_person_";
     private static final Map<Identifier, Map<String, RelicAnimation>> ANIMATIONS = new HashMap<>();
     private static final Map<Identifier, Map<String, EditorPose>> EDITOR_POSES = new HashMap<>();
 
@@ -29,6 +31,40 @@ public final class RelicAnimator {
                                           String firstPersonAnimation, String thirdPersonAnimation) {
         EDITOR_POSES.computeIfAbsent(itemId, ignored -> new LinkedHashMap<>())
                 .put(pose, new EditorPose(firstPersonAnimation, thirdPersonAnimation));
+    }
+
+    public static String ensureGenericEditorPose(Identifier itemId, CameraType cameraType,
+                                                 String pose, RelicAnimation defaultAnimation) {
+        String animationId = genericAnimationId(cameraType, pose);
+        Map<String, RelicAnimation> animations = ANIMATIONS.computeIfAbsent(
+                itemId, ignored -> new HashMap<>());
+        animations.computeIfAbsent(animationId, ignored -> {
+            RelicAnimation stored = RelicAnimationStorage.getStoredAnimation(itemId, animationId);
+            return stored == null ? defaultAnimation.copy() : stored.copy();
+        });
+
+        Map<String, EditorPose> poses = EDITOR_POSES.computeIfAbsent(
+                itemId, ignored -> new LinkedHashMap<>());
+        EditorPose existing = poses.getOrDefault(pose, new EditorPose(null, null));
+        poses.put(pose, cameraType.isFirstPerson()
+                ? new EditorPose(animationId, existing.thirdPersonAnimation())
+                : new EditorPose(existing.firstPersonAnimation(), animationId));
+        return animationId;
+    }
+
+    public static boolean isGenericEditorPose(Identifier itemId, CameraType cameraType, String pose) {
+        return genericAnimationId(cameraType, pose).equals(
+                getEditorAnimationId(itemId, cameraType, pose));
+    }
+
+    public static RelicTransform sampleGeneric(ItemStack itemStack, CameraType cameraType,
+                                               String pose, float tick) {
+        return sample(itemStack, genericAnimationId(cameraType, pose), tick);
+    }
+
+    public static RelicAnimationClip getGenericClip(ItemStack itemStack, CameraType cameraType,
+                                                    String pose) {
+        return get(itemStack, genericAnimationId(cameraType, pose));
     }
 
     public static List<String> getEditorPoses(ItemStack itemStack) {
@@ -74,12 +110,15 @@ public final class RelicAnimator {
 
     static RelicAnimation getAnimation(Identifier itemId, String animationId) {
         Map<String, RelicAnimation> animations = ANIMATIONS.get(itemId);
-        return animations == null ? null : animations.get(animationId);
+        RelicAnimation animation = animations == null ? null : animations.get(animationId);
+        return animation == null
+                ? RelicAnimationStorage.getStoredAnimation(itemId, animationId) : animation;
     }
 
     static boolean applyStoredAnimation(Identifier itemId, String animationId,
                                         RelicAnimation storedAnimation) {
-        RelicAnimation animation = getAnimation(itemId, animationId);
+        Map<String, RelicAnimation> animations = ANIMATIONS.get(itemId);
+        RelicAnimation animation = animations == null ? null : animations.get(animationId);
         if (animation == null) {
             return false;
         }
@@ -138,5 +177,10 @@ public final class RelicAnimator {
     }
 
     private record EditorPose(String firstPersonAnimation, String thirdPersonAnimation) {
+    }
+
+    private static String genericAnimationId(CameraType cameraType, String pose) {
+        return (cameraType.isFirstPerson()
+                ? GENERIC_FIRST_PERSON_PREFIX : GENERIC_THIRD_PERSON_PREFIX) + pose;
     }
 }

@@ -37,7 +37,7 @@ public final class RelicFragmentDefinitions {
             standard(ModItems.CLYDNO_HALTER, 4),
             weapon(ModItems.GUNGNIR, 10),
             weapon(ModItems.GRAM, 9).withStationTexture(TextureVariant.DISPLAY),
-            weapon(ModItems.TYRFING, 7),
+            standard(ModItems.TYRFING, 7),
             standard(ModItems.GJALLARHORN, 6),
             standard(ModItems.HULIOSHJALMR, 6),
             standard(ModItems.UCHIDE_NO_KOZUCHI, 6),
@@ -48,8 +48,9 @@ public final class RelicFragmentDefinitions {
             standard(ModItems.HOFSKOR, 4),
             weapon(ModItems.KUSANAGI_NO_TSURUGI, 8),
             held(ModItems.KAZAGURUMA, 8),
+            weapon(ModItems.KANABO, 8),
             standard(ModItems.EAGLE_KNIGHT_TALONS, 6),
-            standard(ModItems.MACUAHUITL, 7),
+            weapon(ModItems.MACUAHUITL, 7),
             standard(ModItems.RAIKO, 6).withTextureAlias("raiko_item"));
 
     public static Definition get(Identifier relicId) {
@@ -65,6 +66,10 @@ public final class RelicFragmentDefinitions {
 
     public static List<Identifier> relicIds() {
         return DEFINITIONS.stream().map(Definition::relicId).toList();
+    }
+
+    public static List<Definition> definitions() {
+        return DEFINITIONS;
     }
 
     private static Definition standard(Supplier<? extends Item> relic, int maximumPieces) {
@@ -117,6 +122,26 @@ public final class RelicFragmentDefinitions {
             return textureId(stationTextureVariant);
         }
 
+        /**
+         * Texture shown by the Mythical Reliquary's large relic preview. Definitions with a
+         * purpose-built display texture use it; every other relic keeps its existing held or
+         * standard texture.
+         */
+        public Identifier previewTextureId() {
+            return stationTextureId();
+        }
+
+        /**
+         * Flat icon used by the table of contents. Large held weapons use their generated
+         * inventory sprite instead of the larger weapon texture.
+         */
+        public Identifier inventoryTextureId() {
+            Identifier relicId = relicId();
+            String baseName = textureAlias == null ? relicId.getPath() : textureAlias;
+            return Identifier.fromNamespaceAndPath(relicId.getNamespace(),
+                    "item/" + baseName + textureVariant.inventorySuffix);
+        }
+
         private Identifier textureId(TextureVariant variant) {
             Identifier relicId = relicId();
             String baseName = textureAlias == null ? relicId.getPath() : textureAlias;
@@ -126,15 +151,17 @@ public final class RelicFragmentDefinitions {
     }
 
     public enum TextureVariant {
-        STANDARD(""),
-        WEAPON("_weapon"),
-        HELD("_held"),
-        DISPLAY("_display");
+        STANDARD("", ""),
+        WEAPON("_weapon", "_item"),
+        HELD("_held", ""),
+        DISPLAY("_display", "_item");
 
         private final String suffix;
+        private final String inventorySuffix;
 
-        TextureVariant(String suffix) {
+        TextureVariant(String suffix, String inventorySuffix) {
             this.suffix = suffix;
+            this.inventorySuffix = inventorySuffix;
         }
     }
 }

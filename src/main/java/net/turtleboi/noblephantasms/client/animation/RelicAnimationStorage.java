@@ -44,9 +44,8 @@ final class RelicAnimationStorage {
                         Identifier.parse(json.get("item").getAsString()),
                         json.get("animation").getAsString());
                 RelicAnimation animation = readAnimation(json);
-                if (RelicAnimator.applyStoredAnimation(key.itemId(), key.animationId(), animation)) {
-                    ANIMATIONS.put(key, animation);
-                }
+                ANIMATIONS.put(key, animation);
+                RelicAnimator.applyStoredAnimation(key.itemId(), key.animationId(), animation);
             }
             for (JsonElement element : root.getAsJsonArray("model_transforms")) {
                 JsonObject json = element.getAsJsonObject();
@@ -98,6 +97,10 @@ final class RelicAnimationStorage {
     static RelicTransform getModelTransform(Identifier itemId, ItemDisplayContext displayContext) {
         RelicTransform transform = MODEL_TRANSFORMS.get(new ModelTransformKey(itemId, displayContext));
         return transform == null ? null : transform.copy();
+    }
+
+    static RelicAnimation getStoredAnimation(Identifier itemId, String animationId) {
+        return ANIMATIONS.get(new AnimationKey(itemId, animationId));
     }
 
     private static JsonObject writeRoot() {

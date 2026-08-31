@@ -8,7 +8,7 @@ import net.minecraft.util.Ease;
 import net.minecraft.util.Mth;
 
 public final class RelicAnimationClip {
-    private final float durationTicks;
+    private float durationTicks;
     private final List<Keyframe> keyframes = new ArrayList<>();
 
     public RelicAnimationClip(float durationTicks) {
@@ -39,6 +39,33 @@ public final class RelicAnimationClip {
         }
         Keyframe keyframe = keyframes.get(index);
         keyframes.set(index, new Keyframe(keyframe.tick(), keyframe.transform(), easing));
+    }
+
+    public void setDurationTicks(float durationTicks) {
+        float updatedDuration = Math.max(durationTicks, 1.0F);
+        if (Math.abs(updatedDuration - this.durationTicks) < 0.0001F) {
+            return;
+        }
+        float scale = updatedDuration / this.durationTicks;
+        this.durationTicks = updatedDuration;
+        for (int index = 0; index < keyframes.size(); index++) {
+            Keyframe keyframe = keyframes.get(index);
+            keyframes.set(index, new Keyframe(
+                    Mth.clamp(keyframe.tick() * scale, 0.0F, updatedDuration),
+                    keyframe.transform(), keyframe.easing()));
+        }
+    }
+
+    public int moveKeyframe(int index, float tick) {
+        if (index < 0 || index >= keyframes.size()) {
+            return closestKeyframe(tick);
+        }
+        Keyframe moved = keyframes.remove(index);
+        float updatedTick = Mth.clamp(tick, 0.0F, durationTicks);
+        keyframes.removeIf(keyframe -> Math.abs(keyframe.tick() - updatedTick) < 0.0001F);
+        keyframes.add(new Keyframe(updatedTick, moved.transform(), moved.easing()));
+        keyframes.sort(Comparator.comparingDouble(Keyframe::tick));
+        return closestKeyframe(updatedTick);
     }
 
     public RelicTransform sample(float tick) {

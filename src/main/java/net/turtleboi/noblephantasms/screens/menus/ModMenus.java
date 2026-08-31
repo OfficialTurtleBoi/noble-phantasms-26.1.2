@@ -9,6 +9,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.screens.menus.custom.ReliquaryStationMenu;
+import net.turtleboi.noblephantasms.screens.menus.custom.MythicalReliquaryMenu;
 
 public final class ModMenus {
     public static final DeferredRegister<MenuType<?>> MENUS =
@@ -17,6 +18,10 @@ public final class ModMenus {
     public static final DeferredHolder<MenuType<?>, MenuType<ReliquaryStationMenu>> RELIQUARY_STATION =
             MENUS.register("reliquary_station", () -> new MenuType<>((IContainerFactory<ReliquaryStationMenu>)
                     ReliquaryStationMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<MythicalReliquaryMenu>> MYTHICAL_RELIQUARY =
+            MENUS.register("mythical_reliquary", () -> new MenuType<>((IContainerFactory<MythicalReliquaryMenu>)
+                    MythicalReliquaryMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
     public static void register(IEventBus eventBus) {
         MENUS.register(eventBus);

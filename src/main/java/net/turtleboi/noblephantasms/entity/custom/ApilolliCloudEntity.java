@@ -9,6 +9,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -24,11 +25,22 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.turtleboi.noblephantasms.entity.ModEntities;
+import net.turtleboi.noblephantasms.particle.ModParticles;
 import org.jspecify.annotations.Nullable;
 
 public final class ApilolliCloudEntity extends Entity {
     private static final int LIFETIME = 20 * 90;
     private static final int EFFECT_RADIUS = 6;
+    private static final double CLOUD_SCALE = 2.0;
+    private static final double[][] MIDDLE_LOBES = {
+            {-0.22, 0.12},
+            {0.18, -0.20},
+            {0.24, 0.17}
+    };
+    private static final double[][] TOP_LOBES = {
+            {-0.13, -0.07},
+            {0.12, 0.10}
+    };
     private static final EntityDataAccessor<Integer> OWNER =
             SynchedEntityData.defineId(ApilolliCloudEntity.class, EntityDataSerializers.INT);
     private @Nullable UUID ownerId;
@@ -59,16 +71,25 @@ public final class ApilolliCloudEntity extends Entity {
     public void tick() {
         super.tick();
         if (level().isClientSide()) {
-            for (int i = 0; i < 3; i++) {
-                level().addParticle(ParticleTypes.DRIPPING_WATER,
-                        getX() + random.nextGaussian() * 1.8,
-                        getY() - 0.25,
-                        getZ() + random.nextGaussian() * 1.8,
+            int repetitions = tickCount < 5 ? 2 : 1;
+            for (int repetition = 0; repetition < repetitions; repetition++) {
+                for (int i = 0; i < 4; i++) {
+                    spawnLowerCloudParticle();
+                }
+                for (int i = 0; i < 2; i++) {
+                    spawnLobeParticle(MIDDLE_LOBES, 0.42, 0.10, 0.08, 1.65);
+                }
+                spawnLobeParticle(TOP_LOBES, 0.68, 0.06, 0.05, 1.35);
+            }
+            for (int i = 0; i < 2; i++) {
+                double angle = random.nextDouble() * Mth.TWO_PI;
+                double radius = Math.sqrt(random.nextDouble()) * 1.5;
+                level().addParticle(ParticleTypes.FALLING_WATER,
+                        getX() + Math.cos(angle) * radius,
+                        getY() + 0.05,
+                        getZ() + Math.sin(angle) * radius,
                         0.0, -0.08, 0.0);
             }
-            level().addParticle(ParticleTypes.CLOUD,
-                    getX() + random.nextGaussian(), getY(), getZ() + random.nextGaussian(),
-                    0.0, 0.0, 0.0);
             return;
         }
 
@@ -87,6 +108,26 @@ public final class ApilolliCloudEntity extends Entity {
         if (tickCount % 20 == 0) {
             nourish(serverLevel, owner);
         }
+    }
+
+    private void spawnLowerCloudParticle() {
+        double angle = random.nextDouble() * Mth.TWO_PI;
+        double radius = Math.sqrt(random.nextDouble()) * 0.39 * CLOUD_SCALE;
+        level().addParticle(ModParticles.APILOLLI_CLOUD.get(),
+                getX() + Math.cos(angle) * radius,
+                getY() + (0.18 + random.nextDouble() * 0.16) * CLOUD_SCALE,
+                getZ() + Math.sin(angle) * radius,
+                getId(), CLOUD_SCALE, 0.0);
+    }
+
+    private void spawnLobeParticle(double[][] lobes, double yOffset, double yVariation,
+                                   double spread, double particleScale) {
+        double[] lobe = lobes[random.nextInt(lobes.length)];
+        level().addParticle(ModParticles.APILOLLI_CLOUD.get(),
+                getX() + (lobe[0] + random.nextGaussian() * spread) * CLOUD_SCALE,
+                getY() + (yOffset + random.nextDouble() * yVariation) * CLOUD_SCALE,
+                getZ() + (lobe[1] + random.nextGaussian() * spread) * CLOUD_SCALE,
+                getId(), particleScale, 0.0);
     }
 
     private void nourish(ServerLevel level, Player owner) {

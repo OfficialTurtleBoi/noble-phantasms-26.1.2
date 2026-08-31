@@ -21,7 +21,7 @@ import net.turtleboi.noblephantasms.client.animation.RelicTransform;
 
 public class ItemPoseEditorScreen extends Screen {
     private static final int PANEL_WIDTH = 208;
-    private static final int PANEL_HEIGHT = 234;
+    private static final int PANEL_HEIGHT = 252;
     private static final int SLIDER_HEIGHT = 14;
     private static final String EDIT_HINT = "Select/type + Enter · Alt: 0.01";
     private final Session session;
@@ -30,6 +30,7 @@ public class ItemPoseEditorScreen extends Screen {
     private int panelY;
     private boolean waitingForTransform;
     private PoseSlider timelineSlider;
+    private PoseSlider keyframeTickSlider;
 
     public ItemPoseEditorScreen(Session session) {
         super(Component.literal("Item Pose Editor"));
@@ -42,6 +43,7 @@ public class ItemPoseEditorScreen extends Screen {
         panelX = panelOnLeft() ? 6 : width - panelWidth - 6;
         panelY = Math.max(6, (height - PANEL_HEIGHT) / 2);
         Target target = session.currentTarget();
+        boolean animatedPose = target.currentPoseAnimated();
 
         if (session.targets().size() > 1) {
             addRenderableWidget(smallArrow(panelX + 5, panelY + 4, "<", () -> cycleTarget(-1)));
@@ -92,30 +94,52 @@ public class ItemPoseEditorScreen extends Screen {
         timelineSlider = new PoseSlider(panelX + margin, timelineY, panelWidth - margin * 2,
                 "Tick", target.playhead(), 0.0F, target.currentAnimation().durationTicks(), 1.0F,
                 value -> target.setPlayhead((float) value / target.currentAnimation().durationTicks()));
+        timelineSlider.active = animatedPose;
         addRenderableWidget(timelineSlider);
 
-        int keyframeY = panelY + 127;
-        int smallButtonWidth = (panelWidth - margin * 2 - gap * 3) / 4;
-        addRenderableWidget(Button.builder(Component.literal("< Key"), button -> cycleKeyframe(-1))
-                .bounds(panelX + margin, keyframeY, smallButtonWidth, 16).build());
-        addRenderableWidget(Button.builder(Component.literal("+ Key"), button -> addKeyframe())
-                .bounds(panelX + margin + smallButtonWidth + gap, keyframeY, smallButtonWidth, 16).build());
-        addRenderableWidget(Button.builder(Component.literal("- Key"), button -> removeKeyframe())
-                .bounds(panelX + margin + (smallButtonWidth + gap) * 2, keyframeY, smallButtonWidth, 16).build());
-        addRenderableWidget(Button.builder(Component.literal("Key >"), button -> cycleKeyframe(1))
-                .bounds(panelX + margin + (smallButtonWidth + gap) * 3, keyframeY, smallButtonWidth, 16).build());
+        int timingY = panelY + 127;
+        int timingWidth = (panelWidth - margin * 2 - gap) / 2;
+        PoseSlider durationSlider = new PoseSlider(panelX + margin, timingY, timingWidth,
+                "Length", target.currentAnimation().durationTicks(), 1.0F, 1200.0F, 1.0F,
+                value -> {
+                    target.setDurationTicks((float) value);
+                    timelineSlider.setMaximum(target.currentAnimation().durationTicks());
+                    timelineSlider.setCurrent(target.playhead());
+                    if (keyframeTickSlider != null) {
+                        keyframeTickSlider.setMaximum(target.currentAnimation().durationTicks());
+                        keyframeTickSlider.setCurrent(target.currentKeyframeTick());
+                    }
+                });
+        durationSlider.active = animatedPose;
+        addRenderableWidget(durationSlider);
+        keyframeTickSlider = new PoseSlider(panelX + margin + timingWidth + gap, timingY, timingWidth,
+                "Key", target.currentKeyframeTick(), 0.0F, target.currentAnimation().durationTicks(), 1.0F,
+                value -> target.setCurrentKeyframeTick((float) value));
+        keyframeTickSlider.active = animatedPose;
+        addRenderableWidget(keyframeTickSlider);
 
-        int toolY = panelY + 145;
+        int keyframeY = panelY + 145;
+        int smallButtonWidth = (panelWidth - margin * 2 - gap * 3) / 4;
+        addAnimatedButton(Button.builder(Component.literal("< Key"), button -> cycleKeyframe(-1))
+                .bounds(panelX + margin, keyframeY, smallButtonWidth, 16).build(), animatedPose);
+        addAnimatedButton(Button.builder(Component.literal("+ Key"), button -> addKeyframe())
+                .bounds(panelX + margin + smallButtonWidth + gap, keyframeY, smallButtonWidth, 16).build(), animatedPose);
+        addAnimatedButton(Button.builder(Component.literal("- Key"), button -> removeKeyframe())
+                .bounds(panelX + margin + (smallButtonWidth + gap) * 2, keyframeY, smallButtonWidth, 16).build(), animatedPose);
+        addAnimatedButton(Button.builder(Component.literal("Key >"), button -> cycleKeyframe(1))
+                .bounds(panelX + margin + (smallButtonWidth + gap) * 3, keyframeY, smallButtonWidth, 16).build(), animatedPose);
+
+        int toolY = panelY + 163;
         int toolButtonWidth = (panelWidth - margin * 2 - gap * 2) / 3;
-        addRenderableWidget(Button.builder(Component.literal(target.playing() ? "Pause" : "Play"),
+        addAnimatedButton(Button.builder(Component.literal(target.playing() ? "Pause" : "Play"),
                         button -> togglePlayback())
-                .bounds(panelX + margin, toolY, toolButtonWidth, 16).build());
-        addRenderableWidget(Button.builder(Component.literal("Ease"), button -> cycleEasing())
-                .bounds(panelX + margin + toolButtonWidth + gap, toolY, toolButtonWidth, 16).build());
+                .bounds(panelX + margin, toolY, toolButtonWidth, 16).build(), animatedPose);
+        addAnimatedButton(Button.builder(Component.literal("Ease"), button -> cycleEasing())
+                .bounds(panelX + margin + toolButtonWidth + gap, toolY, toolButtonWidth, 16).build(), animatedPose);
         addRenderableWidget(Button.builder(Component.literal("Reset"), button -> resetPose())
                 .bounds(panelX + margin + (toolButtonWidth + gap) * 2, toolY, toolButtonWidth, 16).build());
 
-        int finishY = panelY + 163;
+        int finishY = panelY + 181;
         int finishButtonWidth = (panelWidth - margin * 2 - gap) / 2;
         addRenderableWidget(Button.builder(Component.literal("Save"), button -> save())
                 .bounds(panelX + margin, finishY, finishButtonWidth, 16).build());
@@ -123,7 +147,7 @@ public class ItemPoseEditorScreen extends Screen {
                 .bounds(panelX + margin + finishButtonWidth + gap, finishY, finishButtonWidth, 16).build());
 
         if (target.currentChannels().size() > 1) {
-            int channelY = panelY + 181;
+            int channelY = panelY + 199;
             addRenderableWidget(Button.builder(Component.literal("< Channel"), button -> cycleChannel(-1))
                     .bounds(panelX + margin, channelY, finishButtonWidth, 16).build());
             addRenderableWidget(Button.builder(Component.literal("Channel >"), button -> cycleChannel(1))
@@ -133,6 +157,11 @@ public class ItemPoseEditorScreen extends Screen {
 
     private Button smallArrow(int x, int y, String label, Runnable action) {
         return Button.builder(Component.literal(label), button -> action.run()).bounds(x, y, 14, 14).build();
+    }
+
+    private void addAnimatedButton(Button button, boolean active) {
+        button.active = active;
+        addRenderableWidget(button);
     }
 
     private void addSlider(int x, int y, int width, String label, float current, float minimum, float maximum,
@@ -251,14 +280,16 @@ public class ItemPoseEditorScreen extends Screen {
         String itemLabel = hand + " · " + target.itemName().getString();
         itemLabel = font.plainSubstrByWidth(itemLabel, panelWidth - 44);
         graphics.centeredText(font, itemLabel, panelX + panelWidth / 2, panelY + 7, 0xFFFFFFFF);
-        String poseLabel = target.currentPose() + "  " + target.poseNumber() + "/" + target.poses().size();
+        String poseName = target.currentPoseAnimated()
+                ? target.currentPose() : target.currentPose() + " · static";
+        String poseLabel = poseName + "  " + target.poseNumber() + "/" + target.poses().size();
         graphics.centeredText(font, poseLabel, panelX + panelWidth / 2, panelY + 26, 0xFFD8D8D8);
         String keyframeLabel = target.currentChannel() + " · Key " + target.keyframeNumber() + "/"
                 + target.currentAnimation().keyframes().size() + " @ "
                 + String.format(Locale.ROOT, "%.0f", target.currentKeyframeTick())
                 + " · " + target.currentEasing();
-        graphics.centeredText(font, keyframeLabel, panelX + panelWidth / 2, panelY + 204, 0xFFD8D8D8);
-        graphics.centeredText(font, status, panelX + panelWidth / 2, panelY + 219, 0xFFAAAAAA);
+        graphics.centeredText(font, keyframeLabel, panelX + panelWidth / 2, panelY + 222, 0xFFD8D8D8);
+        graphics.centeredText(font, status, panelX + panelWidth / 2, panelY + 237, 0xFFAAAAAA);
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
     }
 
@@ -275,7 +306,7 @@ public class ItemPoseEditorScreen extends Screen {
     private static final class PoseSlider extends AbstractSliderButton {
         private final String label;
         private final double minimum;
-        private final double maximum;
+        private double maximum;
         private final double step;
         private final DoubleConsumer setter;
         private String typedValue = "";
@@ -350,11 +381,6 @@ public class ItemPoseEditorScreen extends Screen {
 
         @Override
         public void onClick(MouseButtonEvent event, boolean doubleClick) {
-            if (!isFocused()) {
-                dragging = false;
-                canChangeValue = false;
-                return;
-            }
             cancelTypedValue();
             canChangeValue = true;
             super.onClick(event, doubleClick);
@@ -400,6 +426,12 @@ public class ItemPoseEditorScreen extends Screen {
         private void setCurrent(double current) {
             value = Mth.clamp(normalize(current, minimum, maximum), 0.0, 1.0);
             updateMessage();
+        }
+
+        private void setMaximum(double maximum) {
+            double current = currentValue();
+            this.maximum = Math.max(maximum, minimum + 0.0001);
+            setCurrent(Math.min(current, this.maximum));
         }
 
         private void setTypedValue(String typedValue) {

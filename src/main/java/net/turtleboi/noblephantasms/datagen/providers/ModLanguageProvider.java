@@ -9,6 +9,7 @@ import net.neoforged.neoforge.common.data.LanguageProvider;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.block.ModBlocks;
+import net.turtleboi.noblephantasms.entity.ModEntities;
 import net.turtleboi.noblephantasms.item.ModItems;
 
 public class ModLanguageProvider extends LanguageProvider {
@@ -39,6 +40,8 @@ public class ModLanguageProvider extends LanguageProvider {
         addSimpleItem(ModItems.BIA_EN_PET, "Bia-en-Pet");
         addSimpleItem(ModItems.KUSANAGI_NO_TSURUGI, "Kusanagi-no-Tsurugi");
         addSimpleItem(ModItems.KAZAGURUMA);
+        addSimpleItem(ModItems.KANABO, "Kanabō");
+        addSimpleItem(ModItems.NORTHERN_AXE, "Northern Axe");
         addSimpleItem(ModItems.RHONGOMYNIAD);
         addSimpleItem(ModItems.PRIDWEN);
         addSimpleItem(ModItems.CLYDNO_HALTER, "Clydno Halter");
@@ -65,9 +68,23 @@ public class ModLanguageProvider extends LanguageProvider {
         addSimpleItem(ModItems.TECPATL_OF_THE_FIFTH_SUN, "Técpatl of the Fifth Sun");
         addSimpleItem(ModItems.CLAWS_OF_TEPEYOLLOTL, "Claws of Tepeyollotl");
         addSimpleItem(ModItems.RELIC_FRAGMENT, "Relic Fragment");
+        addSimpleItem(ModItems.MYTHICAL_RELIQUARY, "Mythical Reliquary");
+        add(ModEntities.ANUBITE.get(), "Anubite");
+        add(ModEntities.ECCLESIASTIC.get(), "Ecclesiastic");
+        add(ModEntities.DRAUGR.get(), "Draugr");
+        add(ModEntities.ONI.get(), "Oni");
+        add(ModItems.ANUBITE_SPAWN_EGG.get(), "Anubite Spawn Egg");
+        add(ModItems.ECCLESIASTIC_SPAWN_EGG.get(), "Ecclesiastic Spawn Egg");
+        add(ModItems.DRAUGR_SPAWN_EGG.get(), "Draugr Spawn Egg");
+        add(ModItems.ONI_SPAWN_EGG.get(), "Oni Spawn Egg");
         add("item.noblephantasms.relic_fragment.named", "%s Fragment");
         add("menu.noblephantasms.reliquary_station", "Reliquary Station");
         add("menu.noblephantasms.reliquary_station.forge", "Forge");
+        add("menu.noblephantasms.mythical_reliquary", "Mythical Reliquary");
+        add("menu.noblephantasms.mythical_reliquary.contents", "Table of Contents");
+        add("menu.noblephantasms.mythical_reliquary.fragments", "Fragments: %s / %s");
+        add("menu.noblephantasms.mythical_reliquary.select", "Choose Relic");
+        add("menu.noblephantasms.mythical_reliquary.selected", "Chosen Relic");
         add("tooltip.noblephantasms.medju_netjer.reroll", "Turn the page (1 Lapis Lazuli)");
         add("tooltip.noblephantasms.medju_netjer.offer", "Medju Netjer reveals:");
         add("tooltip.noblephantasms.eye_of_horus.flavor",
@@ -154,6 +171,8 @@ public class ModLanguageProvider extends LanguageProvider {
                 "A celestial flint knife fell from heaven and shattered, birthing the countless Mimixcoa from its pieces.");
         add("tooltip.noblephantasms.claws_of_tepeyollotl.flavor",
                 "Tepeyollotl, the jaguar Heart of the Mountain, ruled caves, echoes, and the sheer stone where his claws found purchase.");
+        add("tooltip.noblephantasms.kanabo.flavor",
+                "An iron-studded kanabō was a brutal emblem of strength; 'giving an oni a club' meant making the already formidable stronger still.");
         add("jei.noblephantasms.info.ankh",
                 "Equip in a Curios charm or compatible totem slot. Fatal damage restores full health, "
                         + "releases a damaging and blinding radiant burst, and grants 15 seconds of invulnerability. "
@@ -228,12 +247,13 @@ public class ModLanguageProvider extends LanguageProvider {
                         + "feared players lose control of their movement. The wielder and all allies have Fear "
                         + "removed and gain Strength for 8 seconds. 30 second cooldown.");
         add("jei.noblephantasms.info.pridwen",
-                "Raise the shield to project a wide barrier that protects allies behind you. Melee attackers recoil and suffer Weakness.");
+                "Raise the shield to project an enlarged energy copy of Pridwen in front of you. Hostile projectiles and ranged attacks stop against it while allied attacks pass through.");
         add("jei.noblephantasms.info.raiko",
                 "Use to beat the drum and call lightning at the point you are looking at within 40 blocks. 5 second cooldown.");
         add("jei.noblephantasms.info.tyrfing",
-                "Drawing the sword grants tremendous attack damage and speed, but it cannot leave your hand until you kill a living target. "
-                        + "After a kill, you have 4 seconds to put it away before the curse binds it again.");
+                "Carrying Tyrfing without wielding it reduces attack damage, attack speed, and movement speed. "
+                        + "Wielding it suppresses the curse. Direct kills with Tyrfing grant Bloodlust for 12 seconds, stacking up to five times. "
+                        + "Each stack grants +0.75 attack damage, +6% attack speed, and +4% movement speed.");
         add("jei.noblephantasms.info.yasakani_no_magatama",
                 "Equip as a Curios necklace. Damage can birth one of five 30-second guardians. Each fights with your attack damage, grants +1 armor toughness and 4% damage reduction, and has a distinct role.");
         add("jei.noblephantasms.info.yata_no_kagami",
@@ -251,8 +271,8 @@ public class ModLanguageProvider extends LanguageProvider {
                 "Hold right-click to fire the knife's ten shards in sequence, or Shift-right-click to release every attached shard in a shotgun blast. Once firing ends, the shards return in reverse order and visibly rebuild the knife in your hand.");
         add("jei.noblephantasms.info.claws_of_tepeyollotl",
                 "Equip in a Curios charm slot. Grants +1.5 attack damage. Crouch against a wall to cling and crawl, "
-                        + "with a 45-degree neutral climbing window. Mining without a tool is twice as fast and can "
-                        + "harvest anything a stone pickaxe can, even while holding an ordinary item.");
+                        + "with a 45-degree neutral climbing window. Mining gains +5 speed, equivalent to Efficiency II, "
+                        + "and stacks with tool enchantments. The claws can harvest anything a stone pickaxe can.");
 
         add("creativetab.noblephantasms.title", "Noble Phantasms");
         add("creativetab.noblephantasms.trophy_heads", "Trophy Heads");
@@ -276,7 +296,10 @@ public class ModLanguageProvider extends LanguageProvider {
         add("effect.noblephantasms.reborn", "Reborn");
         add("effect.noblephantasms.bleeding", "Bleeding");
         add("effect.noblephantasms.feared", "Feared");
+        add("effect.noblephantasms.ward", "Ward");
         add("effect.noblephantasms.undying", "Undying");
+        add("effect.noblephantasms.chilled", "Chilled");
+        add("effect.noblephantasms.frozen", "Frozen");
         add("death.attack.bleed", "%1$s bled out");
         add("death.attack.bleed.player", "%1$s bled out due to %2$s");
         add("noblephantasms.configuration.title", "Noble Phantasms Configs");

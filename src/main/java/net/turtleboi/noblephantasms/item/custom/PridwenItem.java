@@ -3,27 +3,35 @@ package net.turtleboi.noblephantasms.item.custom;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.ShieldItem;
-import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import net.minecraft.world.item.component.BlocksAttacks;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.turtleboi.noblephantasms.component.ModDataComponents;
+import net.turtleboi.noblephantasms.entity.custom.PridwenBarrierEntity;
+import org.jspecify.annotations.Nullable;
 
 public final class PridwenItem extends ShieldItem {
-    private static final double BARRIER_RANGE = 4.0;
-    private static final double BARRIER_HALF_WIDTH = 2.5;
+    public static final float MAX_BARRIER_HEALTH = 256.0F;
+    private static final int RECHARGE_INTERVAL_TICKS = 4;
 
     public PridwenItem(Properties properties) {
         super(properties
-                .durability(672)
+                .durability(8192)
                 .component(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY)
                 .repairable(ItemTags.WOODEN_TOOL_MATERIALS)
                 .equippableUnswappable(EquipmentSlot.OFFHAND)
@@ -40,54 +48,109 @@ public final class PridwenItem extends ShieldItem {
                 .fireResistant());
     }
 
+    @Override
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+        if (isBarrierBroken(player.getItemInHand(hand))) {
+            return InteractionResult.FAIL;
+        }
+        return super.use(level, player, hand);
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity,
+                              @Nullable EquipmentSlot slot) {
+        float health = getBarrierHealth(stack);
+        if (health >= MAX_BARRIER_HEALTH) {
+            stack.remove(ModDataComponents.PRIDWEN_ENERGY.get());
+            stack.remove(ModDataComponents.PRIDWEN_BROKEN.get());
+            stack.remove(ModDataComponents.PRIDWEN_NEXT_RECHARGE_TICK.get());
+            return;
+        }
+        if (entity instanceof LivingEntity livingEntity
+                && livingEntity.isUsingItem() && livingEntity.getUseItem() == stack) {
+            stack.remove(ModDataComponents.PRIDWEN_NEXT_RECHARGE_TICK.get());
+            return;
+        }
+
+        long gameTime = level.getGameTime();
+        Long nextRechargeTick = stack.get(ModDataComponents.PRIDWEN_NEXT_RECHARGE_TICK.get());
+        if (nextRechargeTick == null) {
+            stack.set(ModDataComponents.PRIDWEN_NEXT_RECHARGE_TICK.get(),
+                    gameTime + RECHARGE_INTERVAL_TICKS);
+            return;
+        }
+        if (gameTime < nextRechargeTick) {
+            return;
+        }
+
+        float rechargedHealth = Math.min(MAX_BARRIER_HEALTH, health + 1.0F);
+        if (rechargedHealth >= MAX_BARRIER_HEALTH) {
+            stack.remove(ModDataComponents.PRIDWEN_ENERGY.get());
+            stack.remove(ModDataComponents.PRIDWEN_BROKEN.get());
+            stack.remove(ModDataComponents.PRIDWEN_NEXT_RECHARGE_TICK.get());
+        } else {
+            stack.set(ModDataComponents.PRIDWEN_ENERGY.get(), rechargedHealth);
+            stack.set(ModDataComponents.PRIDWEN_NEXT_RECHARGE_TICK.get(),
+                    gameTime + RECHARGE_INTERVAL_TICKS);
+        }
+
+        LivingEntity livingEntity = entity instanceof LivingEntity living ? living : null;
+        stack.hurtAndBreak(1, level, livingEntity, item -> {
+            if (livingEntity != null && slot != null) {
+                livingEntity.onEquippedItemBroken(item, slot);
+            }
+        });
+    }
+
+    @Override
+    public void onUseTick(Level level, LivingEntity entity, ItemStack itemStack,
+                          int remainingUseDuration) {
+        super.onUseTick(level, entity, itemStack, remainingUseDuration);
+        if (level instanceof ServerLevel serverLevel && entity instanceof Player player) {
+            if (isBarrierBroken(itemStack)) {
+                player.releaseUsingItem();
+                return;
+            }
+            PridwenBarrierEntity.ensureActive(serverLevel, player);
+        }
+    }
+
+    @Override
+    public boolean releaseUsing(ItemStack itemStack, Level level, LivingEntity entity,
+                                int remainingUseDuration) {
+        return entity instanceof Player player && PridwenBarrierEntity.beginRetraction(player);
+    }
+
+    public static float getBarrierHealth(ItemStack stack) {
+        return Mth.clamp(stack.getOrDefault(
+                ModDataComponents.PRIDWEN_ENERGY.get(), MAX_BARRIER_HEALTH),
+                0.0F, MAX_BARRIER_HEALTH);
+    }
+
+    public static float getBarrierHealthProgress(ItemStack stack) {
+        return getBarrierHealth(stack) / MAX_BARRIER_HEALTH;
+    }
+
+    public static boolean isBarrierBroken(ItemStack stack) {
+        return stack.getOrDefault(ModDataComponents.PRIDWEN_BROKEN.get(), false);
+    }
+
+    public static boolean damageBarrier(ItemStack stack, float damage) {
+        float remaining = Math.max(0.0F, getBarrierHealth(stack) - Math.max(0.0F, damage));
+        stack.set(ModDataComponents.PRIDWEN_ENERGY.get(), remaining);
+        stack.remove(ModDataComponents.PRIDWEN_NEXT_RECHARGE_TICK.get());
+        if (remaining <= 0.0F) {
+            stack.set(ModDataComponents.PRIDWEN_BROKEN.get(), true);
+            return true;
+        }
+        return false;
+    }
+
     public static void handleIncomingDamage(LivingIncomingDamageEvent event) {
-        if (!(event.getEntity().level() instanceof net.minecraft.server.level.ServerLevel level)) {
-            return;
-        }
-        if (event.getEntity() instanceof Player player && isRaised(player)
-                && event.getSource().getDirectEntity() instanceof LivingEntity attacker
-                && isInFront(player, attacker.position())) {
-            attacker.knockback(0.8, player.getX() - attacker.getX(), player.getZ() - attacker.getZ());
-            attacker.addEffect(new net.minecraft.world.effect.MobEffectInstance(
-                    net.minecraft.world.effect.MobEffects.WEAKNESS, 60, 0));
-        }
-        for (Player bearer : level.players()) {
-            if (bearer == event.getEntity() || !isRaised(bearer)
-                    || (!(event.getEntity() instanceof Player) && !bearer.isAlliedTo(event.getEntity()))
-                    || bearer.distanceToSqr(event.getEntity()) > BARRIER_RANGE * BARRIER_RANGE
-                    || !protects(bearer, event.getEntity(), event.getSource().getSourcePosition())) {
-                continue;
-            }
+        if (event.getEntity().level() instanceof ServerLevel level
+                && PridwenBarrierEntity.tryBlockDamage(
+                        level, event.getSource(), event.getEntity(), event.getAmount())) {
             event.setCanceled(true);
-            level.playSound(null, bearer.blockPosition(), SoundEvents.SHIELD_BLOCK.value(),
-                    bearer.getSoundSource(), 1.0F, 0.8F);
-            ItemStack shield = bearer.getUseItem();
-            BlocksAttacks blocks = shield.get(DataComponents.BLOCKS_ATTACKS);
-            if (blocks != null) {
-                blocks.hurtBlockingItem(level, shield, bearer, bearer.getUsedItemHand(), event.getAmount());
-            }
-            return;
         }
-    }
-
-    private static boolean protects(Player bearer, LivingEntity protectedEntity, Vec3 sourcePosition) {
-        if (sourcePosition == null || !isInFront(bearer, sourcePosition)) {
-            return false;
-        }
-        Vec3 forward = bearer.getLookAngle().multiply(1.0, 0.0, 1.0).normalize();
-        Vec3 offset = protectedEntity.position().subtract(bearer.position()).multiply(1.0, 0.0, 1.0);
-        double depth = offset.dot(forward);
-        Vec3 lateral = offset.subtract(forward.scale(depth));
-        return depth <= 0.5 && depth >= -BARRIER_RANGE && lateral.lengthSqr() <= BARRIER_HALF_WIDTH * BARRIER_HALF_WIDTH;
-    }
-
-    private static boolean isInFront(Player bearer, Vec3 position) {
-        Vec3 forward = bearer.getLookAngle().multiply(1.0, 0.0, 1.0).normalize();
-        Vec3 direction = position.subtract(bearer.position()).multiply(1.0, 0.0, 1.0).normalize();
-        return forward.dot(direction) > 0.0;
-    }
-
-    private static boolean isRaised(Player player) {
-        return player.isBlocking() && player.getUseItem().getItem() instanceof PridwenItem;
     }
 }

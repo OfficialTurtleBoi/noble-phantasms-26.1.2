@@ -1,0 +1,43 @@
+{
+  "texture_size": [64, 64],
+  "textures": {
+    "0": "noblephantasms:item/pridwen_shield"
+  },
+  "elements": [
+    {
+      "name": "handle",
+      "from": [7, 8, 6],
+      "to": [9, 14, 12],
+      "faces": {
+        "north": {"uv": [7.5, 1.5, 8, 3], "texture": "#0"},
+        "east": {"uv": [6, 1.5, 7.5, 3], "texture": "#0"},
+        "south": {"uv": [9.5, 1.5, 10, 3], "texture": "#0"},
+        "west": {"uv": [8, 1.5, 9.5, 3], "texture": "#0"},
+        "up": {"uv": [8, 1.5, 7.5, 0], "texture": "#0"},
+        "down": {"uv": [8.5, 0, 8, 1.5], "texture": "#0"}
+      }
+    }
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [0, 90, 0],
+      "translation": [10, 6, -4],
+      "scale": [1, 1, 1]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [0, 90, 0],
+      "translation": [10, 6, 12],
+      "scale": [1, 1, 1]
+    },
+    "firstperson_righthand": {
+      "rotation": [0, 180, 5],
+      "translation": [-10, 4.75, -10],
+      "scale": [1.25, 1.25, 1.25]
+    },
+    "firstperson_lefthand": {
+      "rotation": [0, 180, 5],
+      "translation": [10, 3, -10],
+      "scale": [1.25, 1.25, 1.25]
+    }
+  }
+}

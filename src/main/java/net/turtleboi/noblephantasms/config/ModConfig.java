@@ -31,6 +31,9 @@ public class ModConfig {
     public static final ModConfigSpec.IntValue EYE_PIECE_LIFETIME_SECONDS = BUILDER
             .defineInRange("eyeOfHorus.pieceLifetimeSeconds", 300, 1, 3600);
 
+    public static final ModConfigSpec.BooleanValue ALLOW_GUI_ACCESS_WHILE_FROZEN = BUILDER
+            .define("frozen.allowGuiAccess", false);
+
     public static final ModConfigSpec SPEC = BUILDER.build();
     private static boolean validateItemName(final Object object) {
         return object instanceof String itemName && BuiltInRegistries.ITEM.containsKey(Identifier.parse(itemName));

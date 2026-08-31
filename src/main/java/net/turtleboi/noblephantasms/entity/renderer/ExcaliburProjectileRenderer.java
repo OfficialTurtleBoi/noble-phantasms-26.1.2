@@ -123,7 +123,13 @@ public final class ExcaliburProjectileRenderer
         itemModelResolver.updateForNonLiving(renderState.item, entity.getItem(), ItemDisplayContext.FIXED, entity);
     }
 
-    private static SubmitNodeCollector energyCollector(SubmitNodeCollector delegate) {
+    public static SubmitNodeCollector energyCollector(SubmitNodeCollector delegate) {
+        return energyCollector(delegate, 1.0F);
+    }
+
+    public static SubmitNodeCollector energyCollector(SubmitNodeCollector delegate,
+                                                      float alphaMultiplier) {
+        float clampedAlpha = Math.clamp(alphaMultiplier, 0.0F, 1.0F);
         return (SubmitNodeCollector) Proxy.newProxyInstance(
                 SubmitNodeCollector.class.getClassLoader(),
                 new Class<?>[]{SubmitNodeCollector.class},
@@ -146,7 +152,7 @@ public final class ExcaliburProjectileRenderer
                             List<BakedQuad> atlasQuads = List.copyOf(entry.getValue());
                             delegate.submitCustomGeometry(itemPose, ENERGY_TYPES.apply(entry.getKey()),
                                     (pose, buffer) -> renderEnergyQuads(
-                                            pose, buffer, atlasQuads, tintLayers, overlay));
+                                            pose, buffer, atlasQuads, tintLayers, overlay, clampedAlpha));
                         }
                         List<BakedQuad> hiddenQuads = quads.stream()
                                 .map(ExcaliburProjectileRenderer::hiddenQuad)
@@ -161,7 +167,8 @@ public final class ExcaliburProjectileRenderer
 
     private static void renderEnergyQuads(PoseStack.Pose pose,
                                           com.mojang.blaze3d.vertex.VertexConsumer buffer,
-                                          List<BakedQuad> quads, int[] tintLayers, int overlay) {
+                                          List<BakedQuad> quads, int[] tintLayers, int overlay,
+                                          float alphaMultiplier) {
         QuadInstance instance = new QuadInstance();
         instance.setLightCoords(LightCoordsUtil.FULL_BRIGHT);
         instance.setOverlayCoords(overlay);
@@ -172,7 +179,8 @@ public final class ExcaliburProjectileRenderer
                     && material.tintIndex() < tintLayers.length
                     ? tintLayers[material.tintIndex()]
                     : -1;
-            instance.setColor(color);
+            int alpha = Math.round(((color >>> 24) & 0xFF) * alphaMultiplier);
+            instance.setColor((color & 0x00FFFFFF) | alpha << 24);
             buffer.putBakedQuad(pose, quad, instance);
         }
     }

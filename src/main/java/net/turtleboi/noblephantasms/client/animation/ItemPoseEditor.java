@@ -2,7 +2,6 @@ package net.turtleboi.noblephantasms.client.animation;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.math.Axis;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -22,7 +21,6 @@ import java.util.WeakHashMap;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.effects.SpearAnimations;
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -30,7 +28,6 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.resources.model.cuboid.ItemTransform;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -45,19 +42,12 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.SwingAnimationType;
-import net.minecraft.world.item.component.KineticWeapon;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.common.util.TransformationHelper;
 import net.turtleboi.noblephantasms.NoblePhantasms;
-import net.turtleboi.noblephantasms.client.BertilakExtensions;
-import net.turtleboi.noblephantasms.client.GungnirExtensions;
 import net.turtleboi.noblephantasms.client.RhongomyniadSpinState;
 import net.turtleboi.noblephantasms.client.renderer.ItemPoseDebugRenderer;
-import net.turtleboi.noblephantasms.item.custom.BertilakItem;
-import net.turtleboi.noblephantasms.item.custom.GungnirItem;
 import net.turtleboi.noblephantasms.item.custom.IwatoshiItem;
-import net.turtleboi.noblephantasms.item.custom.RhongomyniadItem;
-import net.turtleboi.noblephantasms.item.custom.SpearRelicItem;
 import net.turtleboi.noblephantasms.screens.ItemPoseEditorScreen;
 import org.joml.Quaternionf;
 
@@ -106,7 +96,7 @@ public final class ItemPoseEditor {
         }
         ItemDisplayContext displayContext = displayContext(cameraType, arm);
         Identifier itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
-        List<String> poses = getPoses(stack);
+        List<String> poses = getPoses(stack, cameraType, itemId);
         EditorKey key = new EditorKey(itemId, cameraType, displayContext, hand);
         Map<String, RelicAnimation> animations = EDITED_ANIMATIONS.computeIfAbsent(
                 key, ignored -> new LinkedHashMap<>());
@@ -129,7 +119,7 @@ public final class ItemPoseEditor {
             return registeredAnimation;
         }
         float durationTicks = pose.equals("held") ? 1.0F : getDefaultPreviewDurationTicks(stack, pose);
-        RelicTransform transform = initialTransform(stack, cameraType, pose);
+        RelicTransform transform = initialTransform();
         RelicAnimationClip animation = new RelicAnimationClip(durationTicks);
         if (!pose.equals("held") && !transform.usesModelDisplay()) {
             animation.keyframe(0.0F,
@@ -142,37 +132,7 @@ public final class ItemPoseEditor {
         return new RelicAnimation().channel(RelicAnimation.Channel.ITEM, animation);
     }
 
-    private static RelicTransform initialTransform(ItemStack stack, CameraType cameraType, String pose) {
-        if (cameraType.isFirstPerson() && stack.getItem() instanceof RhongomyniadItem
-                && pose.equals("stab")) {
-            return RelicTransform.poseStack(0.0F, 0.15F, 0.0F, -15.0F, 0.0F, 15.0F);
-        }
-        if (cameraType.isFirstPerson() && stack.getItem() instanceof SpearRelicItem) {
-            if (pose.equals("stab")) {
-                return RelicTransform.poseStack(0.0F, GungnirExtensions.STAB_TRANSLATION_Y, 0.0F,
-                        GungnirExtensions.STAB_ROTATION_X, 0.0F, GungnirExtensions.STAB_ROTATION_Z);
-            }
-            if (stack.getItem() instanceof GungnirItem && pose.equals("throw")) {
-                return RelicTransform.poseStack(GungnirExtensions.THROW_TRANSLATION_X,
-                        GungnirExtensions.THROW_TRANSLATION_Y, GungnirExtensions.THROW_TRANSLATION_Z,
-                        GungnirExtensions.THROW_ROTATION_X, GungnirExtensions.THROW_ROTATION_Y,
-                        GungnirExtensions.THROW_ROTATION_Z);
-            }
-        }
-        if (stack.getItem() instanceof BertilakItem && pose.equals("covenant")) {
-            if (cameraType.isFirstPerson()) {
-                return RelicTransform.poseStack(BertilakExtensions.TARGETING_TRANSLATION_X,
-                        BertilakExtensions.TARGETING_TRANSLATION_Y, BertilakExtensions.TARGETING_TRANSLATION_Z,
-                        BertilakExtensions.TARGETING_ROTATION_X, BertilakExtensions.TARGETING_ROTATION_Y,
-                        BertilakExtensions.TARGETING_ROTATION_Z);
-            }
-            return RelicTransform.poseStack(BertilakExtensions.THIRD_PERSON_TRANSLATION_X,
-                    BertilakExtensions.THIRD_PERSON_TRANSLATION_Y,
-                    BertilakExtensions.THIRD_PERSON_TRANSLATION_Z,
-                    BertilakExtensions.THIRD_PERSON_ROTATION_X,
-                    BertilakExtensions.THIRD_PERSON_ROTATION_Y,
-                    BertilakExtensions.THIRD_PERSON_ROTATION_Z);
-        }
+    private static RelicTransform initialTransform() {
         return RelicTransform.modelDisplay();
     }
 
@@ -185,46 +145,48 @@ public final class ItemPoseEditor {
                 ? ItemDisplayContext.THIRD_PERSON_RIGHT_HAND : ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
     }
 
-    private static List<String> getPoses(ItemStack stack) {
+    private static List<String> getPoses(ItemStack stack, CameraType cameraType, Identifier itemId) {
         RelicWeaponAnimations.initialize();
+        List<String> registeredPoses = RelicAnimator.getEditorPoses(stack);
         List<String> poses = new ArrayList<>();
         poses.add("held");
-        if (stack.getItem() instanceof RhongomyniadItem) {
-            poses.add("stab");
-            poses.add("joust_raised");
-            poses.add("joust_lowered");
-            return List.copyOf(poses);
-        }
-        if (stack.getItem() instanceof SpearRelicItem) {
-            poses.add("stab");
-            if (stack.getItem() instanceof GungnirItem) {
-                poses.add("throw");
-            } else if (stack.getItem() instanceof IwatoshiItem) {
-                poses.add("use");
+
+        if (stack.getSwingAnimation().type() != SwingAnimationType.NONE) {
+            if (RelicAnimator.getEditorAnimationId(itemId, cameraType, "attack") == null) {
+                RelicAnimator.ensureGenericEditorPose(itemId, cameraType, "attack",
+                        genericAnimation(stack, "attack"));
             }
-            RelicAnimator.getEditorPoses(stack).forEach(pose -> {
-                if (!poses.contains(pose)) {
-                    poses.add(pose);
-                }
-            });
-            return List.copyOf(poses);
-        }
-        if (stack.getItem() instanceof BertilakItem) {
-            poses.add("covenant");
-            return List.copyOf(poses);
-        }
-        if (stack.getSwingAnimation().type() == SwingAnimationType.STAB) {
             poses.add("attack");
         }
-        if (stack.getUseAnimation() != ItemUseAnimation.NONE) {
+
+        boolean hasRegisteredUsePose = registeredPoses.stream().anyMatch(pose ->
+                isUsePose(pose)
+                        && RelicAnimator.getEditorAnimationId(itemId, cameraType, pose) != null);
+        if (stack.getUseAnimation() != ItemUseAnimation.NONE && !hasRegisteredUsePose) {
+            RelicAnimator.ensureGenericEditorPose(itemId, cameraType, "use",
+                    genericAnimation(stack, "use"));
             poses.add("use");
         }
-        RelicAnimator.getEditorPoses(stack).forEach(pose -> {
-            if (!poses.contains(pose)) {
+
+        registeredPoses.forEach(pose -> {
+            if (!poses.contains(pose)
+                    && RelicAnimator.getEditorAnimationId(itemId, cameraType, pose) != null) {
                 poses.add(pose);
             }
         });
         return List.copyOf(poses);
+    }
+
+    private static RelicAnimation genericAnimation(ItemStack stack, String pose) {
+        float durationTicks = getDefaultPreviewDurationTicks(stack, pose);
+        RelicAnimationClip clip = new RelicAnimationClip(durationTicks)
+                .keyframe(0.0F, identityPose(), RelicAnimationClip.Easing.LINEAR)
+                .keyframe(durationTicks, identityPose(), RelicAnimationClip.Easing.LINEAR);
+        return new RelicAnimation().channel(RelicAnimation.Channel.ITEM, clip);
+    }
+
+    private static RelicTransform identityPose() {
+        return RelicTransform.poseStack(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
     }
 
     public static void track(ItemStackRenderState renderState, ItemStack itemStack,
@@ -318,58 +280,103 @@ public final class ItemPoseEditor {
         MODEL_TRANSFORM.remove();
     }
 
-    public static void applyFirstPersonAttackPreview(PoseStack poseStack, InteractionHand hand,
-                                                     ItemStack stack, HumanoidArm arm) {
+    public static void applyFirstPersonGenericPose(PoseStack poseStack, LivingEntity player,
+                                                   InteractionHand hand, ItemStack stack,
+                                                   HumanoidArm arm, float attackTime, float partialTick) {
+        RelicWeaponAnimations.initialize();
         Target target = matchingFirstPersonTarget(hand, stack);
-        if (target == null || !isAttackPose(target.currentPose())) {
+        if (target != null) {
+            if (RelicAnimator.isGenericEditorPose(
+                    target.key().itemId(), target.key().cameraType(), target.currentPose())) {
+                RelicTransform transform = target.previewTransform();
+                if (!transform.usesModelDisplay()) {
+                    transform.apply(poseStack, arm);
+                }
+            }
             return;
         }
 
-        if (target.currentPose().startsWith("slash_") || target.currentPose().equals("spin")) {
+        RelicAnimationClip clip;
+        RelicTransform transform;
+        if (player.isUsingItem() && player.getUsedItemHand() == hand) {
+            clip = RelicAnimator.getGenericClip(stack, CameraType.FIRST_PERSON, "use");
+            if (clip == null) {
+                return;
+            }
+            float tick = stack.getUseDuration(player)
+                    - (player.getUseItemRemainingTicks() - partialTick + 1.0F);
+            transform = RelicAnimator.sampleGeneric(
+                    stack, CameraType.FIRST_PERSON, "use", tick);
+        } else if (attackTime > 0.0F) {
+            clip = RelicAnimator.getGenericClip(stack, CameraType.FIRST_PERSON, "attack");
+            if (clip == null) {
+                return;
+            }
+            transform = RelicAnimator.sampleGeneric(stack, CameraType.FIRST_PERSON,
+                    "attack", Mth.clamp(attackTime, 0.0F, 1.0F) * clip.durationTicks());
+        } else {
             return;
         }
-
-        int direction = arm == HumanoidArm.RIGHT ? 1 : -1;
-        float attackTime = target.playhead() / target.currentAnimation().durationTicks();
-        SpearAnimations.firstPersonAttack(attackTime, poseStack, direction, arm);
-        RelicTransform transform = target.previewTransform();
-        if (!transform.usesModelDisplay()) {
+        if (transform != null) {
             transform.apply(poseStack, arm);
         }
     }
 
-    public static void applyFirstPersonUsePreview(PoseStack poseStack, InteractionHand hand,
-                                                   ItemStack stack, HumanoidArm arm, float inverseArmHeight) {
+    public static boolean isPreviewingGenericAttack(InteractionHand hand, ItemStack stack) {
+        Target target = matchingFirstPersonTarget(hand, stack);
+        return target != null && target.currentPose().equals("attack")
+                && RelicAnimator.isGenericEditorPose(
+                target.key().itemId(), target.key().cameraType(), "attack");
+    }
+
+    public static float getPreviewAttackProgress(InteractionHand hand, ItemStack stack) {
+        Target target = matchingFirstPersonTarget(hand, stack);
+        return target == null ? 0.0F : target.playheadProgress();
+    }
+
+    public static int getPreviewUseRemainingTicks(InteractionHand hand, ItemStack stack,
+                                                   LivingEntity owner) {
         Target target = matchingFirstPersonTarget(hand, stack);
         if (target == null || !isUsePose(target.currentPose())) {
-            return;
+            return 0;
         }
+        return Math.max(stack.getUseDuration(owner) - Mth.floor(target.playhead()), 1);
+    }
 
-        poseStack.translate(0.0F, inverseArmHeight * 0.6F, 0.0F);
-        if (stack.getItem() instanceof GungnirItem) {
-            GungnirExtensions.applyEditorThrowTransform(poseStack, arm, target.previewTransform());
-            return;
-        }
-        if (stack.getItem() instanceof BertilakItem) {
-            BertilakExtensions.applyEditorCovenantTransform(poseStack, arm, target.previewTransform());
-            return;
-        }
-
-        float timeHeld = getPreviewUseTick(target);
-        if (stack.getUseAnimation() == ItemUseAnimation.SPEAR) {
-            SpearAnimations.firstPersonUse(0.0F, poseStack, timeHeld, arm, stack);
-            if (stack.getItem() instanceof RhongomyniadItem) {
-                RhongomyniadSpinState.begin(stack, timeHeld);
+    public static void applyThirdPersonGenericPose(ArmedEntityRenderState state,
+                                                    PoseStack poseStack, HumanoidArm arm,
+                                                    ItemStack stack) {
+        RelicWeaponAnimations.initialize();
+        Target target = currentTarget();
+        if (target != null && !target.key().cameraType().isFirstPerson()
+                && isLocalPlayerState(state) && sameItem(target, stack)) {
+            if (RelicAnimator.isGenericEditorPose(
+                    target.key().itemId(), target.key().cameraType(), target.currentPose())) {
+                RelicTransform transform = target.previewTransform();
+                if (!transform.usesModelDisplay()) {
+                    transform.apply(poseStack, arm);
+                }
             }
-        } else if (stack.getUseAnimation() == ItemUseAnimation.TRIDENT) {
-            int direction = arm == HumanoidArm.RIGHT ? 1 : -1;
-            poseStack.translate(direction * -0.5F, 0.7F, 0.1F);
-            poseStack.mulPose(Axis.XP.rotationDegrees(-55.0F));
-            poseStack.mulPose(Axis.YP.rotationDegrees(direction * 35.3F));
-            poseStack.mulPose(Axis.ZP.rotationDegrees(direction * -9.785F));
-            poseStack.translate(0.0F, 0.0F, 0.2F);
-            poseStack.scale(1.0F, 1.0F, 1.2F);
-            poseStack.mulPose(Axis.YN.rotationDegrees(direction * 45.0F));
+            return;
+        }
+
+        float useTick = state.ticksUsingItem(arm);
+        RelicAnimationClip clip;
+        RelicTransform transform;
+        if (useTick != 0.0F) {
+            clip = RelicAnimator.getGenericClip(stack, CameraType.THIRD_PERSON_BACK, "use");
+            transform = clip == null ? null : RelicAnimator.sampleGeneric(
+                    stack, CameraType.THIRD_PERSON_BACK, "use", useTick);
+        } else if (state.attackTime > 0.0F && state.mainArm == arm) {
+            clip = RelicAnimator.getGenericClip(stack, CameraType.THIRD_PERSON_BACK, "attack");
+            transform = clip == null ? null : RelicAnimator.sampleGeneric(
+                    stack, CameraType.THIRD_PERSON_BACK, "attack",
+                    Mth.clamp(state.attackTime, 0.0F, 1.0F) * clip.durationTicks());
+        } else {
+            transform = null;
+        }
+        if (transform != null) {
+            transform.apply(poseStack, arm);
         }
     }
 
@@ -390,8 +397,9 @@ public final class ItemPoseEditor {
         if (isAttackPose(pose)) {
             state.attackArm = arm;
             state.attackTime = target.playhead() / target.currentAnimation().durationTicks();
-            state.swingAnimationType = SwingAnimationType.STAB;
-            setArmPose(state, arm, HumanoidModel.ArmPose.SPEAR);
+            state.swingAnimationType = stack.getSwingAnimation().type();
+            setArmPose(state, arm, state.swingAnimationType == SwingAnimationType.STAB
+                    ? HumanoidModel.ArmPose.SPEAR : HumanoidModel.ArmPose.ITEM);
         } else if (isUsePose(pose)) {
             state.isUsingItem = true;
             state.useItemHand = target.key().hand();
@@ -434,7 +442,7 @@ public final class ItemPoseEditor {
     }
 
     public static RelicTransform getThirdPersonTransform(ArmedEntityRenderState state,
-                                                         ItemStack stack, String pose) {
+                                                          ItemStack stack, String pose) {
         Target target = currentTarget();
         if (target == null || target.key().cameraType().isFirstPerson()
                 || !isLocalPlayerState(state) || !target.currentPose().equals(pose)
@@ -442,6 +450,13 @@ public final class ItemPoseEditor {
             return null;
         }
         return target.previewTransform();
+    }
+
+    public static RelicTransform getFirstPersonTransform(InteractionHand hand,
+                                                          ItemStack stack, String pose) {
+        Target target = matchingFirstPersonTarget(hand, stack);
+        return target != null && target.currentPose().equals(pose)
+                ? target.previewTransform() : null;
     }
 
     public static RelicTransform getAnimationOverride(ItemStack itemStack, String animationId,
@@ -507,24 +522,6 @@ public final class ItemPoseEditor {
     private static float getDefaultPreviewDurationTicks(ItemStack stack, String pose) {
         if (isAttackPose(pose)) {
             return Math.max(stack.getSwingAnimation().duration(), 1);
-        }
-        if (stack.getItem() instanceof RhongomyniadItem) {
-            if (pose.equals("joust_raised")) {
-                return RhongomyniadItem.getChargeStartTick(stack);
-            }
-            KineticWeapon kineticWeapon = stack.get(DataComponents.KINETIC_WEAPON);
-            if (kineticWeapon != null) {
-                return Math.max(kineticWeapon.delayTicks(), 1);
-            }
-        }
-        if (stack.getItem() instanceof GungnirItem && pose.equals("throw")) {
-            return GungnirItem.FULL_CHARGE_TICKS;
-        }
-        if (stack.getItem() instanceof IwatoshiItem && pose.equals("use")) {
-            return IwatoshiItem.getMaxChargeTicks();
-        }
-        if (stack.getItem() instanceof BertilakItem && pose.equals("covenant")) {
-            return BertilakExtensions.TARGETING_TRANSITION_TICKS;
         }
         return 20.0F;
     }
@@ -716,6 +713,11 @@ public final class ItemPoseEditor {
             return currentAnimationDefinition().channel(currentChannel());
         }
 
+        public boolean currentPoseAnimated() {
+            return RelicAnimator.getEditorAnimationId(
+                    key.itemId(), key.cameraType(), currentPose()) != null;
+        }
+
         public RelicTransform currentTransform() {
             return currentAnimation().keyframes().get(currentKeyframeIndex()).transform();
         }
@@ -770,6 +772,29 @@ public final class ItemPoseEditor {
         public void setPlayhead(float progress) {
             playheads.put(currentPose(),
                     Mth.clamp(progress, 0.0F, 1.0F) * currentAnimation().durationTicks());
+            playing = false;
+        }
+
+        public void setDurationTicks(float durationTicks) {
+            float previousDuration = currentAnimation().durationTicks();
+            float progress = previousDuration <= 0.0F ? 0.0F : playhead() / previousDuration;
+            for (RelicAnimation.Channel channel : currentChannels()) {
+                RelicAnimationClip clip = currentAnimationDefinition().channel(channel);
+                int selectedIndex = keyframeIndices.getOrDefault(
+                        new PoseChannel(currentPose(), channel), 0);
+                clip.setDurationTicks(durationTicks);
+                keyframeIndices.put(new PoseChannel(currentPose(), channel),
+                        Math.min(selectedIndex, clip.keyframes().size() - 1));
+            }
+            playheads.put(currentPose(), Mth.clamp(progress, 0.0F, 1.0F)
+                    * currentAnimation().durationTicks());
+            playing = false;
+        }
+
+        public void setCurrentKeyframeTick(float tick) {
+            int index = currentAnimation().moveKeyframe(currentKeyframeIndex(), tick);
+            keyframeIndices.put(new PoseChannel(currentPose(), currentChannel()), index);
+            playheads.put(currentPose(), currentAnimation().keyframes().get(index).tick());
             playing = false;
         }
 

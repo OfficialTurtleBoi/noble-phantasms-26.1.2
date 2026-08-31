@@ -8,12 +8,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.component.ItemLore;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.block.ModBlocks;
+import net.turtleboi.noblephantasms.entity.ModEntities;
 import net.turtleboi.noblephantasms.item.custom.AndvaranautItem;
 import net.turtleboi.noblephantasms.item.custom.AnkhItem;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
@@ -22,6 +26,7 @@ import net.turtleboi.noblephantasms.item.custom.ClydnoHalterItem;
 import net.turtleboi.noblephantasms.item.custom.ChimalliItem;
 import net.turtleboi.noblephantasms.item.custom.ClawsOfTepeyollotlItem;
 import net.turtleboi.noblephantasms.item.custom.MedjuNetjerItem;
+import net.turtleboi.noblephantasms.item.custom.MythicalReliquaryItem;
 import net.turtleboi.noblephantasms.item.custom.CarnwennanItem;
 import net.turtleboi.noblephantasms.item.custom.DraupnirItem;
 import net.turtleboi.noblephantasms.item.custom.EagleKnightTalonsItem;
@@ -34,6 +39,7 @@ import net.turtleboi.noblephantasms.item.custom.HekaItem;
 import net.turtleboi.noblephantasms.item.custom.HulioshjalmrItem;
 import net.turtleboi.noblephantasms.item.custom.WebenItem;
 import net.turtleboi.noblephantasms.item.custom.KazagurumaItem;
+import net.turtleboi.noblephantasms.item.custom.KanaboItem;
 import net.turtleboi.noblephantasms.item.custom.KusanagiNoTsurugiItem;
 import net.turtleboi.noblephantasms.item.custom.MacuahuitlItem;
 import net.turtleboi.noblephantasms.item.custom.MegingjordItem;
@@ -125,6 +131,9 @@ public class ModItems {
     public static final DeferredItem<KazagurumaItem> KAZAGURUMA =
             registerRelic("kazaguruma", KazagurumaItem::new);
 
+    public static final DeferredItem<KanaboItem> KANABO =
+            registerRelic("kanabo", KanaboItem::new);
+
     public static final DeferredItem<RhongomyniadItem> RHONGOMYNIAD =
             registerRelic("rhongomyniad", RhongomyniadItem::new);
 
@@ -179,6 +188,9 @@ public class ModItems {
     public static final DeferredItem<BlockItem> RELIQUARY_STATION =
             ITEMS.registerSimpleBlockItem(ModBlocks.RELIQUARY_STATION);
 
+    public static final DeferredItem<MythicalReliquaryItem> MYTHICAL_RELIQUARY =
+            ITEMS.registerItem("mythical_reliquary", MythicalReliquaryItem::new);
+
     public static final DeferredItem<HolyGrailItem> HOLY_GRAIL =
             registerRelic("holy_grail", HolyGrailItem::new);
 
@@ -202,6 +214,26 @@ public class ModItems {
 
     public static final DeferredItem<ClawsOfTepeyollotlItem> CLAWS_OF_TEPEYOLLOTL =
             registerRelic("claws_of_tepeyollotl", ClawsOfTepeyollotlItem::new);
+
+    public static final DeferredItem<AxeItem> NORTHERN_AXE =
+            ITEMS.registerItem("northern_axe",
+                    properties -> new AxeItem(ToolMaterial.IRON, 6.0F, -3.1F, properties));
+
+    public static final DeferredItem<SpawnEggItem> ANUBITE_SPAWN_EGG =
+            ITEMS.registerItem("anubite_spawn_egg", SpawnEggItem::new,
+                    properties -> properties.spawnEgg(ModEntities.ANUBITE.get()));
+
+    public static final DeferredItem<SpawnEggItem> ECCLESIASTIC_SPAWN_EGG =
+            ITEMS.registerItem("ecclesiastic_spawn_egg", SpawnEggItem::new,
+                    properties -> properties.spawnEgg(ModEntities.ECCLESIASTIC.get()));
+
+    public static final DeferredItem<SpawnEggItem> DRAUGR_SPAWN_EGG =
+            ITEMS.registerItem("draugr_spawn_egg", SpawnEggItem::new,
+                    properties -> properties.spawnEgg(ModEntities.DRAUGR.get()));
+
+    public static final DeferredItem<SpawnEggItem> ONI_SPAWN_EGG =
+            ITEMS.registerItem("oni_spawn_egg", SpawnEggItem::new,
+                    properties -> properties.spawnEgg(ModEntities.ONI.get()));
 
     static {
         ITEMS.addAlias(

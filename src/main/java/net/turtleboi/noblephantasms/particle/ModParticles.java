@@ -18,6 +18,10 @@ public class ModParticles {
             PARTICLE_TYPES.register("covenant_leaf", CovenantLeafType::new);
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> FIRE_FANGS =
             PARTICLE_TYPES.register("fire_fangs", FireFangsType::new);
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> APILOLLI_CLOUD =
+            PARTICLE_TYPES.register("apilolli_cloud", ApilolliCloudType::new);
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> CHILLED =
+            PARTICLE_TYPES.register("chilled", ChilledType::new);
 
     public static void register(IEventBus eventBus) {
         PARTICLE_TYPES.register(eventBus);
@@ -37,6 +41,18 @@ public class ModParticles {
 
     private static final class FireFangsType extends SimpleParticleType {
         private FireFangsType() {
+            super(false);
+        }
+    }
+
+    private static final class ApilolliCloudType extends SimpleParticleType {
+        private ApilolliCloudType() {
+            super(false);
+        }
+    }
+
+    private static final class ChilledType extends SimpleParticleType {
+        private ChilledType() {
             super(false);
         }
     }

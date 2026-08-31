@@ -227,6 +227,9 @@ public class BertilakItem extends AxeItem {
             return;
         }
         clearCovenant(player, covenant, true);
+        player.setData(ModAttachments.BERTILAK_COVENANT,
+                new BertilakCovenantState(Optional.empty(), player.level().getGameTime()));
+        clearCovenantCharge(player);
         player.sendOverlayMessage(Component.translatable("message.noblephantasms.bertilak.broken"));
     }
 

@@ -6,6 +6,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ConfigureMainRenderTargetEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
@@ -18,23 +21,36 @@ import net.turtleboi.noblephantasms.client.EagleKnightTalonsExtensions;
 import net.turtleboi.noblephantasms.client.ExcaliburExtensions;
 import net.turtleboi.noblephantasms.client.GungnirExtensions;
 import net.turtleboi.noblephantasms.client.HulioshjalmrExtensions;
+import net.turtleboi.noblephantasms.client.PridwenEnergyDecorator;
 import net.turtleboi.noblephantasms.client.model.EagleKnightTalonsModel;
 import net.turtleboi.noblephantasms.client.model.HulioshjalmrModel;
+import net.turtleboi.noblephantasms.client.model.AnubiteModel;
+import net.turtleboi.noblephantasms.client.model.EcclesiasticModel;
+import net.turtleboi.noblephantasms.client.model.DraugrModel;
+import net.turtleboi.noblephantasms.client.model.OniModel;
 import net.turtleboi.noblephantasms.client.model.YasakaniGuardianModel;
 import net.turtleboi.noblephantasms.entity.model.XiuhcoatlModel;
 import net.turtleboi.noblephantasms.client.renderer.ClydnoHalterLayer;
 import net.turtleboi.noblephantasms.client.renderer.AfterimageRenderer;
 import net.turtleboi.noblephantasms.client.renderer.LuminousRenderer;
+import net.turtleboi.noblephantasms.client.renderer.FrozenRenderer;
 import net.turtleboi.noblephantasms.client.renderer.ItemOutlineRenderer;
 import net.turtleboi.noblephantasms.client.renderer.HulioshjalmrRenderer;
+import net.turtleboi.noblephantasms.client.renderer.EnergyProjectionRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TecpatlRebuildingRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadBlockEntityRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadRenderer;
+import net.turtleboi.noblephantasms.client.renderer.ReliquaryItemRenderer;
 import net.turtleboi.noblephantasms.datagen.ModDatagen;
 import net.turtleboi.noblephantasms.entity.renderer.EyeShardRenderer;
+import net.turtleboi.noblephantasms.entity.renderer.AnubiteRenderer;
+import net.turtleboi.noblephantasms.entity.renderer.EcclesiasticRenderer;
+import net.turtleboi.noblephantasms.entity.renderer.DraugrRenderer;
+import net.turtleboi.noblephantasms.entity.renderer.OniRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.ExcaliburProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.GungnirProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.KazagurumaProjectileRenderer;
+import net.turtleboi.noblephantasms.entity.renderer.PridwenBarrierRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.SimpleEntityRenderers;
 import net.turtleboi.noblephantasms.entity.renderer.TecpatlShardRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.WindslashRenderer;
@@ -42,8 +58,12 @@ import net.turtleboi.noblephantasms.entity.renderer.XiuhcoatlProjectileRenderer;
 import net.turtleboi.noblephantasms.particle.custom.CovenantLeafParticle;
 import net.turtleboi.noblephantasms.particle.custom.FireFangsParticle;
 import net.turtleboi.noblephantasms.particle.custom.GungnirRuneParticle;
+import net.turtleboi.noblephantasms.particle.custom.ApilolliCloudParticle;
+import net.turtleboi.noblephantasms.particle.custom.ChilledParticle;
 import net.turtleboi.noblephantasms.screens.ReliquaryStationScreen;
+import net.turtleboi.noblephantasms.screens.MythicalReliquaryScreen;
 import net.turtleboi.noblephantasms.screens.menus.ModMenus;
+import net.turtleboi.noblephantasms.item.ModItems;
 
 @EventBusSubscriber(modid = NoblePhantasms.MOD_ID, value = Dist.CLIENT)
 public final class ClientModBusEvents {
@@ -58,12 +78,15 @@ public final class ClientModBusEvents {
         ItemOutlineRenderer.registerPipelines(event);
         HulioshjalmrRenderer.registerPipelines(event);
         ExcaliburProjectileRenderer.registerPipelines(event);
+        EnergyProjectionRenderer.registerPipelines(event);
+        ReliquaryItemRenderer.registerPipelines(event);
         CovenantLeafParticle.registerPipeline(event);
     }
 
     @SubscribeEvent
     static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
         LuminousRenderer.registerRenderStateModifiers(event);
+        FrozenRenderer.registerRenderStateModifiers(event);
         AfterimageRenderer.registerRenderStateModifiers(event);
         ClydnoHalterLayer.registerRenderStateModifier(event);
         HulioshjalmrRenderer.registerRenderStateModifiers(event);
@@ -89,6 +112,10 @@ public final class ClientModBusEvents {
         EagleKnightTalonsModel.registerLayerDefinition(event);
         XiuhcoatlModel.registerLayerDefinition(event);
         YasakaniGuardianModel.registerLayerDefinition(event);
+        AnubiteModel.registerLayerDefinition(event);
+        EcclesiasticModel.registerLayerDefinition(event);
+        DraugrModel.registerLayerDefinition(event);
+        OniModel.registerLayerDefinition(event);
     }
 
     @SubscribeEvent
@@ -99,6 +126,7 @@ public final class ClientModBusEvents {
     @SubscribeEvent
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         ExcaliburProjectileRenderer.register(event);
+        PridwenBarrierRenderer.register(event);
         GungnirProjectileRenderer.register(event);
         KazagurumaProjectileRenderer.register(event);
         WindslashRenderer.register(event);
@@ -107,11 +135,26 @@ public final class ClientModBusEvents {
         XiuhcoatlProjectileRenderer.register(event);
         TrophyHeadBlockEntityRenderer.register(event);
         SimpleEntityRenderers.register(event);
+        AnubiteRenderer.register(event);
+        EcclesiasticRenderer.register(event);
+        DraugrRenderer.register(event);
+        OniRenderer.register(event);
+    }
+
+    @SubscribeEvent
+    static void registerGuiLayers(RegisterGuiLayersEvent event) {
+        FrozenRenderer.registerGuiLayers(event);
     }
 
     @SubscribeEvent
     static void registerMenuScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenus.RELIQUARY_STATION.get(), ReliquaryStationScreen::new);
+        event.register(ModMenus.MYTHICAL_RELIQUARY.get(), MythicalReliquaryScreen::new);
+    }
+
+    @SubscribeEvent
+    static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
+        ReliquaryItemRenderer.register(event);
     }
 
     @SubscribeEvent
@@ -119,11 +162,18 @@ public final class ClientModBusEvents {
         GungnirRuneParticle.registerProvider(event);
         CovenantLeafParticle.registerProvider(event);
         FireFangsParticle.registerProvider(event);
+        ApilolliCloudParticle.registerProvider(event);
+        ChilledParticle.registerProvider(event);
     }
 
     @SubscribeEvent
     static void registerSpecialModelRenderers(RegisterSpecialModelRendererEvent event) {
         TecpatlRebuildingRenderer.register(event);
         TrophyHeadRenderer.register(event);
+    }
+
+    @SubscribeEvent
+    static void registerItemDecorations(RegisterItemDecorationsEvent event) {
+        event.register(ModItems.PRIDWEN.get(), new PridwenEnergyDecorator());
     }
 }

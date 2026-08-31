@@ -71,7 +71,14 @@ public class ModCreativeModeTabs {
                                 output.accept(ModItems.YASAKANI_NO_MAGATAMA);
                                 output.accept(ModItems.YATA_NO_KAGAMI);
                                 output.accept(ModItems.IWATOSHI);
+                                output.accept(ModItems.KANABO);
+                                output.accept(ModItems.NORTHERN_AXE);
+                                output.accept(ModItems.MYTHICAL_RELIQUARY);
                                 output.accept(ModItems.RELIQUARY_STATION);
+                                output.accept(ModItems.ANUBITE_SPAWN_EGG);
+                                output.accept(ModItems.ECCLESIASTIC_SPAWN_EGG);
+                                output.accept(ModItems.DRAUGR_SPAWN_EGG);
+                                output.accept(ModItems.ONI_SPAWN_EGG);
                                 RelicFragmentDefinitions.relicIds().forEach(relicId -> output.accept(
                                         RelicFragmentItem.create(ModItems.RELIC_FRAGMENT.get(),
                                                 RelicFragmentData.forgePiece(relicId),

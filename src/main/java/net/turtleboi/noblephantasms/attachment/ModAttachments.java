@@ -110,10 +110,25 @@ public final class ModAttachments {
                     .serialize(UUIDUtil.CODEC.optionalFieldOf("source"))
                     .build());
 
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<UUID>>> CHILLED_SOURCE =
+            ATTACHMENTS.register("chilled_source", () -> AttachmentType.builder(Optional::<UUID>empty)
+                    .serialize(UUIDUtil.CODEC.optionalFieldOf("source"))
+                    .build());
+
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<FearedEffect.FearSourceState>> FEAR_SOURCE =
             ATTACHMENTS.register("fear_source", () -> AttachmentType.builder(() -> FearedEffect.FearSourceState.EMPTY)
                     .serialize(FearedEffect.FearSourceState.CODEC)
                     .sync(FearedEffect.FearSourceState.STREAM_CODEC)
+                    .build());
+
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<UUID>>> ECCLESIASTIC_WARD_SOURCE =
+            ATTACHMENTS.register("ecclesiastic_ward_source", () -> AttachmentType.builder(Optional::<UUID>empty)
+                    .serialize(UUIDUtil.CODEC.optionalFieldOf("source"))
+                    .build());
+
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> ECCLESIASTIC_WARD_VISUAL =
+            ATTACHMENTS.register("ecclesiastic_ward_visual", () -> AttachmentType.builder(() -> false)
+                    .sync(ByteBufCodecs.BOOL)
                     .build());
 
     public static void register(IEventBus eventBus) {

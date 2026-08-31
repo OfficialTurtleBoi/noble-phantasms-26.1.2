@@ -30,7 +30,8 @@ import net.minecraft.world.phys.Vec3;
 import net.turtleboi.noblephantasms.entity.ModEntities;
 import net.turtleboi.noblephantasms.item.ModItems;
 
-public final class XiuhcoatlProjectile extends AbstractArrow implements ItemSupplier {
+public final class XiuhcoatlProjectile extends AbstractArrow
+        implements ItemSupplier {
     public static final float HEAD_HITBOX_WIDTH = 9.3F / 16.0F;
     public static final float HEAD_HITBOX_HEIGHT = 7.3F / 16.0F;
 

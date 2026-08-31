@@ -1,5 +1,8 @@
 package net.turtleboi.noblephantasms.entity.custom;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -21,12 +24,14 @@ import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.entity.ModEntities;
 import net.turtleboi.noblephantasms.item.ModItems;
 
-public final class ExcaliburProjectile extends ThrowableProjectile implements ItemSupplier {
+public final class ExcaliburProjectile extends ThrowableProjectile
+        implements ItemSupplier {
     private static final Identifier ENERGY_MODEL = Identifier.fromNamespaceAndPath(
             NoblePhantasms.MOD_ID, "excalibur_projectile");
     private static final float DAMAGE = 14.0F;
     private static final int LIFESPAN = 40;
     private final ItemStack displayItem;
+    private final Set<UUID> hitEntities = new HashSet<>();
     private ItemStack weapon = ItemStack.EMPTY;
 
     public ExcaliburProjectile(EntityType<? extends ExcaliburProjectile> entityType, Level level) {
@@ -59,6 +64,9 @@ public final class ExcaliburProjectile extends ThrowableProjectile implements It
     protected void onHitEntity(EntityHitResult hitResult) {
         super.onHitEntity(hitResult);
         Entity target = hitResult.getEntity();
+        if (!hitEntities.add(target.getUUID())) {
+            return;
+        }
         Entity owner = getOwner();
         if (level() instanceof ServerLevel serverLevel) {
             var damageSource = damageSources().thrown(this, owner == null ? this : owner);
@@ -71,7 +79,6 @@ public final class ExcaliburProjectile extends ThrowableProjectile implements It
             }
             playSound(SoundEvents.AMETHYST_CLUSTER_BREAK, 1.0F, 0.8F);
         }
-        discard();
     }
 
     @Override
@@ -86,6 +93,9 @@ public final class ExcaliburProjectile extends ThrowableProjectile implements It
     @Override
     protected boolean canHitEntity(Entity entity) {
         if (!super.canHitEntity(entity)) {
+            return false;
+        }
+        if (hitEntities.contains(entity.getUUID())) {
             return false;
         }
         Entity owner = getOwner();

@@ -34,6 +34,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.ConfigureMainRenderTargetEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
@@ -43,6 +47,7 @@ import net.neoforged.neoforge.client.stencil.StencilPerFaceTest;
 import net.neoforged.neoforge.client.stencil.StencilTest;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.attachment.ModAttachments;
+import net.turtleboi.noblephantasms.effect.ModEffects;
 import net.turtleboi.noblephantasms.client.BertilakClientUtil;
 import net.turtleboi.noblephantasms.client.EyeOfHorusClientState;
 import org.joml.Vector3f;
@@ -66,6 +71,10 @@ public final class LuminousRenderer {
             Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "luminous_secondary_color"));
     private static final ContextKey<Float> SECONDARY_OUTLINE_WIDTH_KEY = new ContextKey<>(
             Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "luminous_secondary_outline_width"));
+    private static final ContextKey<Boolean> SEE_THROUGH_KEY = new ContextKey<>(
+            Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "luminous_see_through"));
+    private static final ContextKey<Boolean> OCCLUDED_FILL_KEY = new ContextKey<>(
+            Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "luminous_occluded_fill"));
     private static final Identifier SHADER =
             Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "core/luminous");
     private static final ThreadLocal<Float> ACTIVE_OUTLINE_WIDTH = ThreadLocal.withInitial(() -> 0.0F);
@@ -149,6 +158,20 @@ public final class LuminousRenderer {
                     .withVertexFormat(DefaultVertexFormat.ENTITY, VertexFormat.Mode.QUADS)
                     .build();
 
+    private static final RenderPipeline VISIBLE_OUTLINE_PIPELINE =
+            RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
+                    .withLocation(Identifier.fromNamespaceAndPath(
+                            NoblePhantasms.MOD_ID, "pipeline/luminous_visible_outline"))
+                    .withVertexShader(SHADER)
+                    .withFragmentShader(SHADER)
+                    .withSampler("Sampler0")
+                    .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+                    .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+                    .withCull(false)
+                    .withStencilTest(new StencilTest(DISCARD_FRONT, OUTLINE_BACK, 0x03, 0xFF, 0))
+                    .withVertexFormat(DefaultVertexFormat.ENTITY, VertexFormat.Mode.QUADS)
+                    .build();
+
     private static final Function<Identifier, RenderType> VISIBLE_SELF_MASK_TYPES = Util.memoize(texture ->
             createRenderType("luminous_visible_self_mask", VISIBLE_SELF_MASK_PIPELINE, texture));
     private static final Function<Identifier, RenderType> SELF_MASK_TYPES = Util.memoize(texture ->
@@ -159,6 +182,8 @@ public final class LuminousRenderer {
             createRenderType("luminous_occluded_fill", OCCLUDED_FILL_PIPELINE, texture));
     private static final Function<Identifier, RenderType> OUTLINE_TYPES = Util.memoize(texture ->
             createRenderType("luminous_outline", OUTLINE_PIPELINE, texture));
+    private static final Function<Identifier, RenderType> VISIBLE_OUTLINE_TYPES = Util.memoize(texture ->
+            createRenderType("luminous_visible_outline", VISIBLE_OUTLINE_PIPELINE, texture));
 
     public static void enableStencil(ConfigureMainRenderTargetEvent event) {
         event.enableStencil();
@@ -175,6 +200,7 @@ public final class LuminousRenderer {
         event.registerPipeline(SELF_CLEAR_PIPELINE);
         event.registerPipeline(OCCLUDED_FILL_PIPELINE);
         event.registerPipeline(OUTLINE_PIPELINE);
+        event.registerPipeline(VISIBLE_OUTLINE_PIPELINE);
     }
 
     public static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
@@ -189,6 +215,8 @@ public final class LuminousRenderer {
         Float outlineWidth = state.getRenderData(OUTLINE_WIDTH_KEY);
         Integer secondaryColor = state.getRenderData(SECONDARY_COLOR_KEY);
         Float secondaryOutlineWidth = state.getRenderData(SECONDARY_OUTLINE_WIDTH_KEY);
+        Boolean seeThrough = state.getRenderData(SEE_THROUGH_KEY);
+        Boolean occludedFill = state.getRenderData(OCCLUDED_FILL_KEY);
         if (color == null || outlineWidth == null || ARGB.alpha(color) == 0
                 || state.isInvisible && state.isInvisibleToPlayer) {
             return;
@@ -202,7 +230,9 @@ public final class LuminousRenderer {
                 outlineWidth,
                 secondaryColor == null ? 0 : secondaryColor,
                 secondaryOutlineWidth == null ? 0.0F : secondaryOutlineWidth,
-                distanceSquared);
+                distanceSquared,
+                seeThrough == null || seeThrough,
+                occludedFill == null ? seeThrough == null || seeThrough : occludedFill);
         OUTLINE_SUBMITS.add(submit);
         LIVING_SUBMITS.put(state, submit);
     }
@@ -234,6 +264,8 @@ public final class LuminousRenderer {
                 ARGB.color(0.35F, color),
                 OUTLINE_WIDTH * secondaryWidthScale,
                 distanceSquared,
+                true,
+                true,
                 geometry));
     }
 
@@ -253,13 +285,15 @@ public final class LuminousRenderer {
             for (int index = 0; index < OUTLINE_SUBMITS.size(); index++) {
                 GlowSubmit submit = OUTLINE_SUBMITS.get(index);
                 renderSubmit(submit, VISIBLE_SELF_MASK_TYPES, poseStack, bufferSource, -1, 0.0F);
-                renderSubmit(
-                        submit,
-                        OCCLUDED_FILL_TYPES,
-                        poseStack,
-                        bufferSource,
-                        submit.color(),
-                        0.0F);
+                if (submit.occludedFill()) {
+                    renderSubmit(
+                            submit,
+                            OCCLUDED_FILL_TYPES,
+                            poseStack,
+                            bufferSource,
+                            submit.color(),
+                            0.0F);
+                }
                 renderSubmit(submit, SELF_MASK_TYPES, poseStack, bufferSource, -1, 0.0F);
                 renderOutline(submit, poseStack, bufferSource);
                 if (index < OUTLINE_SUBMITS.size() - 1) {
@@ -303,6 +337,11 @@ public final class LuminousRenderer {
     }
 
     private static void extractGlowState(LivingEntity entity, LivingEntityRenderState renderState) {
+        Boolean wardVisual = entity.getExistingDataOrNull(ModAttachments.ECCLESIASTIC_WARD_VISUAL);
+        if (entity.hasEffect(ModEffects.WARD) || Boolean.TRUE.equals(wardVisual)) {
+            applyEcclesiasticWardGlow(entity, renderState);
+            return;
+        }
         EyeOfHorusClientState.GlowProgress eyeGlowProgress =
                 EyeOfHorusClientState.getProgress(entity, renderState.partialTick);
         BertilakClientUtil.GlowProgress covenantGlowProgress =
@@ -325,6 +364,22 @@ public final class LuminousRenderer {
         renderState.setRenderData(OUTLINE_WIDTH_KEY, OUTLINE_WIDTH);
         renderState.setRenderData(SECONDARY_COLOR_KEY, null);
         renderState.setRenderData(SECONDARY_OUTLINE_WIDTH_KEY, null);
+        renderState.setRenderData(SEE_THROUGH_KEY, true);
+        renderState.setRenderData(OCCLUDED_FILL_KEY, true);
+    }
+
+    private static void applyEcclesiasticWardGlow(LivingEntity entity, LivingEntityRenderState renderState) {
+        float phase = entity.getId() * 0.7548777F;
+        float flicker = Mth.sin(renderState.ageInTicks * 0.85F + phase) * 0.16F
+                + Mth.sin(renderState.ageInTicks * 2.35F + phase * 1.7F) * 0.09F;
+        float alpha = Mth.clamp(0.82F + flicker, 0.55F, 1.0F);
+        float width = OUTLINE_WIDTH * Mth.clamp(1.0F + flicker * 0.55F, 0.82F, 1.18F);
+        renderState.setRenderData(COLOR_KEY, ARGB.color(alpha, 0xFFFFFF));
+        renderState.setRenderData(OUTLINE_WIDTH_KEY, width);
+        renderState.setRenderData(SECONDARY_COLOR_KEY, null);
+        renderState.setRenderData(SECONDARY_OUTLINE_WIDTH_KEY, null);
+        renderState.setRenderData(SEE_THROUGH_KEY, hasFullWardVisibility(entity, renderState.partialTick));
+        renderState.setRenderData(OCCLUDED_FILL_KEY, false);
     }
 
     private static void applyEyeOfHorusGlow(LivingEntity entity, LivingEntityRenderState renderState,
@@ -356,6 +411,8 @@ public final class LuminousRenderer {
             renderState.setRenderData(SECONDARY_COLOR_KEY, null);
             renderState.setRenderData(SECONDARY_OUTLINE_WIDTH_KEY, null);
         }
+        renderState.setRenderData(SEE_THROUGH_KEY, true);
+        renderState.setRenderData(OCCLUDED_FILL_KEY, true);
     }
 
     private static void applyCovenantGlow(LivingEntity entity, LivingEntityRenderState renderState,
@@ -378,6 +435,8 @@ public final class LuminousRenderer {
         renderState.setRenderData(OUTLINE_WIDTH_KEY, OUTLINE_WIDTH * primaryWidthScale);
         renderState.setRenderData(SECONDARY_COLOR_KEY, null);
         renderState.setRenderData(SECONDARY_OUTLINE_WIDTH_KEY, null);
+        renderState.setRenderData(SEE_THROUGH_KEY, true);
+        renderState.setRenderData(OCCLUDED_FILL_KEY, true);
     }
 
     private static void clearGlowState(LivingEntityRenderState renderState) {
@@ -385,6 +444,75 @@ public final class LuminousRenderer {
         renderState.setRenderData(OUTLINE_WIDTH_KEY, null);
         renderState.setRenderData(SECONDARY_COLOR_KEY, null);
         renderState.setRenderData(SECONDARY_OUTLINE_WIDTH_KEY, null);
+        renderState.setRenderData(SEE_THROUGH_KEY, null);
+        renderState.setRenderData(OCCLUDED_FILL_KEY, null);
+    }
+
+    private static boolean hasFullWardVisibility(LivingEntity entity, float partialTick) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null || minecraft.getCameraEntity() == null) {
+            return false;
+        }
+
+        Vec3 camera = minecraft.gameRenderer.getMainCamera().position();
+        Vec3 interpolatedPosition = entity.getPosition(partialTick);
+        AABB bounds = entity.getBoundingBox().move(interpolatedPosition.subtract(entity.position()));
+        Vec3 center = bounds.getCenter();
+        Vec3 towardCamera = new Vec3(camera.x - center.x, 0.0, camera.z - center.z);
+        if (towardCamera.lengthSqr() < 1.0E-6) {
+            towardCamera = new Vec3(0.0, 0.0, 1.0);
+        } else {
+            towardCamera = towardCamera.normalize();
+        }
+
+        Vec3 right = new Vec3(-towardCamera.z, 0.0, towardCamera.x);
+        double frontExtent = Math.abs(towardCamera.x) * bounds.getXsize() * 0.5
+                + Math.abs(towardCamera.z) * bounds.getZsize() * 0.5;
+        double rightExtent = Math.abs(right.x) * bounds.getXsize() * 0.5
+                + Math.abs(right.z) * bounds.getZsize() * 0.5;
+        Vec3 frontCenter = center.add(towardCamera.scale(frontExtent + 0.02));
+        AABB visionBounds = new AABB(camera, frontCenter).inflate(
+                Math.max(bounds.getXsize(), bounds.getZsize()), bounds.getYsize(),
+                Math.max(bounds.getXsize(), bounds.getZsize()));
+        List<LivingEntity> blockers = entity.level().getEntitiesOfClass(
+                LivingEntity.class,
+                visionBounds,
+                other -> other != entity
+                        && other != minecraft.getCameraEntity()
+                        && other.isAlive()
+                        && other.isPickable());
+        double[] horizontalSamples = {-0.72, 0.0, 0.72};
+        double[] verticalSamples = {0.24, 0.55, 0.86};
+
+        for (double vertical : verticalSamples) {
+            double y = bounds.minY + bounds.getYsize() * vertical;
+            for (double horizontal : horizontalSamples) {
+                Vec3 sample = new Vec3(frontCenter.x, y, frontCenter.z)
+                        .add(right.scale(rightExtent * horizontal));
+                if (isWardVisionBlocked(entity, camera, sample, blockers)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private static boolean isWardVisionBlocked(LivingEntity entity, Vec3 camera, Vec3 sample,
+                                                List<LivingEntity> blockers) {
+        double sampleDistance = camera.distanceToSqr(sample);
+        HitResult blockHit = entity.level().clip(new ClipContext(
+                camera, sample, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, entity));
+        if (blockHit.getType() != HitResult.Type.MISS
+                && camera.distanceToSqr(blockHit.getLocation()) < sampleDistance - 1.0E-4) {
+            return true;
+        }
+        for (LivingEntity blocker : blockers) {
+            Optional<Vec3> hit = blocker.getBoundingBox().inflate(blocker.getPickRadius()).clip(camera, sample);
+            if (hit.isPresent() && camera.distanceToSqr(hit.get()) < sampleDistance - 1.0E-4) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static int getJudgementColor(float ageInTicks, float phase) {
@@ -426,16 +554,18 @@ public final class LuminousRenderer {
 
     private static void renderOutline(GlowSubmit submit, PoseStack poseStack,
                                       MultiBufferSource.BufferSource bufferSource) {
+        Function<Identifier, RenderType> outlineTypes =
+                submit.seeThrough() ? OUTLINE_TYPES : VISIBLE_OUTLINE_TYPES;
         if (ARGB.alpha(submit.secondaryColor()) > 0 && submit.secondaryOutlineWidth() > 0.0F) {
             renderSubmit(
                     submit,
-                    OUTLINE_TYPES,
+                    outlineTypes,
                     poseStack,
                     bufferSource,
                     submit.secondaryColor(),
                     submit.secondaryOutlineWidth());
         }
-        renderSubmit(submit, OUTLINE_TYPES, poseStack, bufferSource, submit.color(), submit.outlineWidth());
+        renderSubmit(submit, outlineTypes, poseStack, bufferSource, submit.color(), submit.outlineWidth());
     }
 
     private static void renderSubmit(GlowSubmit submit, Function<Identifier, RenderType> renderTypes,
@@ -467,13 +597,18 @@ public final class LuminousRenderer {
 
         float distanceSquared();
 
+        boolean seeThrough();
+
+        boolean occludedFill();
+
         void draw(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource,
                   Function<Identifier, RenderType> renderTypes, int color, float outlineWidth);
     }
 
     private record LivingSubmit<S extends LivingEntityRenderState>(
             List<LivingPart<S>> parts, int color, float outlineWidth,
-            int secondaryColor, float secondaryOutlineWidth, float distanceSquared) implements GlowSubmit {
+            int secondaryColor, float secondaryOutlineWidth, float distanceSquared,
+            boolean seeThrough, boolean occludedFill) implements GlowSubmit {
         @Override
         public void draw(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource,
                          Function<Identifier, RenderType> renderTypes, int color, float outlineWidth) {
@@ -503,6 +638,7 @@ public final class LuminousRenderer {
     private record GeometrySubmit(
             PoseStack.Pose pose, Identifier texture, int color, float outlineWidth,
             int secondaryColor, float secondaryOutlineWidth, float distanceSquared,
+            boolean seeThrough, boolean occludedFill,
             LuminousGeometry geometry) implements GlowSubmit {
         @Override
         public void draw(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource,

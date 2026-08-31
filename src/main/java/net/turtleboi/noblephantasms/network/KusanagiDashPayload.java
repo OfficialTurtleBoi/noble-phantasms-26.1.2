@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.turtleboi.noblephantasms.NoblePhantasms;
+import net.turtleboi.noblephantasms.effect.ModEffects;
 import net.turtleboi.noblephantasms.item.custom.KusanagiNoTsurugiItem;
 
 public record KusanagiDashPayload(byte direction) implements CustomPacketPayload {
@@ -22,7 +23,7 @@ public record KusanagiDashPayload(byte direction) implements CustomPacketPayload
     }
 
     private static void handle(KusanagiDashPayload payload, IPayloadContext context) {
-        if (context.player() instanceof ServerPlayer player) {
+        if (context.player() instanceof ServerPlayer player && !player.hasEffect(ModEffects.FROZEN)) {
             KusanagiNoTsurugiItem.tryDash(player, payload.direction());
         }
     }

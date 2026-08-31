@@ -30,12 +30,12 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class ModModelProvider extends ModelProvider {
-    private static final Transformation CHIMALLI_HANDLE_TRANSFORMATION = new Transformation(
+    private static final Transformation SHIELD_HANDLE_TRANSFORMATION = new Transformation(
             new Vector3f(-0.5F, 0.6875F, 0.4375F), null, new Vector3f(1.0F, -1.0F, -1.0F), null);
-    private static final Transformation CHIMALLI_PLATE_NINETY_TRANSFORMATION = new Transformation(
+    private static final Transformation SHIELD_PLATE_NINETY_TRANSFORMATION = new Transformation(
             new Vector3f(0.6875F, 0.5F, 0.4375F), null, new Vector3f(1.0F, -1.0F, -1.0F),
             new Quaternionf().rotationZ((float) (Math.PI / 2.0)));
-    private static final Transformation CHIMALLI_PLATE_FLIPPED_TRANSFORMATION = new Transformation(
+    private static final Transformation SHIELD_PLATE_FLIPPED_TRANSFORMATION = new Transformation(
             new Vector3f(0.5F, -0.6875F, 0.4375F), null, new Vector3f(1.0F, -1.0F, -1.0F),
             new Quaternionf().rotationZ((float) Math.PI));
 
@@ -70,14 +70,25 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ModItems.HOFSKOR.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.CLYDNO_HALTER.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.RECALL_BELL.get(), ModelTemplates.FLAT_ITEM);
-        itemModels.generateFlatItem(ModItems.PRIDWEN.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(ModItems.NORTHERN_AXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        generatePridwenItem(itemModels);
         itemModels.generateFlatItem(ModItems.MEDJU_NETJER.get(), ModelTemplates.FLAT_ITEM);
         generateMappedFlatItem(itemModels, ModItems.RELIC_FRAGMENT.get(),
                 Identifier.withDefaultNamespace("item/gold_nugget"));
+        generateMappedFlatItem(itemModels, ModItems.MYTHICAL_RELIQUARY.get(),
+                Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/mythic_reliquary"));
+        generateMappedFlatItem(itemModels, ModItems.ANUBITE_SPAWN_EGG.get(),
+                Identifier.withDefaultNamespace("item/wither_skeleton_spawn_egg"));
+        generateMappedFlatItem(itemModels, ModItems.ECCLESIASTIC_SPAWN_EGG.get(),
+                Identifier.withDefaultNamespace("item/evoker_spawn_egg"));
+        generateMappedFlatItem(itemModels, ModItems.DRAUGR_SPAWN_EGG.get(),
+                Identifier.withDefaultNamespace("item/stray_spawn_egg"));
+        generateMappedFlatItem(itemModels, ModItems.ONI_SPAWN_EGG.get(),
+                Identifier.withDefaultNamespace("item/piglin_brute_spawn_egg"));
         itemModels.generateFlatItem(ModItems.HOLY_GRAIL.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.SMOKING_MIRROR.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.YASAKANI_NO_MAGATAMA.get(), ModelTemplates.FLAT_ITEM);
-        itemModels.generateFlatItem(ModItems.YATA_NO_KAGAMI.get(), ModelTemplates.FLAT_ITEM);
+        generateYataNoKagamiItem(itemModels);
         itemModels.generateFlatItem(ModItems.APILOLLI.get(), ModelTemplates.FLAT_ITEM);
         generateChimalliItem(itemModels);
         itemModels.generateFlatItem(ModItems.CLAWS_OF_TEPEYOLLOTL.get(), ModelTemplates.FLAT_ITEM);
@@ -111,6 +122,7 @@ public class ModModelProvider extends ModelProvider {
         generateBigItem(itemModels, ModItems.MACUAHUITL.get(), BigItemType.SWORD);
         generateBigItem(itemModels, ModItems.IWATOSHI.get(), BigItemType.SPEAR);
         generateBigItem(itemModels, ModItems.XIUHCOATL.get(), BigItemType.STAFF);
+        generateBigItem(itemModels, ModItems.KANABO.get(), BigItemType.SWORD);
     }
 
     private static void generateHornItem(ItemModelGenerators itemModels, Item item) {
@@ -168,20 +180,74 @@ public class ModModelProvider extends ModelProvider {
         Identifier handleModel = Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/chimalli_shield_handle");
         Identifier blockingHandleModel = Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/chimalli_shield_handle_blocking");
         var handle = ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
-                transformedModel(blockingHandleModel, CHIMALLI_HANDLE_TRANSFORMATION),
-                transformedModel(handleModel, CHIMALLI_HANDLE_TRANSFORMATION));
+                transformedModel(blockingHandleModel, SHIELD_HANDLE_TRANSFORMATION),
+                transformedModel(handleModel, SHIELD_HANDLE_TRANSFORMATION));
         var thirdPersonPlate = ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
-                transformedModel(blockingPlateModel, CHIMALLI_PLATE_FLIPPED_TRANSFORMATION),
-                transformedModel(plateModel, CHIMALLI_PLATE_NINETY_TRANSFORMATION));
+                transformedModel(blockingPlateModel, SHIELD_PLATE_FLIPPED_TRANSFORMATION),
+                transformedModel(plateModel, SHIELD_PLATE_NINETY_TRANSFORMATION));
         var firstPersonPlate = ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
-                transformedModel(blockingPlateModel, CHIMALLI_PLATE_FLIPPED_TRANSFORMATION),
-                transformedModel(plateModel, CHIMALLI_PLATE_FLIPPED_TRANSFORMATION));
+                transformedModel(blockingPlateModel, SHIELD_PLATE_FLIPPED_TRANSFORMATION),
+                transformedModel(plateModel, SHIELD_PLATE_FLIPPED_TRANSFORMATION));
         itemModels.itemModelOutput.accept(item, ItemModelUtils.select(new DisplayContext(),
                 ItemModelUtils.plainModel(spriteModel), List.of(
                         ItemModelUtils.when(List.of(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
                                 ItemDisplayContext.THIRD_PERSON_LEFT_HAND), ItemModelUtils.composite(thirdPersonPlate, handle)),
                         ItemModelUtils.when(List.of(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
                                 ItemDisplayContext.FIRST_PERSON_LEFT_HAND), ItemModelUtils.composite(firstPersonPlate, handle)))));
+    }
+
+    private static void generateYataNoKagamiItem(ItemModelGenerators itemModels) {
+        Item item = ModItems.YATA_NO_KAGAMI.get();
+        Identifier spriteModel = itemModels.createFlatItemModel(item, ModelTemplates.FLAT_ITEM);
+        Identifier shieldModel = Identifier.fromNamespaceAndPath(
+                NoblePhantasms.MOD_ID, "item/yata_no_kagami_shield");
+        Identifier blockingShieldModel = Identifier.fromNamespaceAndPath(
+                NoblePhantasms.MOD_ID, "item/yata_no_kagami_shield_blocking");
+        Identifier handleModel = Identifier.fromNamespaceAndPath(
+                NoblePhantasms.MOD_ID, "item/yata_no_kagami_shield_handle");
+        Identifier blockingHandleModel = Identifier.fromNamespaceAndPath(
+                NoblePhantasms.MOD_ID, "item/yata_no_kagami_shield_handle_blocking");
+        var handle = ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
+                transformedModel(blockingHandleModel, SHIELD_HANDLE_TRANSFORMATION),
+                transformedModel(handleModel, SHIELD_HANDLE_TRANSFORMATION));
+        var thirdPersonShield = ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
+                transformedModel(blockingShieldModel, SHIELD_PLATE_FLIPPED_TRANSFORMATION),
+                transformedModel(shieldModel, SHIELD_PLATE_NINETY_TRANSFORMATION));
+        var firstPersonShield = ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
+                transformedModel(blockingShieldModel, SHIELD_PLATE_FLIPPED_TRANSFORMATION),
+                transformedModel(shieldModel, SHIELD_PLATE_FLIPPED_TRANSFORMATION));
+        itemModels.itemModelOutput.accept(item, ItemModelUtils.select(new DisplayContext(),
+                ItemModelUtils.plainModel(spriteModel), List.of(
+                        ItemModelUtils.when(List.of(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
+                                ItemDisplayContext.THIRD_PERSON_LEFT_HAND),
+                                ItemModelUtils.composite(thirdPersonShield, handle)),
+                        ItemModelUtils.when(List.of(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
+                                ItemDisplayContext.FIRST_PERSON_LEFT_HAND),
+                                ItemModelUtils.composite(firstPersonShield, handle)))));
+    }
+
+    private static void generatePridwenItem(ItemModelGenerators itemModels) {
+        Item item = ModItems.PRIDWEN.get();
+        Identifier spriteModel = itemModels.createFlatItemModel(item, ModelTemplates.FLAT_ITEM);
+        Identifier plateModel = Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/pridwen_shield");
+        Identifier blockingPlateModel = Identifier.fromNamespaceAndPath(
+                NoblePhantasms.MOD_ID, "item/pridwen_shield_blocking");
+        Identifier handleModel = Identifier.fromNamespaceAndPath(
+                NoblePhantasms.MOD_ID, "item/pridwen_shield_handle");
+        Identifier blockingHandleModel = Identifier.fromNamespaceAndPath(
+                NoblePhantasms.MOD_ID, "item/pridwen_shield_handle_blocking");
+        var handle = ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
+                transformedModel(blockingHandleModel, SHIELD_HANDLE_TRANSFORMATION),
+                transformedModel(handleModel, SHIELD_HANDLE_TRANSFORMATION));
+        var plate = ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
+                transformedModel(blockingPlateModel, SHIELD_PLATE_FLIPPED_TRANSFORMATION),
+                transformedModel(plateModel, SHIELD_PLATE_FLIPPED_TRANSFORMATION));
+        itemModels.itemModelOutput.accept(item, ItemModelUtils.select(new DisplayContext(),
+                ItemModelUtils.plainModel(spriteModel), List.of(
+                        ItemModelUtils.when(List.of(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
+                                ItemDisplayContext.THIRD_PERSON_LEFT_HAND,
+                                ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
+                                ItemDisplayContext.FIRST_PERSON_LEFT_HAND), ItemModelUtils.composite(plate, handle)))));
     }
 
     private static ItemModel.Unbaked transformedModel(Identifier model, Transformation transformation) {

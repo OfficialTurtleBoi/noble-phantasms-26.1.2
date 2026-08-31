@@ -10,6 +10,9 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.turtleboi.noblephantasms.client.animation.RelicTransform;
+import net.turtleboi.noblephantasms.client.animation.ItemPoseEditor;
+import net.turtleboi.noblephantasms.client.animation.RelicWeaponAnimations;
+import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
 import net.turtleboi.noblephantasms.item.ModItems;
 import net.turtleboi.noblephantasms.item.custom.GungnirItem;
 
@@ -32,29 +35,48 @@ public class GungnirExtensions implements IClientItemExtensions {
         GungnirOutline.register();
     }
 
-    public static void applyEditorThrowTransform(PoseStack poseStack, HumanoidArm arm,
-                                                 RelicTransform transform) {
-        int direction = arm == HumanoidArm.RIGHT ? 1 : -1;
-        transform.apply(poseStack, arm);
-        poseStack.translate(0.0F, 0.0F, CHARGE_FORWARD_EXTENSION);
-        poseStack.mulPose(Axis.YN.rotationDegrees(direction * CHARGE_ROTATION_Y));
+    public static void applyThirdPersonThrowTransform(ArmedEntityRenderState state,
+                                                       PoseStack poseStack, HumanoidArm arm,
+                                                       ItemStack itemStack, float timeHeld) {
+        RelicTransform transform = ItemPoseEditor.getThirdPersonTransform(
+                state, itemStack, "throw");
+        if (transform == null) {
+            transform = RelicWeaponAnimations.sampleThirdPersonGungnirThrow(itemStack, timeHeld);
+        }
+        if (transform != null) {
+            transform.apply(poseStack, arm);
+        }
     }
 
     @Override
     public boolean applyForgeHandTransform(PoseStack poseStack, LocalPlayer player, HumanoidArm arm, ItemStack itemInHand,
                                            float partialTick, float equipProgress, float swingProgress) {
-        if (!player.isUsingItem() || !(player.getUseItem().getItem() instanceof GungnirItem) || arm != getUsedArm(player)) {
+        InteractionHand renderedHand = arm == player.getMainArm()
+                ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+        RelicTransform editorTransform = ItemPoseEditor.getFirstPersonTransform(
+                renderedHand, itemInHand, "throw");
+        boolean throwing = editorTransform != null || player.isUsingItem()
+                && player.getUseItem().getItem() instanceof GungnirItem
+                && arm == getUsedArm(player);
+        if (!throwing) {
             return false;
         }
 
         int direction = arm == HumanoidArm.RIGHT ? 1 : -1;
         poseStack.translate(direction * 0.56F, -0.52F + equipProgress * -0.6F, -0.72F);
-        poseStack.translate(direction * THROW_TRANSLATION_X, THROW_TRANSLATION_Y, THROW_TRANSLATION_Z);
-        poseStack.mulPose(Axis.XP.rotationDegrees(THROW_ROTATION_X));
-        poseStack.mulPose(Axis.YP.rotationDegrees(direction * THROW_ROTATION_Y));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(direction * THROW_ROTATION_Z));
+        float timeHeld = editorTransform != null ? 0.0F : itemInHand.getUseDuration(player)
+                - (player.getUseItemRemainingTicks() - partialTick + 1.0F);
+        RelicTransform transform = editorTransform != null ? editorTransform
+                : RelicWeaponAnimations.sampleFirstPersonGungnirThrow(itemInHand, timeHeld);
+        if (transform != null) {
+            transform.apply(poseStack, arm);
+        } else {
+            poseStack.translate(direction * THROW_TRANSLATION_X, THROW_TRANSLATION_Y, THROW_TRANSLATION_Z);
+            poseStack.mulPose(Axis.XP.rotationDegrees(THROW_ROTATION_X));
+            poseStack.mulPose(Axis.YP.rotationDegrees(direction * THROW_ROTATION_Y));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(direction * THROW_ROTATION_Z));
+        }
 
-        float timeHeld = itemInHand.getUseDuration(player) - (player.getUseItemRemainingTicks() - partialTick + 1.0F);
         float chargeTime = Mth.clamp(timeHeld / GungnirItem.FULL_CHARGE_TICKS, 0.0F, 1.0F);
         if (chargeTime > 0.1F) {
             float shake = Mth.sin((timeHeld - 0.1F) * 1.3F) * (chargeTime - 0.1F);

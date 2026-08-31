@@ -2,6 +2,8 @@ package net.turtleboi.noblephantasms.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -25,7 +27,9 @@ import net.turtleboi.noblephantasms.client.animation.RelicWeaponAnimationContext
 import net.turtleboi.noblephantasms.client.animation.RelicWeaponAnimations;
 import net.turtleboi.noblephantasms.item.custom.RhongomyniadItem;
 import net.turtleboi.noblephantasms.item.custom.SpearRelicItem;
+import net.turtleboi.noblephantasms.entity.custom.PridwenBarrierEntity;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -49,6 +53,51 @@ public class ItemInHandRendererMixin {
     private ItemStack rhongomyniadRenderStack = ItemStack.EMPTY;
     @Unique
     private float rhongomyniadFrameInterp;
+
+    @Shadow
+    private void swingArm(float attack, PoseStack poseStack, int direction, HumanoidArm arm) {
+        throw new AssertionError();
+    }
+
+    @ModifyExpressionValue(
+            method = "renderArmWithItem",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/player/AbstractClientPlayer;isUsingItem()Z"))
+    private boolean keepPridwenRaised(boolean original,
+                                      @Local(argsOnly = true) AbstractClientPlayer player,
+                                      @Local(argsOnly = true) InteractionHand hand,
+                                      @Local(argsOnly = true) ItemStack itemStack) {
+        return original || PridwenBarrierEntity.shouldKeepRaised(player, hand, itemStack)
+                || ItemPoseEditor.isPreviewingUse(hand, itemStack);
+    }
+
+    @ModifyExpressionValue(
+            method = "renderArmWithItem",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/player/AbstractClientPlayer;getUseItemRemainingTicks()I"))
+    private int keepPridwenUseTime(int original,
+                                   @Local(argsOnly = true) AbstractClientPlayer player,
+                                   @Local(argsOnly = true) InteractionHand hand,
+                                   @Local(argsOnly = true) ItemStack itemStack) {
+        int previewTicks = ItemPoseEditor.getPreviewUseRemainingTicks(hand, itemStack, player);
+        if (previewTicks > 0) {
+            return previewTicks;
+        }
+        return PridwenBarrierEntity.shouldKeepRaised(player, hand, itemStack)
+                ? Math.max(1, original) : original;
+    }
+
+    @ModifyExpressionValue(
+            method = "renderArmWithItem",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/player/AbstractClientPlayer;getUsedItemHand()Lnet/minecraft/world/InteractionHand;"))
+    private InteractionHand keepPridwenHand(InteractionHand original,
+                                            @Local(argsOnly = true) AbstractClientPlayer player,
+                                            @Local(argsOnly = true) InteractionHand hand,
+                                            @Local(argsOnly = true) ItemStack itemStack) {
+        return PridwenBarrierEntity.shouldKeepRaised(player, hand, itemStack)
+                || ItemPoseEditor.isPreviewingUse(hand, itemStack) ? hand : original;
+    }
 
     @Inject(method = "renderArmWithItem", at = @At("HEAD"))
     private void beginRhongomyniadSpin(AbstractClientPlayer player, float frameInterp, float xRot, InteractionHand hand,
@@ -135,22 +184,24 @@ public class ItemInHandRendererMixin {
     }
 
     @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/model/effects/SpearAnimations;firstPersonAttack(FLcom/mojang/blaze3d/vertex/PoseStack;ILnet/minecraft/world/entity/HumanoidArm;)V",
-            shift = At.Shift.AFTER))
-    private void previewEditedStab(AbstractClientPlayer player, float frameInterp, float xRot, InteractionHand hand,
-                                   float attack, ItemStack itemStack, float inverseArmHeight, PoseStack poseStack,
-                                   SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo callbackInfo) {
-        HumanoidArm arm = hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
-        ItemPoseEditor.applyFirstPersonAttackPreview(poseStack, hand, itemStack, arm);
-    }
-
-    @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V"))
-    private void previewEditedUse(AbstractClientPlayer player, float frameInterp, float xRot, InteractionHand hand,
-                                  float attack, ItemStack itemStack, float inverseArmHeight, PoseStack poseStack,
-                                  SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo callbackInfo) {
+    private void applyGenericItemPose(AbstractClientPlayer player, float frameInterp, float xRot,
+                                      InteractionHand hand, float attack, ItemStack itemStack,
+                                      float inverseArmHeight, PoseStack poseStack,
+                                      SubmitNodeCollector submitNodeCollector, int lightCoords,
+                                      CallbackInfo callbackInfo) {
         HumanoidArm arm = hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
-        ItemPoseEditor.applyFirstPersonUsePreview(poseStack, hand, itemStack, arm, inverseArmHeight);
+        if (ItemPoseEditor.isPreviewingGenericAttack(hand, itemStack)) {
+            float previewAttack = ItemPoseEditor.getPreviewAttackProgress(hand, itemStack);
+            int direction = arm == HumanoidArm.RIGHT ? 1 : -1;
+            switch (itemStack.getSwingAnimation().type()) {
+                case WHACK -> swingArm(previewAttack, poseStack, direction, arm);
+                case STAB -> net.minecraft.client.model.effects.SpearAnimations.firstPersonAttack(
+                        previewAttack, poseStack, direction, arm);
+            }
+        }
+        ItemPoseEditor.applyFirstPersonGenericPose(
+                poseStack, player, hand, itemStack, arm, attack, frameInterp);
     }
 
     @Unique

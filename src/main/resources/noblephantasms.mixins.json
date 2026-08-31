@@ -10,12 +10,14 @@
     "FishingHookMixin",
     "MobAccessor",
     "NoteBlockMixin",
-    "PlayerMixin"
+    "PlayerMixin",
+    "ProjectileCollisionMixin"
   ],
   "client": [
     "client.AvatarRendererMixin",
     "client.BlockOutlineRendererMixin",
     "client.BufferSourceAccessor",
+    "client.ClientInputAccessor",
     "client.ColoredGlintSpecialModelMixin",
     "client.CustomHeadLayerMixin",
     "client.CuboidItemModelWrapperMixin",
@@ -29,6 +31,7 @@
     "client.ItemFeatureRendererMixin",
     "client.ItemModelResolverMixin",
     "client.ItemStackRenderStateMixin",
+    "client.ItemStackRenderStateLayerMixin",
     "client.SubmitNodeCollectionMixin",
     "client.ItemTransformMixin",
     "client.LivingEntityRendererMixin",
@@ -41,7 +44,8 @@
     "client.LuminousModelPartCubeMixin",
     "client.SpearAnimationsMixin",
     "client.SpecialModelWrapperMixin",
-    "client.EnchantmentScreenMixin"
+    "client.EnchantmentScreenMixin",
+    "client.FrozenMouseHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

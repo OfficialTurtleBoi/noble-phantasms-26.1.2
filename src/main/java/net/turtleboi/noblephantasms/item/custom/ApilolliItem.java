@@ -55,7 +55,7 @@ public final class ApilolliItem extends Item {
         stack.set(ModDataComponents.APILOLLI_FILLED.get(), false);
         player.getCooldowns().addCooldown(stack, 20);
         serverLevel.sendParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 3.5, player.getZ(),
-                40, 1.8, 0.35, 1.8, 0.03);
+                36, 0.9, 0.44, 0.9, 0.01);
         serverLevel.playSound(null, player.blockPosition(), SoundEvents.TRIDENT_THUNDER.value(),
                 SoundSource.WEATHER, 0.8F, 1.8F);
         return InteractionResult.SUCCESS_SERVER;

@@ -20,6 +20,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.KineticWeapon;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.client.BertilakExtensions;
+import net.turtleboi.noblephantasms.client.ExcaliburExtensions;
+import net.turtleboi.noblephantasms.client.GungnirExtensions;
+import net.turtleboi.noblephantasms.item.custom.ExcaliburItem;
+import net.turtleboi.noblephantasms.item.custom.GungnirItem;
 import net.turtleboi.noblephantasms.item.custom.IwatoshiAttackState;
 import net.turtleboi.noblephantasms.item.custom.IwatoshiItem;
 import net.turtleboi.noblephantasms.item.custom.RhongomyniadItem;
@@ -31,13 +35,22 @@ public final class RelicWeaponAnimations {
             NoblePhantasms.MOD_ID, "iwatoshi");
     private static final Identifier BERTILAK = Identifier.fromNamespaceAndPath(
             NoblePhantasms.MOD_ID, "bertilak");
+    private static final Identifier EXCALIBUR = Identifier.fromNamespaceAndPath(
+            NoblePhantasms.MOD_ID, "excalibur");
+    private static final Identifier GUNGNIR = Identifier.fromNamespaceAndPath(
+            NoblePhantasms.MOD_ID, "gungnir");
     private static final String LANCE_FIRST_PERSON = "lance_lower_first_person";
     private static final String LANCE_THIRD_PERSON = "lance_lower_third_person";
     private static final String IWATOSHI_CHARGE_FIRST_PERSON = "iwatoshi_charge_first_person";
     private static final String IWATOSHI_CHARGE_THIRD_PERSON = "iwatoshi_charge_third_person";
     private static final String IWATOSHI_SPIN_FIRST_PERSON = "iwatoshi_spin_first_person";
     private static final String IWATOSHI_SPIN_THIRD_PERSON = "iwatoshi_spin_third_person";
+    private static final String BERTILAK_COVENANT_FIRST_PERSON = "bertilak_covenant_first_person";
     private static final String BERTILAK_COVENANT_THIRD_PERSON = "bertilak_covenant_third_person";
+    private static final String EXCALIBUR_USE_FIRST_PERSON = "excalibur_use_first_person";
+    private static final String EXCALIBUR_USE_THIRD_PERSON = "excalibur_use_third_person";
+    private static final String GUNGNIR_THROW_FIRST_PERSON = "gungnir_throw_first_person";
+    private static final String GUNGNIR_THROW_THIRD_PERSON = "gungnir_throw_third_person";
 
     static {
         registerAnimations();
@@ -216,9 +229,28 @@ public final class RelicWeaponAnimations {
         return RelicAnimator.getEditorAnimationId(itemStack, cameraType, pose);
     }
 
+    public static RelicTransform sampleFirstPersonBertilakCovenant(ItemStack itemStack, float tick) {
+        return RelicAnimator.sample(itemStack, BERTILAK_COVENANT_FIRST_PERSON, tick);
+    }
+
     public static RelicTransform sampleThirdPersonBertilakCovenant(ItemStack itemStack, float tick) {
-        return RelicAnimator.sample(itemStack, BERTILAK_COVENANT_THIRD_PERSON,
-                Math.min(tick, BertilakExtensions.TARGETING_TRANSITION_TICKS));
+        return RelicAnimator.sample(itemStack, BERTILAK_COVENANT_THIRD_PERSON, tick);
+    }
+
+    public static RelicTransform sampleFirstPersonExcaliburUse(ItemStack itemStack, float tick) {
+        return RelicAnimator.sample(itemStack, EXCALIBUR_USE_FIRST_PERSON, tick);
+    }
+
+    public static RelicTransform sampleThirdPersonExcaliburUse(ItemStack itemStack, float tick) {
+        return RelicAnimator.sample(itemStack, EXCALIBUR_USE_THIRD_PERSON, tick);
+    }
+
+    public static RelicTransform sampleFirstPersonGungnirThrow(ItemStack itemStack, float tick) {
+        return RelicAnimator.sample(itemStack, GUNGNIR_THROW_FIRST_PERSON, tick);
+    }
+
+    public static RelicTransform sampleThirdPersonGungnirThrow(ItemStack itemStack, float tick) {
+        return RelicAnimator.sample(itemStack, GUNGNIR_THROW_THIRD_PERSON, tick);
     }
 
     private static void animateFirstPersonLanceUse(float hitFeedbackTime, PoseStack poseStack, float timeHeld,
@@ -376,8 +408,20 @@ public final class RelicWeaponAnimations {
         }
         RelicAnimator.register(IWATOSHI, IWATOSHI_SPIN_FIRST_PERSON, createSpinAnimation(true));
         RelicAnimator.register(IWATOSHI, IWATOSHI_SPIN_THIRD_PERSON, createThirdPersonSpinAnimation());
+        RelicAnimator.register(BERTILAK, BERTILAK_COVENANT_FIRST_PERSON,
+                new RelicAnimationClip(BertilakExtensions.TARGETING_TRANSITION_TICKS)
+                        .keyframe(0.0F, identity(), RelicAnimationClip.Easing.LINEAR)
+                        .keyframe(BertilakExtensions.TARGETING_TRANSITION_TICKS,
+                                RelicTransform.poseStack(
+                                        BertilakExtensions.TARGETING_TRANSLATION_X,
+                                        BertilakExtensions.TARGETING_TRANSLATION_Y,
+                                        BertilakExtensions.TARGETING_TRANSLATION_Z,
+                                        BertilakExtensions.TARGETING_ROTATION_X,
+                                        BertilakExtensions.TARGETING_ROTATION_Y,
+                                        BertilakExtensions.TARGETING_ROTATION_Z)));
         RelicAnimator.register(BERTILAK, BERTILAK_COVENANT_THIRD_PERSON,
                 new RelicAnimationClip(BertilakExtensions.TARGETING_TRANSITION_TICKS)
+                        .keyframe(0.0F, identity(), RelicAnimationClip.Easing.LINEAR)
                         .keyframe(BertilakExtensions.TARGETING_TRANSITION_TICKS,
                                 RelicTransform.poseStack(
                                         BertilakExtensions.THIRD_PERSON_TRANSLATION_X,
@@ -386,11 +430,36 @@ public final class RelicWeaponAnimations {
                                         BertilakExtensions.THIRD_PERSON_ROTATION_X,
                                         BertilakExtensions.THIRD_PERSON_ROTATION_Y,
                                         BertilakExtensions.THIRD_PERSON_ROTATION_Z)));
+        RelicAnimator.register(EXCALIBUR, EXCALIBUR_USE_FIRST_PERSON,
+                new RelicAnimationClip(ExcaliburExtensions.TARGETING_TRANSITION_TICKS)
+                        .keyframe(0.0F, identity(), RelicAnimationClip.Easing.LINEAR)
+                        .keyframe(ExcaliburExtensions.TARGETING_TRANSITION_TICKS,
+                                RelicTransform.poseStack(
+                                        ExcaliburExtensions.TARGETING_TRANSLATION_X,
+                                        ExcaliburExtensions.TARGETING_TRANSLATION_Y,
+                                        ExcaliburExtensions.TARGETING_TRANSLATION_Z,
+                                        ExcaliburExtensions.TARGETING_ROTATION_X,
+                                        ExcaliburExtensions.TARGETING_ROTATION_Y,
+                                        ExcaliburExtensions.TARGETING_ROTATION_Z)));
+        RelicAnimator.register(EXCALIBUR, EXCALIBUR_USE_THIRD_PERSON,
+                new RelicAnimationClip(ExcaliburItem.FULL_CHARGE_TICKS)
+                        .keyframe(0.0F, identity(), RelicAnimationClip.Easing.LINEAR));
+        RelicAnimator.register(GUNGNIR, GUNGNIR_THROW_FIRST_PERSON,
+                new RelicAnimationClip(GungnirItem.FULL_CHARGE_TICKS)
+                        .keyframe(0.0F, RelicTransform.poseStack(
+                                GungnirExtensions.THROW_TRANSLATION_X,
+                                GungnirExtensions.THROW_TRANSLATION_Y,
+                                GungnirExtensions.THROW_TRANSLATION_Z,
+                                GungnirExtensions.THROW_ROTATION_X,
+                                GungnirExtensions.THROW_ROTATION_Y,
+                                GungnirExtensions.THROW_ROTATION_Z),
+                                RelicAnimationClip.Easing.LINEAR));
+        RelicAnimator.register(GUNGNIR, GUNGNIR_THROW_THIRD_PERSON,
+                new RelicAnimationClip(GungnirItem.FULL_CHARGE_TICKS)
+                        .keyframe(0.0F, identity(), RelicAnimationClip.Easing.LINEAR));
 
         RelicAnimator.registerEditorPose(
-                RHONGOMYNIAD, "joust_raised", LANCE_FIRST_PERSON, LANCE_THIRD_PERSON);
-        RelicAnimator.registerEditorPose(
-                RHONGOMYNIAD, "joust_lowered", LANCE_FIRST_PERSON, LANCE_THIRD_PERSON);
+                RHONGOMYNIAD, "joust", LANCE_FIRST_PERSON, LANCE_THIRD_PERSON);
         RelicAnimator.registerEditorPose(IWATOSHI, "use",
                 IWATOSHI_CHARGE_FIRST_PERSON, IWATOSHI_CHARGE_THIRD_PERSON);
         for (int chargeLevel = 1; chargeLevel < IwatoshiItem.getMaxChargeLevel(); chargeLevel++) {
@@ -400,7 +469,11 @@ public final class RelicWeaponAnimations {
         RelicAnimator.registerEditorPose(IWATOSHI, "spin",
                 IWATOSHI_SPIN_FIRST_PERSON, IWATOSHI_SPIN_THIRD_PERSON);
         RelicAnimator.registerEditorPose(BERTILAK, "covenant",
-                null, BERTILAK_COVENANT_THIRD_PERSON);
+                BERTILAK_COVENANT_FIRST_PERSON, BERTILAK_COVENANT_THIRD_PERSON);
+        RelicAnimator.registerEditorPose(EXCALIBUR, "use",
+                EXCALIBUR_USE_FIRST_PERSON, EXCALIBUR_USE_THIRD_PERSON);
+        RelicAnimator.registerEditorPose(GUNGNIR, "throw",
+                GUNGNIR_THROW_FIRST_PERSON, GUNGNIR_THROW_THIRD_PERSON);
     }
 
     private static RelicAnimationClip createSlashAnimation(int chargeLevel, boolean firstPerson) {

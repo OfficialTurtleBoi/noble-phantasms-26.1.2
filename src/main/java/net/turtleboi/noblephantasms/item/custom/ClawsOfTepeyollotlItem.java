@@ -1,7 +1,6 @@
 package net.turtleboi.noblephantasms.item.custom;
 
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -33,7 +32,7 @@ public final class ClawsOfTepeyollotlItem extends CurioRelicItem {
     private static final double MAX_DESCENT_SPEED = 0.1;
     private static final float VERTICAL_DEAD_ZONE = 22.5F;
     private static final float FULL_CLIMB_PITCH = 45.0F;
-    private static final float BARE_HAND_SPEED_MULTIPLIER = 2.0F;
+    private static final float EFFICIENCY_TWO_SPEED_BONUS = 5.0F;
 
     public ClawsOfTepeyollotlItem(Properties properties) {
         super(properties.rarity(Rarity.RARE));
@@ -127,12 +126,12 @@ public final class ClawsOfTepeyollotlItem extends CurioRelicItem {
             return;
         }
 
-        float speed = event.getNewSpeed() * BARE_HAND_SPEED_MULTIPLIER;
+        float speed = event.getNewSpeed();
         ItemStack stonePickaxe = Items.STONE_PICKAXE.getDefaultInstance();
         if (stonePickaxe.isCorrectToolForDrops(event.getState())) {
             speed = Math.max(speed, stonePickaxe.getDestroySpeed(event.getState()));
         }
-        event.setNewSpeed(speed);
+        event.setNewSpeed(speed + EFFICIENCY_TWO_SPEED_BONUS);
     }
 
     public static void handleHarvestCheck(PlayerEvent.HarvestCheck event) {
@@ -143,7 +142,6 @@ public final class ClawsOfTepeyollotlItem extends CurioRelicItem {
     }
 
     private static boolean canMineWithClaws(Player player) {
-        return !player.getMainHandItem().has(DataComponents.TOOL)
-                && isEquipped(player, ModItems.CLAWS_OF_TEPEYOLLOTL.get());
+        return isEquipped(player, ModItems.CLAWS_OF_TEPEYOLLOTL.get());
     }
 }

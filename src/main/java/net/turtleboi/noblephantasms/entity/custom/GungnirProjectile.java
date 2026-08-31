@@ -44,7 +44,8 @@ import net.turtleboi.noblephantasms.item.ModItems;
 import net.turtleboi.noblephantasms.particle.ModParticles;
 import org.jspecify.annotations.Nullable;
 
-public class GungnirProjectile extends AbstractArrow implements ItemSupplier {
+public class GungnirProjectile extends AbstractArrow
+        implements ItemSupplier {
     private static final EntityDataAccessor<Byte> ID_LOYALTY =
             SynchedEntityData.defineId(GungnirProjectile.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Boolean> ID_FOIL =

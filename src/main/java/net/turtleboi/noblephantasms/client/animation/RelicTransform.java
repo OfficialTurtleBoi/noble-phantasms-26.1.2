@@ -100,21 +100,20 @@ public class RelicTransform {
     }
 
     public static RelicTransform interpolate(RelicTransform start, RelicTransform end, float progress) {
-        float clampedProgress = Mth.clamp(progress, 0.0F, 1.0F);
         RelicTransform transform = new RelicTransform(end.modelDisplay);
         transform.initialize(
-                Mth.lerp(clampedProgress, start.translationX, end.translationX),
-                Mth.lerp(clampedProgress, start.translationY, end.translationY),
-                Mth.lerp(clampedProgress, start.translationZ, end.translationZ),
-                Mth.lerp(clampedProgress, start.rotationX, end.rotationX),
-                Mth.lerp(clampedProgress, start.rotationY, end.rotationY),
-                Mth.lerp(clampedProgress, start.rotationZ, end.rotationZ),
-                Mth.lerp(clampedProgress, start.scaleX, end.scaleX),
-                Mth.lerp(clampedProgress, start.scaleY, end.scaleY),
-                Mth.lerp(clampedProgress, start.scaleZ, end.scaleZ));
-        transform.anchorX = transform.initialAnchorX = Mth.lerp(clampedProgress, start.anchorX, end.anchorX);
-        transform.anchorY = transform.initialAnchorY = Mth.lerp(clampedProgress, start.anchorY, end.anchorY);
-        transform.anchorZ = transform.initialAnchorZ = Mth.lerp(clampedProgress, start.anchorZ, end.anchorZ);
+                Mth.lerp(progress, start.translationX, end.translationX),
+                Mth.lerp(progress, start.translationY, end.translationY),
+                Mth.lerp(progress, start.translationZ, end.translationZ),
+                Mth.lerp(progress, start.rotationX, end.rotationX),
+                Mth.lerp(progress, start.rotationY, end.rotationY),
+                Mth.lerp(progress, start.rotationZ, end.rotationZ),
+                Mth.lerp(progress, start.scaleX, end.scaleX),
+                Mth.lerp(progress, start.scaleY, end.scaleY),
+                Mth.lerp(progress, start.scaleZ, end.scaleZ));
+        transform.anchorX = transform.initialAnchorX = end.anchorX;
+        transform.anchorY = transform.initialAnchorY = end.anchorY;
+        transform.anchorZ = transform.initialAnchorZ = end.anchorZ;
         return transform;
     }
 

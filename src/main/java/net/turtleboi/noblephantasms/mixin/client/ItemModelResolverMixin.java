@@ -9,6 +9,8 @@ import net.minecraft.world.level.Level;
 import net.turtleboi.noblephantasms.client.animation.ItemPoseEditor;
 import net.turtleboi.noblephantasms.client.renderer.ColoredGlintRenderer;
 import net.turtleboi.noblephantasms.client.renderer.ItemOutlineRenderer;
+import net.turtleboi.noblephantasms.client.renderer.ReliquaryItemRenderer;
+import net.turtleboi.noblephantasms.client.PridwenProjectionAnchor;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,7 +23,11 @@ public class ItemModelResolverMixin {
     private void noblePhantasms$trackPoseEditorItem(ItemStackRenderState output, ItemStack item,
                                                     ItemDisplayContext displayContext, @Nullable Level level,
                                                     @Nullable ItemOwner owner, int seed, CallbackInfo callbackInfo) {
+        if (ReliquaryItemRenderer.isResolvingPreview()) {
+            return;
+        }
         ItemPoseEditor.track(output, item, displayContext, owner);
+        PridwenProjectionAnchor.track(output, item, displayContext, owner);
         ColoredGlintRenderer.track(output, item);
         ItemOutlineRenderer.track(output, item, displayContext, owner);
     }

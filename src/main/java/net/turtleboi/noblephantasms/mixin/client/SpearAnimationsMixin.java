@@ -8,9 +8,13 @@ import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
 import net.turtleboi.noblephantasms.client.BertilakExtensions;
+import net.turtleboi.noblephantasms.client.ExcaliburExtensions;
+import net.turtleboi.noblephantasms.client.GungnirExtensions;
 import net.turtleboi.noblephantasms.client.animation.ItemPoseEditor;
 import net.turtleboi.noblephantasms.client.animation.RelicWeaponAnimations;
 import net.turtleboi.noblephantasms.item.custom.BertilakItem;
+import net.turtleboi.noblephantasms.item.custom.ExcaliburItem;
+import net.turtleboi.noblephantasms.item.custom.GungnirItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -75,6 +79,12 @@ public class SpearAnimationsMixin {
                                                HumanoidArm arm, ItemStack itemStack, CallbackInfo callbackInfo) {
         if (itemStack.getItem() instanceof BertilakItem) {
             BertilakExtensions.applyThirdPersonCovenantTransform(
+                    state, poseStack, arm, itemStack, timeHeld);
+        } else if (itemStack.getItem() instanceof ExcaliburItem) {
+            ExcaliburExtensions.applyThirdPersonUseTransform(
+                    state, poseStack, arm, itemStack, timeHeld);
+        } else if (itemStack.getItem() instanceof GungnirItem) {
+            GungnirExtensions.applyThirdPersonThrowTransform(
                     state, poseStack, arm, itemStack, timeHeld);
         }
     }
