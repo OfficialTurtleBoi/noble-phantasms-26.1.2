@@ -27,6 +27,7 @@ public class ModLanguageProvider extends LanguageProvider {
         addSimpleItem(ModItems.TROPHY_HEAD, "Trophy Head");
         add(ModBlocks.TROPHY_HEAD.get(), "Trophy Head");
         add(ModBlocks.RELIQUARY_STATION.get(), "Reliquary Station");
+        add(ModBlocks.BRAZIER.get(), "Brazier");
         addSimpleItem(ModItems.CARNWENNAN);
         addSimpleItem(ModItems.EXCALIBUR);
         addSimpleItem(ModItems.GRAM);

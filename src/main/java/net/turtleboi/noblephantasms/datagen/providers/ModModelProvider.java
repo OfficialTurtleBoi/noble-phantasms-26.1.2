@@ -6,6 +6,7 @@ import java.util.Optional;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
+import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplate;
@@ -20,6 +21,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.block.ModBlocks;
 import net.turtleboi.noblephantasms.client.renderer.TecpatlRebuildingRenderer;
@@ -105,15 +107,16 @@ public class ModModelProvider extends ModelProvider {
                 BlockModelGenerators.createSimpleBlock(ModBlocks.TROPHY_HEAD.get(), skullModel));
         blockModels.blockStateOutput.accept(
                 BlockModelGenerators.createSimpleBlock(ModBlocks.TROPHY_WALL_HEAD.get(), skullModel));
-        TextureMapping reliquaryStationTextures = new TextureMapping()
-                .put(TextureSlot.BOTTOM, new Material(Identifier.withDefaultNamespace("block/obsidian")))
-                .put(TextureSlot.SIDE, new Material(Identifier.withDefaultNamespace("block/polished_blackstone_bricks")))
-                .put(TextureSlot.TOP, new Material(Identifier.withDefaultNamespace("block/smithing_table_top")));
-        Identifier reliquaryStationModel = ModelTemplates.CUBE_BOTTOM_TOP.create(
-                ModBlocks.RELIQUARY_STATION.get(), reliquaryStationTextures, blockModels.modelOutput);
-        blockModels.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(
-                ModBlocks.RELIQUARY_STATION.get(), BlockModelGenerators.plainVariant(reliquaryStationModel)));
+        Identifier reliquaryStationModel = ModelLocationUtils.getModelLocation(ModBlocks.RELIQUARY_STATION.get());
+        blockModels.createNonTemplateHorizontalBlock(ModBlocks.RELIQUARY_STATION.get());
         blockModels.registerSimpleItemModel(ModBlocks.RELIQUARY_STATION.get(), reliquaryStationModel);
+        Identifier brazierModel = ModelLocationUtils.getModelLocation(ModBlocks.BRAZIER.get());
+        Identifier brazierFireModel = ModelLocationUtils.getModelLocation(ModBlocks.BRAZIER.get(), "_fire");
+        blockModels.blockStateOutput.accept(MultiPartGenerator.multiPart(ModBlocks.BRAZIER.get())
+                .with(BlockModelGenerators.plainVariant(brazierModel))
+                .with(BlockModelGenerators.condition().term(BlockStateProperties.LIT, true),
+                        BlockModelGenerators.plainVariant(brazierFireModel)));
+        blockModels.registerSimpleItemModel(ModBlocks.BRAZIER.get(), brazierModel);
         generateTrophyHeadItem(itemModels);
         generateBigItem(itemModels, ModItems.BERTILAK.get(), BigItemType.AXE);
         generateBigItem(itemModels, ModItems.EXCALIBUR.get(), BigItemType.SWORD);

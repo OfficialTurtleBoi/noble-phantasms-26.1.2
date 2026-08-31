@@ -31,6 +31,7 @@ public class ModBlockLootProvider extends BlockLootSubProvider {
                                         .copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
                                         .include(DataComponents.CUSTOM_DATA))))));
         dropSelf(ModBlocks.RELIQUARY_STATION.get());
+        dropSelf(ModBlocks.BRAZIER.get());
     }
 
     @Override

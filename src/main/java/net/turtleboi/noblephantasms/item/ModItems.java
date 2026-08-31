@@ -188,6 +188,9 @@ public class ModItems {
     public static final DeferredItem<BlockItem> RELIQUARY_STATION =
             ITEMS.registerSimpleBlockItem(ModBlocks.RELIQUARY_STATION);
 
+    public static final DeferredItem<BlockItem> BRAZIER =
+            ITEMS.registerSimpleBlockItem(ModBlocks.BRAZIER);
+
     public static final DeferredItem<MythicalReliquaryItem> MYTHICAL_RELIQUARY =
             ITEMS.registerItem("mythical_reliquary", MythicalReliquaryItem::new);
 

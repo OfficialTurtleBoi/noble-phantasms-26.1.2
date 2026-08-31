@@ -1,0 +1,17 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "noblephantasms:block/brazier"
+      }
+    },
+    {
+      "when": {
+        "lit": "true"
+      },
+      "apply": {
+        "model": "noblephantasms:block/brazier_fire"
+      }
+    }
+  ]
+}

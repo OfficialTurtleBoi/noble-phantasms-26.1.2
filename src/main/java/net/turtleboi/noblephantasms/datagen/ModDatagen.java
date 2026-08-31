@@ -14,6 +14,7 @@ import net.turtleboi.noblephantasms.datagen.providers.ModEquipmentAssetProvider;
 import net.turtleboi.noblephantasms.datagen.providers.ModItemTagsProvider;
 import net.turtleboi.noblephantasms.datagen.providers.ModLanguageProvider;
 import net.turtleboi.noblephantasms.datagen.providers.ModBlockLootProvider;
+import net.turtleboi.noblephantasms.datagen.providers.ModBlockTagsProvider;
 import net.turtleboi.noblephantasms.datagen.providers.ModModelProvider;
 
 public final class ModDatagen {
@@ -28,6 +29,7 @@ public final class ModDatagen {
 
     public static void gatherServerData(GatherDataEvent.Server event) {
         PackOutput packOutput = event.getGenerator().getPackOutput();
+        event.addProvider(new ModBlockTagsProvider(packOutput, event.getLookupProvider()));
         event.addProvider(new ModEntityTypeTagsProvider(packOutput, event.getLookupProvider()));
         event.addProvider(new ModItemTagsProvider(packOutput, event.getLookupProvider()));
         event.addProvider(new ModEnchantmentProvider(packOutput, event.getResourceManager(PackType.SERVER_DATA)));

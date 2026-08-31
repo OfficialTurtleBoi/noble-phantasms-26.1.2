@@ -75,6 +75,7 @@ public class ModCreativeModeTabs {
                                 output.accept(ModItems.NORTHERN_AXE);
                                 output.accept(ModItems.MYTHICAL_RELIQUARY);
                                 output.accept(ModItems.RELIQUARY_STATION);
+                                output.accept(ModItems.BRAZIER);
                                 output.accept(ModItems.ANUBITE_SPAWN_EGG);
                                 output.accept(ModItems.ECCLESIASTIC_SPAWN_EGG);
                                 output.accept(ModItems.DRAUGR_SPAWN_EGG);

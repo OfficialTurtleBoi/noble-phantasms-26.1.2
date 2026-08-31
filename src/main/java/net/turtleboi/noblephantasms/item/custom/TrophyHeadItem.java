@@ -50,6 +50,7 @@ import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.waypoints.Waypoint;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.turtleboi.noblephantasms.item.ModItems;
@@ -76,7 +77,7 @@ public class TrophyHeadItem extends StandingAndWallBlockItem {
 
     public TrophyHeadItem(Block block, Block wallBlock, Item.Properties properties) {
         super(block, wallBlock, Direction.DOWN,
-                properties.stacksTo(1).equippableUnswappable(EquipmentSlot.HEAD));
+                Waypoint.addHideAttribute(properties).stacksTo(1).equippableUnswappable(EquipmentSlot.HEAD));
     }
 
     public static ItemStack create(LivingEntity livingEntity) {

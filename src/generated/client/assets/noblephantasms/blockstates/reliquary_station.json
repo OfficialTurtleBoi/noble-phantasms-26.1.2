@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "facing=east": {
+      "model": "noblephantasms:block/reliquary_station",
+      "y": 90
+    },
+    "facing=north": {
       "model": "noblephantasms:block/reliquary_station"
+    },
+    "facing=south": {
+      "model": "noblephantasms:block/reliquary_station",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "noblephantasms:block/reliquary_station",
+      "y": 270
     }
   }
 }

@@ -11,6 +11,7 @@ import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.block.custom.TrophyHeadBlock;
 import net.turtleboi.noblephantasms.block.custom.TrophyWallHeadBlock;
 import net.turtleboi.noblephantasms.block.custom.ReliquaryStationBlock;
+import net.turtleboi.noblephantasms.block.custom.BrazierBlock;
 import net.minecraft.world.level.block.Blocks;
 
 public final class ModBlocks {
@@ -34,7 +35,14 @@ public final class ModBlocks {
 
     public static final DeferredBlock<ReliquaryStationBlock> RELIQUARY_STATION =
             BLOCKS.registerBlock("reliquary_station", ReliquaryStationBlock::new,
-                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.SMITHING_TABLE));
+                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.SMITHING_TABLE).noOcclusion());
+
+    public static final DeferredBlock<BrazierBlock> BRAZIER =
+            BLOCKS.registerBlock("brazier", BrazierBlock::new,
+                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)
+                            .strength(3.5F)
+                            .lightLevel(state -> state.getValue(BrazierBlock.LIT) ? 15 : 0)
+                            .noOcclusion());
 
     public static void register(IEventBus eventBus) {
         BLOCKS.register(eventBus);
