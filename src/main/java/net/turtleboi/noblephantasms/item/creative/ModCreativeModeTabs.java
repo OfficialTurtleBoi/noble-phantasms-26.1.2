@@ -79,6 +79,7 @@ public class ModCreativeModeTabs {
                                 output.accept(ModItems.ECCLESIASTIC_SPAWN_EGG);
                                 output.accept(ModItems.DRAUGR_SPAWN_EGG);
                                 output.accept(ModItems.ONI_SPAWN_EGG);
+                                output.accept(ModItems.JAGUAR_MICQUI_SPAWN_EGG);
                                 RelicFragmentDefinitions.relicIds().forEach(relicId -> output.accept(
                                         RelicFragmentItem.create(ModItems.RELIC_FRAGMENT.get(),
                                                 RelicFragmentData.forgePiece(relicId),

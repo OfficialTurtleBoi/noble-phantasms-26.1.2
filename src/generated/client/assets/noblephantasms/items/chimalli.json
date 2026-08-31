@@ -263,6 +263,22 @@
           "firstperson_righthand",
           "firstperson_lefthand"
         ]
+      },
+      {
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            {
+              "type": "minecraft:model",
+              "model": "noblephantasms:item/chimalli_shield"
+            },
+            {
+              "type": "minecraft:model",
+              "model": "noblephantasms:item/chimalli_shield_handle"
+            }
+          ]
+        },
+        "when": "fixed"
       }
     ],
     "fallback": {

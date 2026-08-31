@@ -119,6 +119,22 @@
           "firstperson_righthand",
           "firstperson_lefthand"
         ]
+      },
+      {
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            {
+              "type": "minecraft:model",
+              "model": "noblephantasms:item/yata_no_kagami_shield"
+            },
+            {
+              "type": "minecraft:model",
+              "model": "noblephantasms:item/yata_no_kagami_shield_handle"
+            }
+          ]
+        },
+        "when": "fixed"
       }
     ],
     "fallback": {

@@ -77,6 +77,8 @@ public class ModLanguageProvider extends LanguageProvider {
         add(ModItems.ECCLESIASTIC_SPAWN_EGG.get(), "Ecclesiastic Spawn Egg");
         add(ModItems.DRAUGR_SPAWN_EGG.get(), "Draugr Spawn Egg");
         add(ModItems.ONI_SPAWN_EGG.get(), "Oni Spawn Egg");
+        add(ModEntities.JAGUAR_MICQUI.get(), "Jaguar Micqui");
+        add(ModItems.JAGUAR_MICQUI_SPAWN_EGG.get(), "Jaguar Micqui Spawn Egg");
         add("item.noblephantasms.relic_fragment.named", "%s Fragment");
         add("menu.noblephantasms.reliquary_station", "Reliquary Station");
         add("menu.noblephantasms.reliquary_station.forge", "Forge");

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "noblephantasms:item/ecclesiastic_egg"
+    "layer0": "noblephantasms:item/jaguar_micqui_egg"
   }
 }

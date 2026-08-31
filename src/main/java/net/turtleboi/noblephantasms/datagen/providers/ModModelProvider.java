@@ -79,13 +79,15 @@ public class ModModelProvider extends ModelProvider {
         generateMappedFlatItem(itemModels, ModItems.MYTHICAL_RELIQUARY.get(),
                 Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/mythic_reliquary"));
         generateMappedFlatItem(itemModels, ModItems.ANUBITE_SPAWN_EGG.get(),
-                Identifier.withDefaultNamespace("item/wither_skeleton_spawn_egg"));
+                Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/anubite_egg"));
         generateMappedFlatItem(itemModels, ModItems.ECCLESIASTIC_SPAWN_EGG.get(),
-                Identifier.withDefaultNamespace("item/evoker_spawn_egg"));
+                Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/ecclesiastic_egg"));
         generateMappedFlatItem(itemModels, ModItems.DRAUGR_SPAWN_EGG.get(),
-                Identifier.withDefaultNamespace("item/stray_spawn_egg"));
+                Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/draugr_egg"));
         generateMappedFlatItem(itemModels, ModItems.ONI_SPAWN_EGG.get(),
-                Identifier.withDefaultNamespace("item/piglin_brute_spawn_egg"));
+                Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/oni_egg"));
+        generateMappedFlatItem(itemModels, ModItems.JAGUAR_MICQUI_SPAWN_EGG.get(),
+                Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/jaguar_micqui_egg"));
         itemModels.generateFlatItem(ModItems.HOLY_GRAIL.get(), ModelTemplates.FLAT_ITEM);
         generateHolyGrailItem(itemModels);
         itemModels.generateFlatItem(ModItems.SMOKING_MIRROR.get(), ModelTemplates.FLAT_ITEM);
@@ -214,12 +216,15 @@ public class ModModelProvider extends ModelProvider {
         var firstPersonPlate = ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
                 transformedModel(blockingPlateModel, SHIELD_PLATE_FLIPPED_TRANSFORMATION),
                 transformedModel(plateModel, SHIELD_PLATE_FLIPPED_TRANSFORMATION));
+        var previewShield = ItemModelUtils.composite(
+                ItemModelUtils.plainModel(plateModel), ItemModelUtils.plainModel(handleModel));
         itemModels.itemModelOutput.accept(item, ItemModelUtils.select(new DisplayContext(),
                 ItemModelUtils.plainModel(spriteModel), List.of(
                         ItemModelUtils.when(List.of(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
                                 ItemDisplayContext.THIRD_PERSON_LEFT_HAND), ItemModelUtils.composite(thirdPersonPlate, handle)),
                         ItemModelUtils.when(List.of(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
-                                ItemDisplayContext.FIRST_PERSON_LEFT_HAND), ItemModelUtils.composite(firstPersonPlate, handle)))));
+                                ItemDisplayContext.FIRST_PERSON_LEFT_HAND), ItemModelUtils.composite(firstPersonPlate, handle)),
+                        ItemModelUtils.when(ItemDisplayContext.FIXED, previewShield))));
     }
 
     private static void generateYataNoKagamiItem(ItemModelGenerators itemModels) {
@@ -242,6 +247,8 @@ public class ModModelProvider extends ModelProvider {
         var firstPersonShield = ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
                 transformedModel(blockingShieldModel, SHIELD_PLATE_FLIPPED_TRANSFORMATION),
                 transformedModel(shieldModel, SHIELD_PLATE_FLIPPED_TRANSFORMATION));
+        var previewShield = ItemModelUtils.composite(
+                ItemModelUtils.plainModel(shieldModel), ItemModelUtils.plainModel(handleModel));
         itemModels.itemModelOutput.accept(item, ItemModelUtils.select(new DisplayContext(),
                 ItemModelUtils.plainModel(spriteModel), List.of(
                         ItemModelUtils.when(List.of(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
@@ -249,7 +256,8 @@ public class ModModelProvider extends ModelProvider {
                                 ItemModelUtils.composite(thirdPersonShield, handle)),
                         ItemModelUtils.when(List.of(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
                                 ItemDisplayContext.FIRST_PERSON_LEFT_HAND),
-                                ItemModelUtils.composite(firstPersonShield, handle)))));
+                                ItemModelUtils.composite(firstPersonShield, handle)),
+                        ItemModelUtils.when(ItemDisplayContext.FIXED, previewShield))));
     }
 
     private static void generatePridwenItem(ItemModelGenerators itemModels) {

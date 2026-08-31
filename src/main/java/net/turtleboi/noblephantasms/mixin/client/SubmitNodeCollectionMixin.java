@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.turtleboi.noblephantasms.client.renderer.ColoredGlintRenderer;
-import net.turtleboi.noblephantasms.client.renderer.HulioshjalmrRenderer;
+import net.turtleboi.noblephantasms.client.renderer.EntityTranslucencyRenderer;
 import net.turtleboi.noblephantasms.client.renderer.ItemOutlineRenderer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,13 +29,13 @@ public class SubmitNodeCollectionMixin {
                                            List<BakedQuad> quads, ItemStackRenderState.FoilType foilType,
                                            CallbackInfo callbackInfo) {
         SubmitNodeStorage.ItemSubmit submit = itemSubmits.getLast();
-        HulioshjalmrRenderer.captureItemSubmit(submit);
+        EntityTranslucencyRenderer.captureItemSubmit(submit);
         ColoredGlintRenderer.capture(submit);
         ItemOutlineRenderer.capture(submit);
     }
 
     @Inject(method = "clear", at = @At("HEAD"))
     private void clearConcealedItemSubmits(CallbackInfo callbackInfo) {
-        HulioshjalmrRenderer.clearItemSubmits();
+        EntityTranslucencyRenderer.clearItemSubmits();
     }
 }

@@ -7,7 +7,7 @@ import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-import net.turtleboi.noblephantasms.client.renderer.HulioshjalmrRenderer;
+import net.turtleboi.noblephantasms.client.renderer.EntityTranslucencyRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -32,8 +32,8 @@ public abstract class EntityTranslucencyEquipmentLayerMixin {
                             + "(Lnet/minecraft/resources/Identifier;)"
                             + "Lnet/minecraft/client/renderer/rendertype/RenderType;"))
     private RenderType useActiveEntityArmorTranslucency(Identifier texture) {
-        return HulioshjalmrRenderer.getActiveProgress() > 0.0F
-                ? HulioshjalmrRenderer.armorRenderType(texture)
+        return EntityTranslucencyRenderer.getActiveProgress() > 0.0F
+                ? EntityTranslucencyRenderer.armorRenderType(texture)
                 : RenderTypes.armorCutoutNoCull(texture);
     }
 
@@ -51,8 +51,9 @@ public abstract class EntityTranslucencyEquipmentLayerMixin {
             int layerIndex,
             int defaultDyeColor) {
         int color = extensions.getArmorLayerTintColor(stack, layer, layerIndex, defaultDyeColor);
-        return HulioshjalmrRenderer.getActiveProgress() > 0.0F
-                ? HulioshjalmrRenderer.applyAlpha(color, HulioshjalmrRenderer.getActiveAlpha())
+        return EntityTranslucencyRenderer.getActiveProgress() > 0.0F
+                ? EntityTranslucencyRenderer.applyAlpha(
+                        color, EntityTranslucencyRenderer.getActiveAlpha())
                 : color;
     }
 }

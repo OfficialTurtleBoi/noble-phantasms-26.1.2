@@ -11,6 +11,7 @@ import net.turtleboi.noblephantasms.entity.ModEntities;
 import net.turtleboi.noblephantasms.entity.custom.AnubiteEntity;
 import net.turtleboi.noblephantasms.entity.custom.EcclesiasticEntity;
 import net.turtleboi.noblephantasms.entity.custom.DraugrEntity;
+import net.turtleboi.noblephantasms.entity.custom.JaguarMicquiEntity;
 import net.turtleboi.noblephantasms.entity.custom.OniEntity;
 import net.turtleboi.noblephantasms.entity.custom.YasakaniGuardianEntity;
 import net.turtleboi.noblephantasms.network.EyeAssemblyPayload;
@@ -28,6 +29,7 @@ public final class ModBusEvents {
         event.put(ModEntities.ECCLESIASTIC.get(), EcclesiasticEntity.createAttributes().build());
         event.put(ModEntities.DRAUGR.get(), DraugrEntity.createAttributes().build());
         event.put(ModEntities.ONI.get(), OniEntity.createAttributes().build());
+        event.put(ModEntities.JAGUAR_MICQUI.get(), JaguarMicquiEntity.createAttributes().build());
     }
 
     @SubscribeEvent
