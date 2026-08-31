@@ -131,6 +131,9 @@ public final class ModAttachments {
                     .sync(ByteBufCodecs.BOOL)
                     .build());
 
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<UUID>>> THREAT_TARGET =
+            ATTACHMENTS.register("threat_target", () -> AttachmentType.builder(Optional::<UUID>empty).build());
+
     public static void register(IEventBus eventBus) {
         ATTACHMENTS.register(eventBus);
     }

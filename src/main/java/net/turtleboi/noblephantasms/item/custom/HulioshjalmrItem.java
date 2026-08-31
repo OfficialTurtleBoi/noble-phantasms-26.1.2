@@ -24,7 +24,8 @@ public class HulioshjalmrItem extends Item {
     private static final int CONCEALMENT_TICKS = 20;
     private static final int RECOVERY_TICKS = 20 * 5;
     private static final float CONCEALMENT_STEP = 1.0F / CONCEALMENT_TICKS;
-    private static final float RELEASE_STEP = 0.1F;
+    private static final float MINIMUM_RELEASE_STEP = 0.055F;
+    private static final float MAXIMUM_RELEASE_STEP = 0.14F;
     private static final Identifier SPEED_MODIFIER_ID = Identifier.fromNamespaceAndPath(
             NoblePhantasms.MOD_ID, "hulioshjalmr_concealment_speed");
     private static final AttributeModifier SPEED_MODIFIER = new AttributeModifier(
@@ -54,11 +55,11 @@ public class HulioshjalmrItem extends Item {
 
         float updatedProgress = progress;
         if (gameTime < serverPlayer.getData(ModAttachments.HULIOSHJALMR_LOCKED_UNTIL)) {
-            updatedProgress = Math.max(0.0F, progress - RELEASE_STEP);
+            updatedProgress = releaseProgress(progress);
         } else if (progress < 1.0F && serverPlayer.isShiftKeyDown()) {
             updatedProgress = Math.min(1.0F, progress + CONCEALMENT_STEP);
         } else if (progress < 1.0F) {
-            updatedProgress = Math.max(0.0F, progress - RELEASE_STEP);
+            updatedProgress = releaseProgress(progress);
         }
 
         setConcealmentProgress(serverPlayer, updatedProgress);
@@ -124,10 +125,15 @@ public class HulioshjalmrItem extends Item {
         if (getConcealmentProgress(player) <= 0.0F) {
             return;
         }
-        setConcealmentProgress(player, 0.0F);
+        setConcealmentProgress(player, Math.min(getConcealmentProgress(player), 0.999F));
         player.setData(ModAttachments.HULIOSHJALMR_LOCKED_UNTIL,
                 player.level().getGameTime() + RECOVERY_TICKS);
         removeSpeedModifier(player);
+    }
+
+    private static float releaseProgress(float progress) {
+        float step = Mth.lerp(progress, MINIMUM_RELEASE_STEP, MAXIMUM_RELEASE_STEP);
+        return Math.max(0.0F, progress - step);
     }
 
     private static void setConcealmentProgress(ServerPlayer player, float progress) {

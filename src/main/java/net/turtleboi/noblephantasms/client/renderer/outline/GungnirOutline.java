@@ -1,4 +1,4 @@
-package net.turtleboi.noblephantasms.client;
+package net.turtleboi.noblephantasms.client.renderer.outline;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ARGB;

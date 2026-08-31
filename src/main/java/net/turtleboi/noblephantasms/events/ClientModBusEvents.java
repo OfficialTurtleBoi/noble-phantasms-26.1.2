@@ -10,6 +10,7 @@ import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEven
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
+import net.neoforged.neoforge.client.event.RegisterRangeSelectItemModelPropertyEvent;
 import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
@@ -20,7 +21,9 @@ import net.turtleboi.noblephantasms.client.BertilakExtensions;
 import net.turtleboi.noblephantasms.client.EagleKnightTalonsExtensions;
 import net.turtleboi.noblephantasms.client.ExcaliburExtensions;
 import net.turtleboi.noblephantasms.client.GungnirExtensions;
+import net.turtleboi.noblephantasms.client.renderer.outline.GramOutline;
 import net.turtleboi.noblephantasms.client.HulioshjalmrExtensions;
+import net.turtleboi.noblephantasms.client.HolyGrailChargeProperty;
 import net.turtleboi.noblephantasms.client.PridwenEnergyDecorator;
 import net.turtleboi.noblephantasms.client.model.EagleKnightTalonsModel;
 import net.turtleboi.noblephantasms.client.model.HulioshjalmrModel;
@@ -68,6 +71,14 @@ import net.turtleboi.noblephantasms.item.ModItems;
 @EventBusSubscriber(modid = NoblePhantasms.MOD_ID, value = Dist.CLIENT)
 public final class ClientModBusEvents {
     @SubscribeEvent
+    static void registerRangeSelectItemModelProperties(RegisterRangeSelectItemModelPropertyEvent event) {
+        event.register(
+                net.minecraft.resources.Identifier.fromNamespaceAndPath(
+                        NoblePhantasms.MOD_ID, "holy_grail_charge"),
+                HolyGrailChargeProperty.MAP_CODEC);
+    }
+
+    @SubscribeEvent
     static void configureMainRenderTarget(ConfigureMainRenderTargetEvent event) {
         LuminousRenderer.enableStencil(event);
     }
@@ -81,6 +92,7 @@ public final class ClientModBusEvents {
         EnergyProjectionRenderer.registerPipelines(event);
         ReliquaryItemRenderer.registerPipelines(event);
         CovenantLeafParticle.registerPipeline(event);
+        FireFangsParticle.registerPipeline(event);
     }
 
     @SubscribeEvent
@@ -99,6 +111,7 @@ public final class ClientModBusEvents {
 
     @SubscribeEvent
     static void registerClientExtensions(RegisterClientExtensionsEvent event) {
+        GramOutline.register();
         BertilakExtensions.register(event);
         EagleKnightTalonsExtensions.register(event);
         ExcaliburExtensions.register(event);

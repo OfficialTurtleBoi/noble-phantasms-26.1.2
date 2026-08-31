@@ -103,6 +103,35 @@ public class ModDataComponents {
                     .ignoreSwapAnimation()
                     .networkSynchronized(ByteBufCodecs.VAR_LONG));
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> GRAM_HIT_COUNT =
+            DATA_COMPONENTS.registerComponentType("gram_hit_count", builder -> builder
+                    .persistent(Codec.INT)
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.VAR_INT));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Long>> GRAM_READY_TICK =
+            DATA_COMPONENTS.registerComponentType("gram_ready_tick", builder -> builder
+                    .persistent(Codec.LONG)
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.VAR_LONG));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Long>> GRAM_LAST_HIT_TICK =
+            DATA_COMPONENTS.registerComponentType("gram_last_hit_tick", builder -> builder
+                    .persistent(Codec.LONG)
+                    .ignoreSwapAnimation());
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> HOLY_GRAIL_CHARGE =
+            DATA_COMPONENTS.registerComponentType("holy_grail_charge", builder -> builder
+                    .persistent(Codec.INT)
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.VAR_INT));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Long>> HOLY_GRAIL_NEXT_RECHARGE_TICK =
+            DATA_COMPONENTS.registerComponentType("holy_grail_next_recharge_tick", builder -> builder
+                    .persistent(Codec.LONG)
+                    .ignoreSwapAnimation()
+                    .networkSynchronized(ByteBufCodecs.VAR_LONG));
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> TYRFING_CURSE_ACTIVE =
             DATA_COMPONENTS.registerComponentType("tyrfing_curse_active", builder -> builder
                     .persistent(Codec.BOOL)
