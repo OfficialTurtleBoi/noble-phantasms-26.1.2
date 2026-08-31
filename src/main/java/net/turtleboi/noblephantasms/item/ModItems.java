@@ -235,6 +235,10 @@ public class ModItems {
             ITEMS.registerItem("oni_spawn_egg", SpawnEggItem::new,
                     properties -> properties.spawnEgg(ModEntities.ONI.get()));
 
+    public static final DeferredItem<SpawnEggItem> JAGUAR_MICQUI_SPAWN_EGG =
+            ITEMS.registerItem("jaguar_micqui_spawn_egg", SpawnEggItem::new,
+                    properties -> properties.spawnEgg(ModEntities.JAGUAR_MICQUI.get()));
+
     static {
         ITEMS.addAlias(
                 Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "claw_of_tepeyollotl"),

@@ -54,7 +54,11 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
         this.addDataSlot(new DataSlot() {
             @Override
             public int get() {
-                return noblePhantasms$bookOfThothInstalled ? 1 : 0;
+                boolean installed = EnchantmentMenuMixin.this.access.evaluate((level, pos) -> {
+                    var table = level.getBlockEntity(pos);
+                    return table != null && table.getData(ModAttachments.MEDJU_NETJER_INSTALLED.get());
+                }, noblePhantasms$bookOfThothInstalled);
+                return installed ? 1 : 0;
             }
 
             @Override

@@ -29,7 +29,7 @@ import net.turtleboi.noblephantasms.client.renderer.ColoredGlintRenderer;
 import net.turtleboi.noblephantasms.client.renderer.AfterimageRenderer;
 import net.turtleboi.noblephantasms.client.renderer.LuminousRenderer;
 import net.turtleboi.noblephantasms.client.renderer.ItemOutlineRenderer;
-import net.turtleboi.noblephantasms.client.renderer.HulioshjalmrRenderer;
+import net.turtleboi.noblephantasms.client.renderer.EntityTranslucencyRenderer;
 import net.turtleboi.noblephantasms.client.renderer.EnergyProjectionRenderer;
 import net.turtleboi.noblephantasms.client.renderer.FrozenRenderer;
 import net.turtleboi.noblephantasms.client.ui.EyeOfHorusHud;
@@ -123,7 +123,7 @@ public class ClientEvents {
         ColoredGlintRenderer.registerTransitioningFromEnchantment(ModItems.TYRFING.get(), 0xFF0905, stack -> TyrfingItem.getCurseGlintTint(stack, getClientGameTime()));
         ColoredGlintRenderer.initialize();
         ItemOutlineRenderer.initialize();
-        HulioshjalmrRenderer.initialize();
+        EntityTranslucencyRenderer.initialize();
     }
 
     private static double getClientGameTime() {
@@ -147,18 +147,18 @@ public class ClientEvents {
         AfterimageRenderer.beginFrame();
         LuminousRenderer.beginFrame();
         ItemOutlineRenderer.beginFrame();
-        HulioshjalmrRenderer.beginFrame();
+        EntityTranslucencyRenderer.beginFrame();
         EnergyProjectionRenderer.beginFrame();
     }
 
     @SubscribeEvent
-    static void compositeHulioshjalmrConcealment(RenderLevelStageEvent.AfterTranslucentBlocks event) {
-        HulioshjalmrRenderer.composite(event);
+    static void compositeEntityTranslucency(RenderLevelStageEvent.AfterTranslucentBlocks event) {
+        EntityTranslucencyRenderer.composite(event);
     }
 
     @SubscribeEvent
     static void captureItemOutlineOcclusion(RenderLevelStageEvent.AfterTranslucentFeatures event) {
-        HulioshjalmrRenderer.captureOcclusionDepth();
+        EntityTranslucencyRenderer.captureOcclusionDepth();
         ItemOutlineRenderer.captureOcclusionDepth();
     }
 

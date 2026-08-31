@@ -31,6 +31,7 @@ import net.turtleboi.noblephantasms.client.model.AnubiteModel;
 import net.turtleboi.noblephantasms.client.model.EcclesiasticModel;
 import net.turtleboi.noblephantasms.client.model.DraugrModel;
 import net.turtleboi.noblephantasms.client.model.OniModel;
+import net.turtleboi.noblephantasms.client.model.JaguarMicquiModel;
 import net.turtleboi.noblephantasms.client.model.YasakaniGuardianModel;
 import net.turtleboi.noblephantasms.entity.model.XiuhcoatlModel;
 import net.turtleboi.noblephantasms.client.renderer.ClydnoHalterLayer;
@@ -38,6 +39,7 @@ import net.turtleboi.noblephantasms.client.renderer.AfterimageRenderer;
 import net.turtleboi.noblephantasms.client.renderer.LuminousRenderer;
 import net.turtleboi.noblephantasms.client.renderer.FrozenRenderer;
 import net.turtleboi.noblephantasms.client.renderer.ItemOutlineRenderer;
+import net.turtleboi.noblephantasms.client.renderer.EntityTranslucencyRenderer;
 import net.turtleboi.noblephantasms.client.renderer.HulioshjalmrRenderer;
 import net.turtleboi.noblephantasms.client.renderer.EnergyProjectionRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TecpatlRebuildingRenderer;
@@ -50,6 +52,7 @@ import net.turtleboi.noblephantasms.entity.renderer.AnubiteRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.EcclesiasticRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.DraugrRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.OniRenderer;
+import net.turtleboi.noblephantasms.entity.renderer.JaguarMicquiRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.ExcaliburProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.GungnirProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.KazagurumaProjectileRenderer;
@@ -87,7 +90,7 @@ public final class ClientModBusEvents {
     static void registerRenderPipelines(RegisterRenderPipelinesEvent event) {
         LuminousRenderer.registerPipelines(event);
         ItemOutlineRenderer.registerPipelines(event);
-        HulioshjalmrRenderer.registerPipelines(event);
+        EntityTranslucencyRenderer.registerPipelines(event);
         ExcaliburProjectileRenderer.registerPipelines(event);
         EnergyProjectionRenderer.registerPipelines(event);
         ReliquaryItemRenderer.registerPipelines(event);
@@ -129,6 +132,7 @@ public final class ClientModBusEvents {
         EcclesiasticModel.registerLayerDefinition(event);
         DraugrModel.registerLayerDefinition(event);
         OniModel.registerLayerDefinition(event);
+        JaguarMicquiModel.registerLayerDefinition(event);
     }
 
     @SubscribeEvent
@@ -152,6 +156,7 @@ public final class ClientModBusEvents {
         EcclesiasticRenderer.register(event);
         DraugrRenderer.register(event);
         OniRenderer.register(event);
+        JaguarMicquiRenderer.register(event);
     }
 
     @SubscribeEvent

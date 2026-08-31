@@ -14,6 +14,7 @@ import net.turtleboi.noblephantasms.entity.custom.EyeShardEntity;
 import net.turtleboi.noblephantasms.entity.custom.ExcaliburProjectile;
 import net.turtleboi.noblephantasms.entity.custom.GungnirProjectile;
 import net.turtleboi.noblephantasms.entity.custom.KazagurumaProjectile;
+import net.turtleboi.noblephantasms.entity.custom.JaguarMicquiEntity;
 import net.turtleboi.noblephantasms.entity.custom.OniEntity;
 import net.turtleboi.noblephantasms.entity.custom.PridwenBarrierEntity;
 import net.turtleboi.noblephantasms.entity.custom.TecpatlShardEntity;
@@ -98,6 +99,11 @@ public class ModEntities {
             ENTITY_TYPES.registerEntityType("oni", OniEntity::new, MobCategory.MONSTER,
                     builder -> builder.noLootTable().sized(1.125F, 2.5F)
                             .clientTrackingRange(8).updateInterval(3));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<JaguarMicquiEntity>> JAGUAR_MICQUI =
+            ENTITY_TYPES.registerEntityType("jaguar_micqui", JaguarMicquiEntity::new, MobCategory.MONSTER,
+                    builder -> builder.noLootTable().sized(0.7F, 1.95F)
+                            .clientTrackingRange(10).updateInterval(1));
 
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);

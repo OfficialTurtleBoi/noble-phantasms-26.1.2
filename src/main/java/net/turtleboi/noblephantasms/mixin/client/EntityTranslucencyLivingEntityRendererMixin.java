@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.resources.Identifier;
-import net.turtleboi.noblephantasms.client.renderer.HulioshjalmrRenderer;
+import net.turtleboi.noblephantasms.client.renderer.EntityTranslucencyRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,35 +24,36 @@ public abstract class EntityTranslucencyLivingEntityRendererMixin<S extends Livi
     private void beginEntityTranslucency(S state, PoseStack poseStack,
                                          SubmitNodeCollector submitNodeCollector,
                                          CameraRenderState camera, CallbackInfo callbackInfo) {
-        HulioshjalmrRenderer.beginRendering(state);
+        EntityTranslucencyRenderer.beginRendering(state);
     }
 
     @Inject(method = "submit", at = @At("RETURN"))
     private void endEntityTranslucency(S state, PoseStack poseStack,
                                        SubmitNodeCollector submitNodeCollector,
                                        CameraRenderState camera, CallbackInfo callbackInfo) {
-        HulioshjalmrRenderer.endRendering();
+        EntityTranslucencyRenderer.endRendering();
     }
 
     @Inject(method = "getRenderType", at = @At("HEAD"), cancellable = true)
     private void useEntityTranslucency(S state, boolean bodyVisible,
                                        boolean translucent, boolean glowing,
                                        CallbackInfoReturnable<RenderType> callbackInfo) {
-        if (HulioshjalmrRenderer.getProgress(state) > 0.0F) {
-            if (HulioshjalmrRenderer.getVisibilityAlpha(state) <= 0.0F) {
+        if (EntityTranslucencyRenderer.getProgress(state) > 0.0F) {
+            if (EntityTranslucencyRenderer.getVisibilityAlpha(state) <= 0.0F) {
                 callbackInfo.setReturnValue(null);
             } else {
-                callbackInfo.setReturnValue(HulioshjalmrRenderer.entityRenderType(this.getTextureLocation(state)));
+                callbackInfo.setReturnValue(
+                        EntityTranslucencyRenderer.entityRenderType(this.getTextureLocation(state)));
             }
         }
     }
 
     @Inject(method = "getModelTint", at = @At("RETURN"), cancellable = true)
     private void fadeEntityBody(S state, CallbackInfoReturnable<Integer> callbackInfo) {
-        float progress = HulioshjalmrRenderer.getProgress(state);
+        float progress = EntityTranslucencyRenderer.getProgress(state);
         if (progress > 0.0F) {
-            callbackInfo.setReturnValue(HulioshjalmrRenderer.applyAlpha(
-                    callbackInfo.getReturnValue(), HulioshjalmrRenderer.getVisibilityAlpha(state)));
+            callbackInfo.setReturnValue(EntityTranslucencyRenderer.applyAlpha(
+                    callbackInfo.getReturnValue(), EntityTranslucencyRenderer.getVisibilityAlpha(state)));
         }
     }
 }

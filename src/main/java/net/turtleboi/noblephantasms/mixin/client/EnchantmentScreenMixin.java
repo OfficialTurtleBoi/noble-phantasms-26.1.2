@@ -14,6 +14,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Inventory;
@@ -23,21 +24,43 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
+import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.item.custom.MedjuNetjerItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EnchantmentScreen.class)
 public abstract class EnchantmentScreenMixin extends AbstractContainerScreen<EnchantmentMenu> {
+    @Unique
+    private static final Identifier noblePhantasms$bookOfThothTexture =
+            Identifier.fromNamespaceAndPath(
+                    NoblePhantasms.MOD_ID, "textures/entity/book_of_thoth.png");
+
     @Shadow
     public float flipT;
 
     protected EnchantmentScreenMixin(EnchantmentMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
+    }
+
+    @ModifyArg(
+            method = "extractBook",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;book("
+                            + "Lnet/minecraft/client/model/object/book/BookModel;"
+                            + "Lnet/minecraft/resources/Identifier;FFFIIII)V"),
+            index = 1)
+    private Identifier noblePhantasms$useBookOfThothTexture(Identifier original) {
+        return ((MedjuNetjerItem.MenuAccess)this.menu).noblePhantasms$hasMedjuNetjer()
+                ? noblePhantasms$bookOfThothTexture
+                : original;
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)

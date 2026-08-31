@@ -20,6 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -52,6 +53,11 @@ public final class MythicalReliquaryScreen extends AbstractContainerScreen<Mythi
     private static final int HOVER_SEPIA = 0x40776853;
     private static final float INITIAL_PREVIEW_PITCH = (float) Math.toRadians(30.0);
     private static final float INITIAL_PREVIEW_YAW = (float) Math.toRadians(-45.0);
+    private static final float LARGE_PREVIEW_PITCH = (float) Math.toRadians(18.0);
+    private static final float LARGE_PREVIEW_ROLL = (float) Math.toRadians(22.0);
+    private static final float LARGE_PREVIEW_SCALE = 1.28F;
+    private static final float PREVIEW_SPIN_SPEED = (float) Math.toRadians(12.0) / 1000.0F;
+    private static final float FULL_ROTATION = (float) (Math.PI * 2.0);
     private static final List<RelicFragmentDefinitions.Definition> RELICS =
             RelicFragmentDefinitions.definitions();
 
@@ -69,6 +75,7 @@ public final class MythicalReliquaryScreen extends AbstractContainerScreen<Mythi
     private float previewRoll;
     private boolean draggingPreview;
     private int previewDragButton = -1;
+    private long previewFrameTime;
 
     public MythicalReliquaryScreen(MythicalReliquaryMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, BOOK_WIDTH, BOOK_HEIGHT);
@@ -164,8 +171,13 @@ public final class MythicalReliquaryScreen extends AbstractContainerScreen<Mythi
         }
 
         int previewCenterX = rightX + PAGE_WIDTH / 2;
-        drawPreview(graphics, relicStack, rightX + 5, pageTop + 4,
-                rightX + PAGE_WIDTH - 5, pageTop + 88);
+        int previewX0 = rightX + 5;
+        int previewY0 = pageTop + 4;
+        int previewX1 = rightX + PAGE_WIDTH - 5;
+        int previewY1 = pageTop + 88;
+        updatePreviewRotation(contains(mouseX, mouseY,
+                previewX0, previewY0, previewX1 - previewX0, previewY1 - previewY0));
+        drawPreview(graphics, relicStack, previewX0, previewY0, previewX1, previewY1);
         FragmentProgress progress = fragmentProgress(openRelic);
         Component progressText = Component.translatable("menu.noblephantasms.mythical_reliquary.fragments",
                 progress.owned(), progress.required());
@@ -210,6 +222,11 @@ public final class MythicalReliquaryScreen extends AbstractContainerScreen<Mythi
                     ? Math.clamp((float) ((Math.min(x1 - x0, y1 - y0) - 8) / (radius * 2.0)),
                     16.0F, 112.0F)
                     : 64.0F;
+            if (isLargePreview()) {
+                previewModelScale *= LARGE_PREVIEW_SCALE;
+                previewPitch = LARGE_PREVIEW_PITCH;
+                previewRoll = LARGE_PREVIEW_ROLL;
+            }
         }
         Quaternionf rotation = new Quaternionf().rotationXYZ(previewPitch, previewYaw, previewRoll);
         graphics.submitPictureInPictureRenderState(new ReliquaryItemRenderState(
@@ -363,6 +380,25 @@ public final class MythicalReliquaryScreen extends AbstractContainerScreen<Mythi
         previewRoll = 0.0F;
         draggingPreview = false;
         previewDragButton = -1;
+        previewFrameTime = 0L;
+    }
+
+    private boolean isLargePreview() {
+        return openRelic != null && openRelic.textureVariant()
+                == RelicFragmentDefinitions.TextureVariant.WEAPON;
+    }
+
+    private void updatePreviewRotation(boolean hovered) {
+        long frameTime = Util.getMillis();
+        if (previewFrameTime == 0L) {
+            previewFrameTime = frameTime;
+            return;
+        }
+        long elapsed = Math.min(frameTime - previewFrameTime, 100L);
+        previewFrameTime = frameTime;
+        if (!hovered && !draggingPreview) {
+            previewYaw = (previewYaw + elapsed * PREVIEW_SPIN_SPEED) % FULL_ROTATION;
+        }
     }
 
     @Override

@@ -39,9 +39,9 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 import net.turtleboi.noblephantasms.NoblePhantasms;
+import net.turtleboi.noblephantasms.item.ModItems;
 import org.joml.Vector3f;
 
-/** Renders the held relic model into the Mythical Reliquary's model-viewer pane. */
 public final class ReliquaryItemRenderer extends PictureInPictureRenderer<ReliquaryItemRenderState> {
     private static final Identifier SHADER = Identifier.fromNamespaceAndPath(
             NoblePhantasms.MOD_ID, "core/reliquary_sepia");
@@ -81,8 +81,12 @@ public final class ReliquaryItemRenderer extends PictureInPictureRenderer<Reliqu
         TrackingItemStackRenderState state = new TrackingItemStackRenderState();
         RESOLVING_PREVIEW.set(true);
         try {
+            ItemDisplayContext displayContext = stack.getItem() == ModItems.CHIMALLI.get()
+                    || stack.getItem() == ModItems.YATA_NO_KAGAMI.get()
+                    ? ItemDisplayContext.FIXED
+                    : ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
             minecraft.getItemModelResolver().updateForTopItem(
-                    state, stack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
+                    state, stack, displayContext,
                     minecraft.level, null, stack.getItem().hashCode());
         } finally {
             RESOLVING_PREVIEW.remove();
@@ -104,7 +108,6 @@ public final class ReliquaryItemRenderer extends PictureInPictureRenderer<Reliqu
         Minecraft minecraft = Minecraft.getInstance();
         minecraft.gameRenderer.getLighting().setupFor(
                 state.item().usesBlockLight() ? Lighting.Entry.ITEMS_3D : Lighting.Entry.ITEMS_FLAT);
-        // Match Minecraft's normal GUI item orientation before applying the model-viewer camera.
         poseStack.scale(1.0F, -1.0F, -1.0F);
         poseStack.mulPose(state.rotation());
         Vector3f center = state.modelCenter();

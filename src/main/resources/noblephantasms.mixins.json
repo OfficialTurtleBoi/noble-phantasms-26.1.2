@@ -25,6 +25,8 @@
     "client.EntityTranslucencyEquipmentLayerMixin",
     "client.EntityTranslucencyItemInHandLayerMixin",
     "client.EntityTranslucencyLivingEntityRendererMixin",
+    "client.EnchantTableRendererMixin",
+    "client.EnchantTableRenderStateMixin",
     "client.IsUsingItemMixin",
     "client.ItemInHandRendererMixin",
     "client.ItemInHandLayerMixin",
