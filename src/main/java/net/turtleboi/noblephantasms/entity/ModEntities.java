@@ -17,6 +17,7 @@ import net.turtleboi.noblephantasms.entity.custom.KazagurumaProjectile;
 import net.turtleboi.noblephantasms.entity.custom.JaguarMicquiEntity;
 import net.turtleboi.noblephantasms.entity.custom.OniEntity;
 import net.turtleboi.noblephantasms.entity.custom.PridwenBarrierEntity;
+import net.turtleboi.noblephantasms.entity.custom.RelicFragmentEntity;
 import net.turtleboi.noblephantasms.entity.custom.TecpatlShardEntity;
 import net.turtleboi.noblephantasms.entity.custom.WindslashProjectile;
 import net.turtleboi.noblephantasms.entity.custom.XiuhcoatlProjectile;
@@ -57,6 +58,11 @@ public class ModEntities {
             ENTITY_TYPES.registerEntityType("eye_shard", EyeShardEntity::new, MobCategory.MISC,
                     builder -> builder.noLootTable().sized(0.25F, 0.25F)
                             .clientTrackingRange(8).updateInterval(10));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<RelicFragmentEntity>> RELIC_FRAGMENT =
+            ENTITY_TYPES.registerEntityType("relic_fragment", RelicFragmentEntity::new, MobCategory.MISC,
+                    builder -> builder.noLootTable().sized(0.3F, 0.3F)
+                            .clientTrackingRange(8).updateInterval(1));
 
     public static final DeferredHolder<EntityType<?>, EntityType<ApilolliCloudEntity>> APILOLLI_CLOUD =
             ENTITY_TYPES.registerEntityType("apilolli_cloud", ApilolliCloudEntity::new, MobCategory.MISC,

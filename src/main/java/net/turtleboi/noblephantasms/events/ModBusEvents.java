@@ -17,6 +17,10 @@ import net.turtleboi.noblephantasms.entity.custom.YasakaniGuardianEntity;
 import net.turtleboi.noblephantasms.network.EyeAssemblyPayload;
 import net.turtleboi.noblephantasms.network.KusanagiDashPayload;
 import net.turtleboi.noblephantasms.network.ReliquaryStationCompletePayload;
+import net.turtleboi.noblephantasms.network.ReliquaryStationForgeFinishPayload;
+import net.turtleboi.noblephantasms.network.ReliquaryStationForgeResultPayload;
+import net.turtleboi.noblephantasms.network.RelicFragmentRevealPayload;
+import net.turtleboi.noblephantasms.network.RelicFragmentBrushPayload;
 import net.turtleboi.noblephantasms.network.MythicalReliquarySelectPayload;
 import net.turtleboi.noblephantasms.network.TrophySupportPayload;
 
@@ -37,6 +41,10 @@ public final class ModBusEvents {
         KusanagiDashPayload.register(event);
         TrophySupportPayload.register(event);
         ReliquaryStationCompletePayload.register(event);
+        ReliquaryStationForgeFinishPayload.register(event);
+        ReliquaryStationForgeResultPayload.register(event);
+        RelicFragmentRevealPayload.register(event);
+        RelicFragmentBrushPayload.register(event);
         MythicalReliquarySelectPayload.register(event);
         EyeAssemblyPayload.register(event);
     }

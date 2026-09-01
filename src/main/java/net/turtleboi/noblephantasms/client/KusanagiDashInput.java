@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.turtleboi.noblephantasms.item.ModItems;
 import net.turtleboi.noblephantasms.effect.ModEffects;
+import net.turtleboi.noblephantasms.effect.custom.StunnedEffect;
 import net.turtleboi.noblephantasms.network.KusanagiDashPayload;
 
 public final class KusanagiDashInput {
@@ -26,7 +27,7 @@ public final class KusanagiDashInput {
         Minecraft minecraft = Minecraft.getInstance();
         tick++;
         LocalPlayer player = minecraft.player;
-        if (player == null || minecraft.screen != null || player.hasEffect(ModEffects.FROZEN)) {
+        if (player == null || minecraft.screen != null || StunnedEffect.isImmobilized(player)) {
             reset();
             return;
         }

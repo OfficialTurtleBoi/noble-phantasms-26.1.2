@@ -22,6 +22,8 @@ public class ModParticles {
             PARTICLE_TYPES.register("apilolli_cloud", ApilolliCloudType::new);
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> CHILLED =
             PARTICLE_TYPES.register("chilled", ChilledType::new);
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> STUNNED =
+            PARTICLE_TYPES.register("stunned", StunnedType::new);
 
     public static void register(IEventBus eventBus) {
         PARTICLE_TYPES.register(eventBus);
@@ -64,6 +66,12 @@ public class ModParticles {
 
     private static final class ChilledType extends SimpleParticleType {
         private ChilledType() {
+            super(false);
+        }
+    }
+
+    private static final class StunnedType extends SimpleParticleType {
+        private StunnedType() {
             super(false);
         }
     }

@@ -20,6 +20,7 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.PistonEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
@@ -32,6 +33,7 @@ import net.turtleboi.noblephantasms.effect.custom.LuminousEffect;
 import net.turtleboi.noblephantasms.effect.custom.WardEffect;
 import net.turtleboi.noblephantasms.effect.custom.ChilledEffect;
 import net.turtleboi.noblephantasms.effect.custom.FrozenEffect;
+import net.turtleboi.noblephantasms.effect.custom.StunnedEffect;
 import net.turtleboi.noblephantasms.effect.custom.ThreatEffect;
 import net.turtleboi.noblephantasms.item.custom.AndvaranautItem;
 import net.turtleboi.noblephantasms.item.custom.AnkhItem;
@@ -59,13 +61,24 @@ import net.turtleboi.noblephantasms.item.custom.TecpatlOfTheFifthSunItem;
 import net.turtleboi.noblephantasms.item.custom.YasakaniNoMagatamaItem;
 import net.turtleboi.noblephantasms.item.custom.YataNoKagamiItem;
 import net.turtleboi.noblephantasms.world.ArtificialOreSavedData;
+import net.turtleboi.noblephantasms.relic.RelicFragmentBrushing;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.util.TriState;
 
 @EventBusSubscriber(modid = NoblePhantasms.MOD_ID)
 public final class ModEvents {
     @SubscribeEvent
+    static void onItemPickup(ItemEntityPickupEvent.Pre event) {
+        if (RelicFragmentBrushing.blocksPickup(
+                event.getPlayer(), event.getItemEntity().getItem())) {
+            event.setCanPickup(TriState.FALSE);
+        }
+    }
+
+    @SubscribeEvent
     static void onAttackEntity(AttackEntityEvent event) {
         FrozenEffect.handleAttack(event);
+        StunnedEffect.handleAttack(event);
         GramItem.handleAttack(event);
     }
 
@@ -130,6 +143,7 @@ public final class ModEvents {
     @SubscribeEvent
     static void onMobEffectAdded(MobEffectEvent.Added event) {
         ChilledEffect.handleAdded(event);
+        StunnedEffect.handleAdded(event);
     }
 
     @SubscribeEvent
@@ -142,6 +156,7 @@ public final class ModEvents {
         WardEffect.handleRemoval(event);
         ChilledEffect.handleRemoval(event);
         FrozenEffect.handleRemoval(event);
+        StunnedEffect.handleRemoval(event);
     }
 
     @SubscribeEvent
@@ -154,6 +169,7 @@ public final class ModEvents {
         WardEffect.handleExpiration(event);
         ChilledEffect.handleExpiration(event);
         FrozenEffect.handleExpiration(event);
+        StunnedEffect.handleExpiration(event);
     }
 
     @SubscribeEvent
@@ -165,26 +181,30 @@ public final class ModEvents {
     static void onEffectParticleModification(EffectParticleModificationEvent event) {
         CovenantEffect.handleParticleModification(event);
         ChilledEffect.handleParticleModification(event);
+        StunnedEffect.handleParticleModification(event);
     }
 
     @SubscribeEvent
     static void onSwapHands(LivingSwapItemsEvent.Hands event) {
         FrozenEffect.handleSwapHands(event);
+        StunnedEffect.handleSwapHands(event);
     }
 
     @SubscribeEvent
     static void onUseItemStart(LivingEntityUseItemEvent.Start event) {
         FrozenEffect.handleUseItemStart(event);
+        StunnedEffect.handleUseItemStart(event);
     }
 
     @SubscribeEvent
     static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        FrozenEffect.handlePlayerLogin(event);
+        FrozenEffect.clearState(event.getEntity());
     }
 
     @SubscribeEvent
     static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-        FrozenEffect.handlePlayerLogout(event);
+        StunnedEffect.clearState(event.getEntity());
+        RelicFragmentBrushing.clear(event.getEntity().getUUID());
     }
 
     @SubscribeEvent
@@ -197,6 +217,7 @@ public final class ModEvents {
         TyrfingItem.handlePlayerTick(event.getEntity());
         YasakaniNoMagatamaItem.handlePlayerTick(event.getEntity());
         TecpatlOfTheFifthSunItem.handlePlayerTick(event.getEntity());
+        RelicFragmentBrushing.handlePlayerTick(event.getEntity());
     }
 
     @SubscribeEvent
@@ -221,42 +242,49 @@ public final class ModEvents {
     @SubscribeEvent
     static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
         FrozenEffect.handleInteraction(event);
+        StunnedEffect.handleInteraction(event);
         HulioshjalmrItem.handleInteraction(event.getEntity());
     }
 
     @SubscribeEvent
     static void onLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
         FrozenEffect.handleInteraction(event);
+        StunnedEffect.handleInteraction(event);
         HulioshjalmrItem.handleInteraction(event.getEntity());
     }
 
     @SubscribeEvent
     static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
         FrozenEffect.handleInteraction(event);
+        StunnedEffect.handleInteraction(event);
         HulioshjalmrItem.handleInteraction(event.getEntity());
     }
 
     @SubscribeEvent
     static void onEntityInteractSpecific(PlayerInteractEvent.EntityInteractSpecific event) {
         FrozenEffect.handleInteraction(event);
+        StunnedEffect.handleInteraction(event);
         HulioshjalmrItem.handleInteraction(event.getEntity());
     }
 
     @SubscribeEvent
     static void onRightClickEmpty(PlayerInteractEvent.RightClickEmpty event) {
         FrozenEffect.handleInteraction(event);
+        StunnedEffect.handleInteraction(event);
         HulioshjalmrItem.handleInteraction(event.getEntity());
     }
 
     @SubscribeEvent
     static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
         FrozenEffect.handleInteraction(event);
+        StunnedEffect.handleInteraction(event);
         HulioshjalmrItem.handleInteraction(event.getEntity());
     }
 
     @SubscribeEvent
     static void onBreakBlock(BreakBlockEvent event) {
         FrozenEffect.handleBlockBreak(event);
+        StunnedEffect.handleBlockBreak(event);
         if (event.isCanceled()) {
             return;
         }
@@ -278,6 +306,7 @@ public final class ModEvents {
     @SubscribeEvent
     static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         FrozenEffect.handleInteraction(event);
+        StunnedEffect.handleInteraction(event);
         HulioshjalmrItem.handleInteraction(event.getEntity());
         MedjuNetjerItem.handleTableInteraction(event);
         UchideNoKozuchiItem.handleRightClickBlock(event);

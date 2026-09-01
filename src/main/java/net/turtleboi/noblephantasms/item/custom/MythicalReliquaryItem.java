@@ -12,11 +12,22 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.Level;
 import net.turtleboi.noblephantasms.component.ModDataComponents;
+import net.turtleboi.noblephantasms.item.ModItems;
 import net.turtleboi.noblephantasms.screens.menus.custom.MythicalReliquaryMenu;
 
 public final class MythicalReliquaryItem extends Item {
     public MythicalReliquaryItem(Properties properties) {
         super(properties.stacksTo(1).rarity(Rarity.RARE).fireResistant());
+    }
+
+    public static ItemStack findInInventory(Player player) {
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (stack.is(ModItems.MYTHICAL_RELIQUARY.get())) {
+                return stack;
+            }
+        }
+        return ItemStack.EMPTY;
     }
 
     @Override

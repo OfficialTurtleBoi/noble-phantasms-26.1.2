@@ -3,6 +3,7 @@ package net.turtleboi.noblephantasms.screens;
 import com.mojang.blaze3d.platform.NativeImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,7 +31,12 @@ import net.turtleboi.noblephantasms.client.renderer.ReliquaryItemRenderState;
 import net.turtleboi.noblephantasms.client.renderer.ReliquaryItemRenderer;
 import net.turtleboi.noblephantasms.relic.RelicFragmentData;
 import net.turtleboi.noblephantasms.relic.RelicFragmentDefinitions;
+import net.turtleboi.noblephantasms.relic.RelicFragmentArchive;
+import net.turtleboi.noblephantasms.item.ModItems;
+import net.turtleboi.noblephantasms.item.custom.RelicFragmentItem;
+import net.turtleboi.noblephantasms.network.MythicalReliquarySelectPayload;
 import net.turtleboi.noblephantasms.screens.menus.custom.MythicalReliquaryMenu;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -53,6 +59,8 @@ public final class MythicalReliquaryScreen extends AbstractContainerScreen<Mythi
     private static final int HOVER_SEPIA = 0x40776853;
     private static final float INITIAL_PREVIEW_PITCH = (float) Math.toRadians(30.0);
     private static final float INITIAL_PREVIEW_YAW = (float) Math.toRadians(-45.0);
+    private static final long FRAGMENT_ABSORB_DURATION = 520L;
+    private static final long FRAGMENT_ABSORB_STAGGER = 42L;
     private static final float LARGE_PREVIEW_PITCH = (float) Math.toRadians(18.0);
     private static final float LARGE_PREVIEW_ROLL = (float) Math.toRadians(22.0);
     private static final float LARGE_PREVIEW_SCALE = 1.28F;
@@ -75,6 +83,8 @@ public final class MythicalReliquaryScreen extends AbstractContainerScreen<Mythi
     private float previewRoll;
     private boolean draggingPreview;
     private int previewDragButton = -1;
+    private List<ItemStack> absorbingFragments = List.of();
+    private long fragmentAbsorptionStarted;
     private long previewFrameTime;
 
     public MythicalReliquaryScreen(MythicalReliquaryMenu menu, Inventory inventory, Component title) {
@@ -134,7 +144,8 @@ public final class MythicalReliquaryScreen extends AbstractContainerScreen<Mythi
                 int rowY = pageTop + 18 + row * ROW_HEIGHT;
                 RelicFragmentDefinitions.Definition definition = RELICS.get(index);
                 boolean hovered = contains(mouseX, mouseY, pageX, rowY, PAGE_WIDTH, 16);
-                if (hovered) {
+                boolean focused = definition.relicId().equals(menu.focusedRelic());
+                if (hovered || focused) {
                     graphics.fill(pageX, rowY, pageX + PAGE_WIDTH, rowY + 16, HOVER_SEPIA);
                 }
                 drawSepiaTexture(graphics, definition.inventoryTextureId(), pageX + 1, rowY, 16, 16, 0.0F);
@@ -182,7 +193,68 @@ public final class MythicalReliquaryScreen extends AbstractContainerScreen<Mythi
         Component progressText = Component.translatable("menu.noblephantasms.mythical_reliquary.fragments",
                 progress.owned(), progress.required());
         centeredTextNoShadow(graphics, progressText, previewCenterX, pageTop + 91, DARK_SEPIA);
+        drawFragmentAbsorption(graphics, previewCenterX, pageTop + 47);
 
+    }
+
+    private void beginFragmentAbsorption(RelicFragmentDefinitions.Definition definition) {
+        List<ItemStack> fragments = new ArrayList<>();
+        RelicFragmentArchive.RelicSet set = archive().get(definition.relicId());
+        if (set != null) {
+            for (int index = 0; index < set.pieceCount(); index++) {
+                if ((set.discoveredMask() & 1 << index) != 0) {
+                    fragments.add(RelicFragmentItem.create(ModItems.RELIC_FRAGMENT.get(),
+                            new RelicFragmentData(set.relicId(), set.seed(), index, set.pieceCount()), 1));
+                }
+            }
+        }
+        absorbingFragments = List.copyOf(fragments);
+        fragmentAbsorptionStarted = absorbingFragments.isEmpty() ? 0L : Util.getMillis();
+    }
+
+    private void drawFragmentAbsorption(GuiGraphicsExtractor graphics, int targetX, int targetY) {
+        if (fragmentAbsorptionStarted == 0L || absorbingFragments.isEmpty()) {
+            return;
+        }
+        long elapsedTotal = Util.getMillis() - fragmentAbsorptionStarted;
+        boolean running = false;
+        int count = absorbingFragments.size();
+        for (int index = 0; index < count; index++) {
+            long elapsed = elapsedTotal - index * FRAGMENT_ABSORB_STAGGER;
+            if (elapsed < 0L) {
+                running = true;
+                continue;
+            }
+            float progress = Math.clamp(elapsed / (float) FRAGMENT_ABSORB_DURATION, 0.0F, 1.0F);
+            if (progress >= 1.0F) {
+                continue;
+            }
+            running = true;
+            float eased = 1.0F - (float) Math.pow(1.0F - progress, 3.0);
+            double angle = Math.PI * 2.0 * index / Math.max(1, count) - Math.PI * 0.5;
+            float startX = targetX + (float) Math.cos(angle) * 74.0F;
+            float startY = targetY + (float) Math.sin(angle) * 48.0F;
+            float x = startX + (targetX - startX) * eased;
+            float y = startY + (targetY - startY) * eased;
+            float scale = Math.max(0.08F, 1.0F - eased * 0.92F);
+            graphics.pose().pushMatrix();
+            graphics.pose().translate(x, y);
+            graphics.pose().scale(scale, scale);
+            graphics.item(absorbingFragments.get(index), -8, -8);
+            graphics.pose().popMatrix();
+
+            if (progress > 0.55F) {
+                int dustAlpha = Math.round(110.0F * (1.0F - progress));
+                int dust = dustAlpha << 24 | MID_SEPIA & 0x00FFFFFF;
+                int offset = index % 3 - 1;
+                graphics.fill(targetX + offset - 1, targetY - offset - 1,
+                        targetX + offset + 1, targetY - offset + 1, dust);
+            }
+        }
+        if (!running) {
+            fragmentAbsorptionStarted = 0L;
+            absorbingFragments = List.of();
+        }
     }
 
     private int drawWrappedHalfScale(GuiGraphicsExtractor graphics, Component text, int x, int y,
@@ -302,25 +374,15 @@ public final class MythicalReliquaryScreen extends AbstractContainerScreen<Mythi
     }
 
     private FragmentProgress fragmentProgress(RelicFragmentDefinitions.Definition definition) {
-        int generic = 0;
-        int required = definition.maximumPieces();
-        Set<String> exactPieces = new HashSet<>();
-        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-            ItemStack stack = inventory.getItem(slot);
-            RelicFragmentData data = stack.get(ModDataComponents.RELIC_FRAGMENT.get());
-            if (data == null || !data.relicId().equals(definition.relicId())) {
-                continue;
-            }
-            if (data.pieceIndex() < 0) {
-                generic += stack.getCount();
-            } else {
-                exactPieces.add(data.seed() + ":" + data.pieceIndex());
-                if (data.pieceCount() > 0) {
-                    required = data.pieceCount();
-                }
-            }
-        }
-        return new FragmentProgress(Math.min(required, generic + exactPieces.size()), required);
+        RelicFragmentArchive.RelicSet set = archive().get(definition.relicId());
+        return set == null
+                ? new FragmentProgress(0, definition.maximumPieces())
+                : new FragmentProgress(set.discoveredCount(), set.pieceCount());
+    }
+
+    private RelicFragmentArchive archive() {
+        return menu.reliquary(inventory.player).getOrDefault(
+                ModDataComponents.MYTHICAL_RELIQUARY_ARCHIVE.get(), RelicFragmentArchive.EMPTY);
     }
 
     private String fit(String value, int width) {
@@ -409,8 +471,12 @@ public final class MythicalReliquaryScreen extends AbstractContainerScreen<Mythi
             if (openRelic == null) {
                 RelicFragmentDefinitions.Definition clicked = contentsEntryAt(mouseX, mouseY);
                 if (clicked != null) {
+                    menu.selectRelic(minecraft.player, clicked.relicId());
+                    ClientPacketDistributor.sendToServer(new MythicalReliquarySelectPayload(
+                            menu.containerId, clicked.relicId()));
                     openRelic = clicked;
                     clearPreview();
+                    beginFragmentAbsorption(clicked);
                     updatePageButtons();
                     return true;
                 }

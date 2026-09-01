@@ -7,4 +7,5 @@ public final class EyeShardRenderState extends EntityRenderState {
     public RelicFragmentData fragment;
     public float age;
     public float glowPhase;
+    public float absorbProgress;
 }

@@ -23,6 +23,9 @@ import net.turtleboi.noblephantasms.entity.renderer.states.EyeShardRenderState;
 import net.turtleboi.noblephantasms.relic.RelicFragmenter;
 
 public final class EyeShardRenderer extends EntityRenderer<EyeShardEntity, EyeShardRenderState> {
+    private static final float REFERENCE_TEXTURE_SIZE = 16.0F;
+    private static final float RELIC_WORLD_SIZE = 0.65F;
+    private static final float RELIC_ITEM_SIZE = 0.9F;
     private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(
             NoblePhantasms.MOD_ID, "textures/item/eye_of_horus.png");
     private static final RenderType RENDER_TYPE = RenderTypes.entityCutout(TEXTURE);
@@ -70,21 +73,40 @@ public final class EyeShardRenderer extends EntityRenderer<EyeShardEntity, EyeSh
         float centerX = (piece.minX() + piece.maxX() + 1) * 0.5F;
         float centerY = (piece.minY() + piece.maxY() + 1) * 0.5F;
         drawPiece(pose, buffer, layout, piece, color, outlineWidth,
-                0.65F, centerX, centerY, 15728880);
+                RELIC_WORLD_SIZE / Math.max(layout.width(), layout.height()),
+                centerX, centerY, 15728880);
+    }
+
+    public static void drawRelicPiece(PoseStack.Pose pose, VertexConsumer buffer,
+                                      RelicFragmenter.Layout layout, RelicFragmenter.Piece piece,
+                                      int lightCoords) {
+        float centerX = (piece.minX() + piece.maxX() + 1) * 0.5F;
+        float centerY = (piece.minY() + piece.maxY() + 1) * 0.5F;
+        drawPiece(pose, buffer, layout, piece, -1, 0.0F,
+                RELIC_WORLD_SIZE / REFERENCE_TEXTURE_SIZE, centerX, centerY, lightCoords);
+    }
+
+    public static void drawStandalonePiece(PoseStack.Pose pose, VertexConsumer buffer,
+                                           RelicFragmenter.Layout layout, RelicFragmenter.Piece piece,
+                                           int lightCoords) {
+        float centerX = (piece.minX() + piece.maxX() + 1) * 0.5F;
+        float centerY = (piece.minY() + piece.maxY() + 1) * 0.5F;
+        drawPiece(pose, buffer, layout, piece, -1, 0.0F,
+                RELIC_ITEM_SIZE / REFERENCE_TEXTURE_SIZE, centerX, centerY, lightCoords);
     }
 
     public static void drawAssembledPiece(PoseStack.Pose pose, VertexConsumer buffer,
                                           RelicFragmenter.Layout layout, RelicFragmenter.Piece piece,
                                           int lightCoords) {
         drawPiece(pose, buffer, layout, piece, -1, 0.0F,
-                1.0F, layout.width() * 0.5F, layout.height() * 0.5F, lightCoords);
+                1.0F / Math.max(layout.width(), layout.height()),
+                layout.width() * 0.5F, layout.height() * 0.5F, lightCoords);
     }
 
     private static void drawPiece(PoseStack.Pose pose, VertexConsumer buffer,
                                   RelicFragmenter.Layout layout, RelicFragmenter.Piece piece,
-                                  int color, float outlineWidth, float size,
+                                  int color, float outlineWidth, float unit,
                                   float centerX, float centerY, int lightCoords) {
-        float unit = size / Math.max(layout.width(), layout.height());
         float halfThickness = 0.025F + outlineWidth;
         Set<Long> occupied = new HashSet<>();
         for (RelicFragmenter.Pixel pixel : piece.pixels()) {
@@ -95,10 +117,10 @@ public final class EyeShardRenderer extends EntityRenderer<EyeShardEntity, EyeSh
             float x1 = x0 + unit;
             float y1 = (centerY - pixel.y()) * unit;
             float y0 = y1 - unit;
-            float u0 = pixel.x() / (float) layout.width();
-            float u1 = (pixel.x() + 1) / (float) layout.width();
-            float v0 = pixel.y() / (float) layout.height();
-            float v1 = (pixel.y() + 1) / (float) layout.height();
+            float u0 = pixel.x() / (float) layout.textureWidth();
+            float u1 = (pixel.x() + 1) / (float) layout.textureWidth();
+            float v0 = pixel.y() / (float) layout.textureHeight();
+            float v1 = (pixel.y() + 1) / (float) layout.textureHeight();
             float centerU = (u0 + u1) * 0.5F;
             float centerV = (v0 + v1) * 0.5F;
             boolean exposedLeft = !occupied.contains(coordinate(pixel.x() - 1, pixel.y()));

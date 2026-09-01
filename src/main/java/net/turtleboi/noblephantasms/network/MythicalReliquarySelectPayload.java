@@ -10,6 +10,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.screens.menus.custom.MythicalReliquaryMenu;
+import net.turtleboi.noblephantasms.screens.menus.custom.ReliquaryStationMenu;
 
 public record MythicalReliquarySelectPayload(int containerId, Identifier relicId)
         implements CustomPacketPayload {
@@ -25,8 +26,13 @@ public record MythicalReliquarySelectPayload(int containerId, Identifier relicId
     }
 
     private static void handle(MythicalReliquarySelectPayload payload, IPayloadContext context) {
-        if (context.player() instanceof ServerPlayer player
-                && player.containerMenu instanceof MythicalReliquaryMenu menu
+        if (!(context.player() instanceof ServerPlayer player)) {
+            return;
+        }
+        if (player.containerMenu instanceof MythicalReliquaryMenu menu
+                && menu.containerId == payload.containerId()) {
+            menu.selectRelic(player, payload.relicId());
+        } else if (player.containerMenu instanceof ReliquaryStationMenu menu
                 && menu.containerId == payload.containerId()) {
             menu.selectRelic(player, payload.relicId());
         }

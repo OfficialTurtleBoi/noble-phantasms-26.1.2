@@ -69,7 +69,7 @@ public class ExcaliburItem extends Item {
                 level.playSound(null, owner.blockPosition(), SoundEvents.AMETHYST_BLOCK_RESONATE,
                         SoundSource.PLAYERS, 1.0F, 0.8F);
                 if (owner instanceof Player player) {
-                    player.releaseUsingItem();
+                    fire(stack, level, player);
                 }
             }
         }
@@ -77,9 +77,13 @@ public class ExcaliburItem extends Item {
 
     @Override
     public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entity, int remainingTime) {
-        if (!(level instanceof ServerLevel serverLevel)
-                || !(entity instanceof Player player)
-                || getCharge(stack) < FULL_CHARGE_TICKS
+        return level instanceof ServerLevel serverLevel
+                && entity instanceof Player player
+                && fire(stack, serverLevel, player);
+    }
+
+    private boolean fire(ItemStack stack, ServerLevel serverLevel, Player player) {
+        if (getCharge(stack) < FULL_CHARGE_TICKS
                 || getEnergy(stack) <= 0) {
             return false;
         }

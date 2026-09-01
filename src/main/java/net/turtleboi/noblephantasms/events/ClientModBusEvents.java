@@ -43,6 +43,7 @@ import net.turtleboi.noblephantasms.client.renderer.EntityTranslucencyRenderer;
 import net.turtleboi.noblephantasms.client.renderer.HulioshjalmrRenderer;
 import net.turtleboi.noblephantasms.client.renderer.EnergyProjectionRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TecpatlRebuildingRenderer;
+import net.turtleboi.noblephantasms.client.renderer.RelicFragmentRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadBlockEntityRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadRenderer;
 import net.turtleboi.noblephantasms.client.renderer.ReliquaryItemRenderer;
@@ -57,6 +58,7 @@ import net.turtleboi.noblephantasms.entity.renderer.ExcaliburProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.GungnirProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.KazagurumaProjectileRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.PridwenBarrierRenderer;
+import net.turtleboi.noblephantasms.entity.renderer.RelicFragmentEntityRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.SimpleEntityRenderers;
 import net.turtleboi.noblephantasms.entity.renderer.TecpatlShardRenderer;
 import net.turtleboi.noblephantasms.entity.renderer.WindslashRenderer;
@@ -66,10 +68,12 @@ import net.turtleboi.noblephantasms.particle.custom.FireFangsParticle;
 import net.turtleboi.noblephantasms.particle.custom.GungnirRuneParticle;
 import net.turtleboi.noblephantasms.particle.custom.ApilolliCloudParticle;
 import net.turtleboi.noblephantasms.particle.custom.ChilledParticle;
+import net.turtleboi.noblephantasms.particle.custom.StunnedParticle;
 import net.turtleboi.noblephantasms.screens.ReliquaryStationScreen;
 import net.turtleboi.noblephantasms.screens.MythicalReliquaryScreen;
 import net.turtleboi.noblephantasms.screens.menus.ModMenus;
 import net.turtleboi.noblephantasms.item.ModItems;
+import net.turtleboi.noblephantasms.client.ui.RelicFragmentRevealHud;
 
 @EventBusSubscriber(modid = NoblePhantasms.MOD_ID, value = Dist.CLIENT)
 public final class ClientModBusEvents {
@@ -148,6 +152,7 @@ public final class ClientModBusEvents {
         KazagurumaProjectileRenderer.register(event);
         WindslashRenderer.register(event);
         EyeShardRenderer.register(event);
+        RelicFragmentEntityRenderer.register(event);
         TecpatlShardRenderer.register(event);
         XiuhcoatlProjectileRenderer.register(event);
         TrophyHeadBlockEntityRenderer.register(event);
@@ -162,6 +167,7 @@ public final class ClientModBusEvents {
     @SubscribeEvent
     static void registerGuiLayers(RegisterGuiLayersEvent event) {
         FrozenRenderer.registerGuiLayers(event);
+        RelicFragmentRevealHud.register(event);
     }
 
     @SubscribeEvent
@@ -182,11 +188,13 @@ public final class ClientModBusEvents {
         FireFangsParticle.registerProvider(event);
         ApilolliCloudParticle.registerProvider(event);
         ChilledParticle.registerProvider(event);
+        StunnedParticle.registerProvider(event);
     }
 
     @SubscribeEvent
     static void registerSpecialModelRenderers(RegisterSpecialModelRendererEvent event) {
         TecpatlRebuildingRenderer.register(event);
+        RelicFragmentRenderer.register(event);
         TrophyHeadRenderer.register(event);
     }
 

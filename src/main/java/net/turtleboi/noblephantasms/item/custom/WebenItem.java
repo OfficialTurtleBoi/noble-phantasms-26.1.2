@@ -15,13 +15,26 @@ import net.turtleboi.noblephantasms.component.ModDataComponents;
 import org.jspecify.annotations.Nullable;
 
 public class WebenItem extends Item {
-    private static final int MAX_SUNLIGHT_CHARGE = 20 * 10;
+    public static final int MAX_SUNLIGHT_CHARGE = 20 * 10;
     private static final float FLARE_DAMAGE = 6.0F;
 
     public WebenItem(Properties properties) {
         super(properties
                 .sword(ToolMaterial.NETHERITE, 3.0F, -2.2F)
                 .rarity(Rarity.EPIC));
+    }
+
+    public static int getSunlightCharge(ItemStack stack) {
+        return stack.getOrDefault(ModDataComponents.WEBEN_SUNLIGHT_CHARGE.get(), 0);
+    }
+
+    public static boolean isFullyCharged(ItemStack stack) {
+        return getSunlightCharge(stack) >= MAX_SUNLIGHT_CHARGE;
+    }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return slotChanged || oldStack.getItem() != newStack.getItem();
     }
 
     @Override
@@ -32,7 +45,7 @@ public class WebenItem extends Item {
             return;
         }
 
-        int charge = stack.getOrDefault(ModDataComponents.WEBEN_SUNLIGHT_CHARGE.get(), 0);
+        int charge = getSunlightCharge(stack);
         if (charge < MAX_SUNLIGHT_CHARGE) {
             stack.set(ModDataComponents.WEBEN_SUNLIGHT_CHARGE.get(), charge + 1);
         }
@@ -41,7 +54,7 @@ public class WebenItem extends Item {
     @Override
     public void hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         if (target.level() instanceof ServerLevel level
-                && stack.getOrDefault(ModDataComponents.WEBEN_SUNLIGHT_CHARGE.get(), 0) >= MAX_SUNLIGHT_CHARGE) {
+                && isFullyCharged(stack)) {
             stack.set(ModDataComponents.WEBEN_SUNLIGHT_CHARGE.get(), 0);
             target.igniteForSeconds(4.0F);
             target.hurtServer(level, level.damageSources().onFire(), FLARE_DAMAGE);

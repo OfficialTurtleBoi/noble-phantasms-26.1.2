@@ -35,6 +35,10 @@ public final class MythicalReliquaryMenu extends AbstractContainerMenu {
         return focusedRelic;
     }
 
+    public ItemStack reliquary(Player player) {
+        return player.getItemInHand(hand);
+    }
+
     public boolean selectRelic(Player player, Identifier relicId) {
         if (!RelicFragmentDefinitions.supports(relicId)) {
             return false;

@@ -12,6 +12,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.relic.RelicFragmentData;
+import net.turtleboi.noblephantasms.relic.RelicFragmentArchive;
 
 public class ModDataComponents {
     public static final DeferredRegister.DataComponents DATA_COMPONENTS =
@@ -153,6 +154,11 @@ public class ModDataComponents {
             DATA_COMPONENTS.registerComponentType("mythical_reliquary_focus", builder -> builder
                     .persistent(Identifier.CODEC)
                     .networkSynchronized(Identifier.STREAM_CODEC));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<RelicFragmentArchive>> MYTHICAL_RELIQUARY_ARCHIVE =
+            DATA_COMPONENTS.registerComponentType("mythical_reliquary_archive", builder -> builder
+                    .persistent(RelicFragmentArchive.CODEC)
+                    .networkSynchronized(ByteBufCodecs.fromCodecWithRegistries(RelicFragmentArchive.CODEC)));
 
     public static void register(IEventBus eventBus) {
         DATA_COMPONENTS.register(eventBus);

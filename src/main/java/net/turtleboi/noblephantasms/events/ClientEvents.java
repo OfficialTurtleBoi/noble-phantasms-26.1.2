@@ -11,11 +11,13 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientResourceLoadFinishedEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
@@ -26,6 +28,7 @@ import net.turtleboi.noblephantasms.client.EyeOfHorusClientState;
 import net.turtleboi.noblephantasms.client.FrozenClientState;
 import net.turtleboi.noblephantasms.client.KusanagiDashInput;
 import net.turtleboi.noblephantasms.client.renderer.ColoredGlintRenderer;
+import net.turtleboi.noblephantasms.client.renderer.CircleAuraRenderer;
 import net.turtleboi.noblephantasms.client.renderer.AfterimageRenderer;
 import net.turtleboi.noblephantasms.client.renderer.LuminousRenderer;
 import net.turtleboi.noblephantasms.client.renderer.ItemOutlineRenderer;
@@ -33,15 +36,23 @@ import net.turtleboi.noblephantasms.client.renderer.EntityTranslucencyRenderer;
 import net.turtleboi.noblephantasms.client.renderer.EnergyProjectionRenderer;
 import net.turtleboi.noblephantasms.client.renderer.FrozenRenderer;
 import net.turtleboi.noblephantasms.client.ui.EyeOfHorusHud;
+import net.turtleboi.noblephantasms.client.ui.RelicFragmentRevealHud;
 import net.turtleboi.noblephantasms.client.animation.ItemPoseEditor;
 import net.turtleboi.noblephantasms.item.ModItems;
 import net.turtleboi.noblephantasms.item.custom.KheperScarabItem;
 import net.turtleboi.noblephantasms.item.custom.TyrfingItem;
 import net.minecraft.world.entity.player.Input;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.BrushItem;
 import net.minecraft.world.phys.Vec2;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.turtleboi.noblephantasms.effect.ModEffects;
+import net.turtleboi.noblephantasms.effect.custom.StunnedEffect;
 import net.turtleboi.noblephantasms.config.ModConfig;
 import net.turtleboi.noblephantasms.mixin.client.ClientInputAccessor;
+import net.turtleboi.noblephantasms.network.RelicFragmentBrushPayload;
+import net.turtleboi.noblephantasms.relic.RelicFragmentBrushing;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import org.lwjgl.glfw.GLFW;
 
@@ -63,7 +74,7 @@ public class ClientEvents {
 
     @SubscribeEvent
     static void freezeMovementInput(MovementInputUpdateEvent event) {
-        if (!event.getEntity().hasEffect(ModEffects.FROZEN)) {
+        if (!StunnedEffect.isImmobilized(event.getEntity())) {
             return;
         }
         event.getInput().keyPresses = Input.EMPTY;
@@ -73,16 +84,57 @@ public class ClientEvents {
     @SubscribeEvent
     static void freezeInteractionInput(InputEvent.InteractionKeyMappingTriggered event) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player != null && minecraft.player.hasEffect(ModEffects.FROZEN)) {
+        if (StunnedEffect.isImmobilized(minecraft.player)) {
             event.setCanceled(true);
         }
+    }
+
+    @SubscribeEvent
+    static void startRelicFragmentBrushing(InputEvent.InteractionKeyMappingTriggered event) {
+        if (!event.isUseItem()) {
+            return;
+        }
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player == null || minecraft.screen != null) {
+            return;
+        }
+        InteractionHand brushHand = brushHand(minecraft.player.getMainHandItem().getItem() instanceof BrushItem,
+                minecraft.player.getOffhandItem().getItem() instanceof BrushItem, event.getHand());
+        if (brushHand == null) {
+            return;
+        }
+        ItemEntity target = RelicFragmentBrushing.findTarget(minecraft.player);
+        if (target == null) {
+            return;
+        }
+        event.setSwingHand(false);
+        event.setCanceled(true);
+        if (minecraft.player.isUsingItem()) {
+            return;
+        }
+        minecraft.player.startUsingItem(brushHand);
+        ClientPacketDistributor.sendToServer(new RelicFragmentBrushPayload(target.getId(),
+                (byte) (brushHand == InteractionHand.MAIN_HAND ? 0 : 1)));
+    }
+
+    private static InteractionHand brushHand(boolean mainHand, boolean offHand, InteractionHand triggeredHand) {
+        if (triggeredHand == InteractionHand.MAIN_HAND && mainHand) {
+            return InteractionHand.MAIN_HAND;
+        }
+        if (triggeredHand == InteractionHand.OFF_HAND && offHand) {
+            return InteractionHand.OFF_HAND;
+        }
+        if (mainHand) {
+            return InteractionHand.MAIN_HAND;
+        }
+        return offHand ? InteractionHand.OFF_HAND : null;
     }
 
     @SubscribeEvent
     static void freezeMouseButton(InputEvent.MouseButton.Pre event) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.screen != null || minecraft.player == null
-                || !minecraft.player.hasEffect(ModEffects.FROZEN)
+                || !StunnedEffect.isImmobilized(minecraft.player)
                 || event.getButton() != GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
             return;
         }
@@ -93,7 +145,7 @@ public class ClientEvents {
     @SubscribeEvent
     static void freezeScreenOpening(ScreenEvent.Opening event) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player == null || !minecraft.player.hasEffect(ModEffects.FROZEN)
+        if (minecraft.player == null || !StunnedEffect.isImmobilized(minecraft.player)
                 || ModConfig.ALLOW_GUI_ACCESS_WHILE_FROZEN.get()) {
             return;
         }
@@ -108,13 +160,26 @@ public class ClientEvents {
     static void clearFrozenClientState(ClientPlayerNetworkEvent.LoggingOut event) {
         FrozenClientState.clear();
         FrozenRenderer.clearAll();
+        CircleAuraRenderer.clearAll();
+        RelicFragmentRevealHud.clear();
     }
 
     @SubscribeEvent
     static void clearFrozenEntityState(EntityLeaveLevelEvent event) {
         if (event.getLevel().isClientSide()) {
             FrozenRenderer.clear(event.getEntity().getUUID());
+            CircleAuraRenderer.clear(event.getEntity().getUUID());
         }
+    }
+
+    @SubscribeEvent
+    static void extractCircleAuras(ExtractLevelRenderStateEvent event) {
+        CircleAuraRenderer.extract(event);
+    }
+
+    @SubscribeEvent
+    static void submitCircleAuras(SubmitCustomGeometryEvent event) {
+        CircleAuraRenderer.submit(event);
     }
 
     @SubscribeEvent

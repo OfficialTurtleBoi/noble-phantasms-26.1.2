@@ -5,6 +5,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.turtleboi.noblephantasms.effect.ModEffects;
+import net.turtleboi.noblephantasms.effect.custom.StunnedEffect;
 import net.turtleboi.noblephantasms.mixin.LivingEntityAccessor;
 
 public final class FrozenClientState {
@@ -27,15 +28,22 @@ public final class FrozenClientState {
             return;
         }
         boolean frozen = player.hasEffect(ModEffects.FROZEN);
-        if (frozen) {
+        boolean immobilized = StunnedEffect.isImmobilized(player);
+        if (immobilized) {
             if (!wasFrozen) {
                 yaw = player.getYRot();
                 pitch = player.getXRot();
                 selectedSlot = player.getInventory().getSelectedSlot();
-                captureUse(player);
+                if (frozen) {
+                    captureUse(player);
+                } else {
+                    clearUse();
+                }
             }
             enforce(player);
-            preserveUse(player);
+            if (frozen) {
+                preserveUse(player);
+            }
         } else if (wasFrozen) {
             enforceRotation(player);
             releaseUse(player);
@@ -43,7 +51,7 @@ public final class FrozenClientState {
             ((FrozenMouseHandlerAccess) minecraft.mouseHandler).noblePhantasms$resetLookState();
             selectedSlot = null;
         }
-        wasFrozen = frozen;
+        wasFrozen = immobilized;
     }
 
     public static void clear() {

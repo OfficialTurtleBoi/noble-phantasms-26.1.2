@@ -44,6 +44,12 @@ public final class RelicFragmenter {
         return definition == null ? null : create(definition, definition.stationTextureId(), seed, 0);
     }
 
+    public static Layout createForStation(Identifier relicId, long seed, int pieceCount) {
+        RelicFragmentDefinitions.Definition definition = RelicFragmentDefinitions.get(relicId);
+        return definition == null ? null
+                : create(definition, definition.stationTextureId(), seed, Math.max(1, pieceCount));
+    }
+
     private static Layout create(RelicFragmentDefinitions.Definition definition,
                                  Identifier textureId, long seed, int exactPieceCount) {
         Key key = new Key(textureId.toString(), definition.textureFrameHeight(), seed, exactPieceCount);
@@ -93,19 +99,21 @@ public final class RelicFragmenter {
             if (image == null) {
                 throw new IllegalStateException("Unable to read relic texture " + path);
             }
+            int textureWidth = image.getWidth();
+            int textureHeight = image.getHeight();
             if (frameHeight > 0) {
                 if (frameHeight > image.getHeight()) {
                     throw new IllegalStateException("Relic texture frame exceeds image height " + path);
                 }
                 image = image.getSubimage(0, 0, image.getWidth(), frameHeight);
             }
-            return readPixels(image);
+            return readPixels(image, textureWidth, textureHeight);
         } catch (IOException exception) {
             throw new IllegalStateException("Unable to read relic texture " + path, exception);
         }
     }
 
-    private static ImagePixels readPixels(BufferedImage image) {
+    private static ImagePixels readPixels(BufferedImage image, int textureWidth, int textureHeight) {
         int width = image.getWidth();
         int height = image.getHeight();
         boolean[] visited = new boolean[width * height];
@@ -137,7 +145,7 @@ public final class RelicFragmenter {
         if (opaquePixels.isEmpty()) {
             throw new IllegalStateException("Relic texture has no opaque pixels");
         }
-        return new ImagePixels(width, height, List.copyOf(opaquePixels),
+        return new ImagePixels(width, height, textureWidth, textureHeight, List.copyOf(opaquePixels),
                 List.copyOf(components), Map.copyOf(colors));
     }
 
@@ -206,7 +214,8 @@ public final class RelicFragmenter {
             int maxY = regionPixels.stream().mapToInt(Pixel::y).max().orElse(0);
             pieces.add(new Piece(List.copyOf(regionPixels), minX, minY, maxX, maxY));
         }
-        return new Layout(image.width(), image.height(), List.copyOf(pieces));
+        return new Layout(image.width(), image.height(), image.textureWidth(), image.textureHeight(),
+                List.copyOf(pieces));
     }
 
     private static List<Integer> chooseSeeds(ImagePixels image, int count, Random random) {
@@ -409,7 +418,8 @@ public final class RelicFragmenter {
         return value ^ value >>> 31;
     }
 
-    public record Layout(int width, int height, List<Piece> pieces) {
+    public record Layout(int width, int height, int textureWidth, int textureHeight,
+                         List<Piece> pieces) {
         public int pieceCount() {
             return pieces.size();
         }
@@ -434,7 +444,8 @@ public final class RelicFragmenter {
         }
     }
 
-    private record ImagePixels(int width, int height, List<Integer> opaquePixels,
+    private record ImagePixels(int width, int height, int textureWidth, int textureHeight,
+                               List<Integer> opaquePixels,
                                List<List<Integer>> components, Map<Integer, Integer> colors) {
     }
 

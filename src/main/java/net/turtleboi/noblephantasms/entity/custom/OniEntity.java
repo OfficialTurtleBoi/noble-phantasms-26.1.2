@@ -1,6 +1,9 @@
 package net.turtleboi.noblephantasms.entity.custom;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -13,12 +16,27 @@ import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.villager.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.turtleboi.noblephantasms.effect.custom.StunnedEffect;
+import net.turtleboi.noblephantasms.item.ModItems;
+import net.turtleboi.noblephantasms.item.custom.KanaboItem;
 
 public final class OniEntity extends Monster {
     public OniEntity(EntityType<? extends OniEntity> type, Level level) {
         super(type, level);
         xpReward = 12;
+        setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ModItems.KANABO.get()));
+        setDropChance(EquipmentSlot.MAINHAND, 0.0F);
+    }
+
+    @Override
+    public boolean doHurtTarget(ServerLevel level, Entity target) {
+        boolean hit = super.doHurtTarget(level, target);
+        if (hit && target instanceof net.minecraft.world.entity.LivingEntity livingTarget) {
+            StunnedEffect.apply(livingTarget, this, KanaboItem.STUN_DURATION);
+        }
+        return hit;
     }
 
     public static AttributeSupplier.Builder createAttributes() {

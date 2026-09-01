@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.turtleboi.noblephantasms.NoblePhantasms;
 import net.turtleboi.noblephantasms.block.ModBlocks;
 import net.turtleboi.noblephantasms.client.renderer.TecpatlRebuildingRenderer;
+import net.turtleboi.noblephantasms.client.renderer.RelicFragmentRenderer;
 import net.turtleboi.noblephantasms.client.renderer.TrophyHeadRenderer;
 import net.turtleboi.noblephantasms.client.HolyGrailChargeProperty;
 import net.turtleboi.noblephantasms.component.ModDataComponents;
@@ -76,8 +77,13 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ModItems.NORTHERN_AXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         generatePridwenItem(itemModels);
         itemModels.generateFlatItem(ModItems.MEDJU_NETJER.get(), ModelTemplates.FLAT_ITEM);
-        generateMappedFlatItem(itemModels, ModItems.RELIC_FRAGMENT.get(),
-                Identifier.withDefaultNamespace("item/gold_nugget"));
+        generateRelicFragmentItem(itemModels);
+        itemModels.generateFlatItem(ModItems.RELIC_FRAGMENTS.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.RELIC_FRAGMENTS_ARTHURIAN.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.RELIC_FRAGMENTS_AZTEC.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.RELIC_FRAGMENTS_EGYPT.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.RELIC_FRAGMENTS_JAPANESE.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.RELIC_FRAGMENTS_NORSE.get(), ModelTemplates.FLAT_ITEM);
         generateMappedFlatItem(itemModels, ModItems.MYTHICAL_RELIQUARY.get(),
                 Identifier.fromNamespaceAndPath(NoblePhantasms.MOD_ID, "item/mythic_reliquary"));
         generateMappedFlatItem(itemModels, ModItems.ANUBITE_SPAWN_EGG.get(),
@@ -107,9 +113,6 @@ public class ModModelProvider extends ModelProvider {
                 BlockModelGenerators.createSimpleBlock(ModBlocks.TROPHY_HEAD.get(), skullModel));
         blockModels.blockStateOutput.accept(
                 BlockModelGenerators.createSimpleBlock(ModBlocks.TROPHY_WALL_HEAD.get(), skullModel));
-        Identifier reliquaryStationModel = ModelLocationUtils.getModelLocation(ModBlocks.RELIQUARY_STATION.get());
-        blockModels.createNonTemplateHorizontalBlock(ModBlocks.RELIQUARY_STATION.get());
-        blockModels.registerSimpleItemModel(ModBlocks.RELIQUARY_STATION.get(), reliquaryStationModel);
         Identifier brazierModel = ModelLocationUtils.getModelLocation(ModBlocks.BRAZIER.get());
         Identifier brazierFireModel = ModelLocationUtils.getModelLocation(ModBlocks.BRAZIER.get(), "_fire");
         blockModels.blockStateOutput.accept(MultiPartGenerator.multiPart(ModBlocks.BRAZIER.get())
@@ -299,6 +302,16 @@ public class ModModelProvider extends ModelProvider {
                 ItemModelUtils.hasComponent(ModDataComponents.TECPATL_DEPLOYMENT.get()),
                 ItemModelUtils.specialModel(model, new TecpatlRebuildingRenderer.Unbaked()),
                 ItemModelUtils.plainModel(model)));
+    }
+
+    private static void generateRelicFragmentItem(ItemModelGenerators itemModels) {
+        Item item = ModItems.RELIC_FRAGMENT.get();
+        Identifier model = ModelTemplates.FLAT_ITEM.create(
+                ModelLocationUtils.getModelLocation(item),
+                TextureMapping.layer0(new Material(Identifier.fromNamespaceAndPath(
+                        NoblePhantasms.MOD_ID, "item/relic_fragments"))), itemModels.modelOutput);
+        itemModels.itemModelOutput.accept(item,
+                ItemModelUtils.specialModel(model, new RelicFragmentRenderer.Unbaked()));
     }
 
     private static void generateTrophyHeadItem(ItemModelGenerators itemModels) {

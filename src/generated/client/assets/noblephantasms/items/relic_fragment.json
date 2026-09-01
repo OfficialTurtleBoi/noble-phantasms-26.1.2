@@ -1,6 +1,9 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "noblephantasms:item/relic_fragment"
+    "type": "minecraft:special",
+    "base": "noblephantasms:item/relic_fragment",
+    "model": {
+      "type": "noblephantasms:relic_fragment"
+    }
   }
 }

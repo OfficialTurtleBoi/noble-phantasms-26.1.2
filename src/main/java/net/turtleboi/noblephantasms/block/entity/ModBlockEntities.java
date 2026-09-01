@@ -16,6 +16,10 @@ public final class ModBlockEntities {
             BLOCK_ENTITIES.register("trophy_head", () -> new BlockEntityType<>(
                     TrophyHeadBlockEntity::new, ModBlocks.TROPHY_HEAD.get(), ModBlocks.TROPHY_WALL_HEAD.get()));
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ReliquaryStationBlockEntity>> RELIQUARY_STATION =
+            BLOCK_ENTITIES.register("reliquary_station", () -> new BlockEntityType<>(
+                    ReliquaryStationBlockEntity::new, ModBlocks.RELIQUARY_STATION.get()));
+
     public static void register(IEventBus eventBus) {
         BLOCK_ENTITIES.register(eventBus);
     }

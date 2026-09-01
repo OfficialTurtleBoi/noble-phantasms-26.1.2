@@ -16,6 +16,7 @@ import net.turtleboi.noblephantasms.effect.custom.WardEffect;
 import net.turtleboi.noblephantasms.effect.custom.ChilledEffect;
 import net.turtleboi.noblephantasms.effect.custom.FrozenEffect;
 import net.turtleboi.noblephantasms.effect.custom.ThreatEffect;
+import net.turtleboi.noblephantasms.effect.custom.StunnedEffect;
 
 public final class ModEffects {
     public static final DeferredRegister<MobEffect> EFFECTS =
@@ -50,6 +51,9 @@ public final class ModEffects {
 
     public static final DeferredHolder<MobEffect, FrozenEffect> FROZEN =
             EFFECTS.register("frozen", FrozenEffect::new);
+
+    public static final DeferredHolder<MobEffect, StunnedEffect> STUNNED =
+            EFFECTS.register("stunned", StunnedEffect::new);
 
     public static void register(IEventBus eventBus) {
         EFFECTS.register(eventBus);

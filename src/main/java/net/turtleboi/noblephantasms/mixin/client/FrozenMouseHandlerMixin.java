@@ -6,6 +6,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.SmoothDouble;
 import net.turtleboi.noblephantasms.client.FrozenMouseHandlerAccess;
 import net.turtleboi.noblephantasms.effect.ModEffects;
+import net.turtleboi.noblephantasms.effect.custom.StunnedEffect;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -36,7 +37,7 @@ public abstract class FrozenMouseHandlerMixin implements FrozenMouseHandlerAcces
     @Inject(method = "turnPlayer", at = @At("HEAD"), cancellable = true)
     private void noblePhantasms$freezeView(double deltaTime, CallbackInfo callbackInfo) {
         LocalPlayer player = minecraft.player;
-        if (player != null && player.hasEffect(ModEffects.FROZEN)) {
+        if (StunnedEffect.isImmobilized(player)) {
             callbackInfo.cancel();
         }
     }

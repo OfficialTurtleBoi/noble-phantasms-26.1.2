@@ -7,8 +7,23 @@ import net.turtleboi.noblephantasms.component.ModDataComponents;
 import net.turtleboi.noblephantasms.relic.RelicFragmentData;
 
 public final class RelicFragmentItem extends Item {
+    private final FragmentOrigin origin;
+
     public RelicFragmentItem(Properties properties) {
+        this(properties, null);
+    }
+
+    public RelicFragmentItem(Properties properties, FragmentOrigin origin) {
         super(properties.fireResistant());
+        this.origin = origin;
+    }
+
+    public boolean isUnidentified() {
+        return origin != null;
+    }
+
+    public FragmentOrigin origin() {
+        return origin;
     }
 
     public static ItemStack create(Item item, RelicFragmentData data, int count) {
@@ -26,5 +41,14 @@ public final class RelicFragmentItem extends Item {
         Component relicName = Component.translatable("item." + data.relicId().getNamespace()
                 + "." + data.relicId().getPath());
         return Component.translatable("item.noblephantasms.relic_fragment.named", relicName);
+    }
+
+    public enum FragmentOrigin {
+        GENERIC,
+        ARTHURIAN,
+        AZTEC,
+        EGYPTIAN,
+        JAPANESE,
+        NORSE
     }
 }

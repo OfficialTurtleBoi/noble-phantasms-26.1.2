@@ -185,6 +185,30 @@ public class ModItems {
     public static final DeferredItem<RelicFragmentItem> RELIC_FRAGMENT =
             ITEMS.registerItem("relic_fragment", RelicFragmentItem::new);
 
+    public static final DeferredItem<RelicFragmentItem> RELIC_FRAGMENTS =
+            ITEMS.registerItem("relic_fragments", properties -> new RelicFragmentItem(
+                    properties, RelicFragmentItem.FragmentOrigin.GENERIC));
+
+    public static final DeferredItem<RelicFragmentItem> RELIC_FRAGMENTS_ARTHURIAN =
+            ITEMS.registerItem("relic_fragments_arthurian", properties -> new RelicFragmentItem(
+                    properties, RelicFragmentItem.FragmentOrigin.ARTHURIAN));
+
+    public static final DeferredItem<RelicFragmentItem> RELIC_FRAGMENTS_AZTEC =
+            ITEMS.registerItem("relic_fragments_aztec", properties -> new RelicFragmentItem(
+                    properties, RelicFragmentItem.FragmentOrigin.AZTEC));
+
+    public static final DeferredItem<RelicFragmentItem> RELIC_FRAGMENTS_EGYPT =
+            ITEMS.registerItem("relic_fragments_egypt", properties -> new RelicFragmentItem(
+                    properties, RelicFragmentItem.FragmentOrigin.EGYPTIAN));
+
+    public static final DeferredItem<RelicFragmentItem> RELIC_FRAGMENTS_JAPANESE =
+            ITEMS.registerItem("relic_fragments_japanese", properties -> new RelicFragmentItem(
+                    properties, RelicFragmentItem.FragmentOrigin.JAPANESE));
+
+    public static final DeferredItem<RelicFragmentItem> RELIC_FRAGMENTS_NORSE =
+            ITEMS.registerItem("relic_fragments_norse", properties -> new RelicFragmentItem(
+                    properties, RelicFragmentItem.FragmentOrigin.NORSE));
+
     public static final DeferredItem<BlockItem> RELIQUARY_STATION =
             ITEMS.registerSimpleBlockItem(ModBlocks.RELIQUARY_STATION);
 
